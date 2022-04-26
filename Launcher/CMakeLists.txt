@@ -27,22 +27,32 @@ SET(ImGUI_SRC
     "external/imgui/imgui_stdlib.cpp"
 )
 
+SET(ALL_HEADERS
+    "headers/core.h"
+    "headers/injector.h"
+    "headers/ui/gui.h"
+    
+    ${ImGUI_H}
+)
+
 SET(ALL_CPP
+    "source/core.cpp"
+    "source/injector.cpp"
+    "source/ui/gui.cpp"
+
     "main.cpp"
 
     ${ImGUI_SRC}
 )
 
-SET(ALL_HEADERS
-    ${ImGUI_H}
-)
 
-
-add_executable(${PROJECT_NAME} ${ALL_CPP} ${ALL_HEADERS})
+add_executable(${PROJECT_NAME} WIN32 ${ALL_CPP} ${ALL_HEADERS})
 
 target_link_libraries(${PROJECT_NAME} ${WinSDK})
 
 target_include_directories(${PROJECT_NAME} PRIVATE "external/imgui/")
+target_include_directories(${PROJECT_NAME} PRIVATE "headers/")
+target_include_directories(${PROJECT_NAME} PRIVATE "headers/ui/")
 target_include_directories(${PROJECT_NAME} PRIVATE ${WinSDK})
 
 
