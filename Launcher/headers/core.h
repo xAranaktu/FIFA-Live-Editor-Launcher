@@ -5,6 +5,7 @@
 #include <filesystem>
 
 #include <logger.h>
+#include <config.h>
 #include <context.h>
 
 namespace fs = std::filesystem;
