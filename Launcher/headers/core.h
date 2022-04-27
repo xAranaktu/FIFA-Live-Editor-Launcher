@@ -1,15 +1,27 @@
 #pragma once
 
-// hearth and soul of our app 
+#include <string> 
+#include <sstream>
+#include <filesystem>
+
+#include <logger.h>
+#include <context.h>
+
+namespace fs = std::filesystem;
+
+// Hearth & Soul of our app 
 class Core
 {
 public:
+	core::Context ctx;
+
 	Core();
 	~Core();
 
 	void Init();
 
 private:
+	void SetupLogger();
 
 };
 

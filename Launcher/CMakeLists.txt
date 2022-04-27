@@ -29,6 +29,8 @@ SET(ImGUI_SRC
 
 SET(ALL_HEADERS
     "headers/core.h"
+    "headers/context.h"
+    "headers/logger.h"
     "headers/injector.h"
     "headers/ui/gui.h"
     
@@ -37,6 +39,7 @@ SET(ALL_HEADERS
 
 SET(ALL_CPP
     "source/core.cpp"
+    "source/logger.cpp"
     "source/injector.cpp"
     "source/ui/gui.cpp"
 
