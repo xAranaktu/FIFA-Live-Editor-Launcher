@@ -35,6 +35,14 @@ static int InputTextCallback(ImGuiInputTextCallbackData* data)
     return 0;
 }
 
+static auto vector_getter = [](void* vec, int idx, const char** out_text)
+{
+    auto& vector = *static_cast<std::vector<std::string>*>(vec);
+    if (idx < 0 || idx >= static_cast<int>(vector.size())) { return false; }
+    *out_text = vector.at(idx).c_str();
+    return true;
+};
+
 bool ImGui::InputText(const char* label, std::string* str, ImGuiInputTextFlags flags, ImGuiInputTextCallback callback, void* user_data)
 {
     IM_ASSERT((flags & ImGuiInputTextFlags_CallbackResize) == 0);
@@ -69,4 +77,11 @@ bool ImGui::InputTextWithHint(const char* label, const char* hint, std::string* 
     cb_user_data.ChainCallback = callback;
     cb_user_data.ChainCallbackUserData = user_data;
     return InputTextWithHint(label, hint, (char*)str->c_str(), str->capacity() + 1, flags, InputTextCallback, &cb_user_data);
+}
+
+bool ImGui::Combo(const char* label, int* currIndex, std::vector<std::string>& values)
+{
+    if (values.empty()) { return false; }
+    return ImGui::Combo(label, currIndex, vector_getter,
+        static_cast<void*>(&values), (__int32)values.size());
 }
