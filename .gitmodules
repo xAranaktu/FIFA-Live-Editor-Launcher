@@ -1,0 +1,3 @@
+[submodule "ImGuiFileDialog"]
+	path = Launcher/external/ImGuiFileDialog
+	url = https://github.com/aiekick/ImGuiFileDialog

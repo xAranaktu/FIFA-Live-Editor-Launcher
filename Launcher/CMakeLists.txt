@@ -27,6 +27,19 @@ SET(ImGUI_SRC
     "external/imgui/imgui_stdlib.cpp"
 )
 
+SET(EXTERNAL_H
+    "external/IconsFontAwesome5.h"
+    "external/tinyxml2.h"
+    "external/ImGuiFileDialog/ImGuiFileDialog.h"
+)
+
+SET(EXTERNAL_SRC
+    "external/nlohmann/json.hpp"
+    "external/nlohmann/fifo_map.hpp"
+    "external/tinyxml2.cpp"
+    "external/ImGuiFileDialog/ImGuiFileDialog.cpp"
+)
+
 SET(ALL_HEADERS
     "headers/core.h"
     "headers/config.h"
@@ -34,6 +47,7 @@ SET(ALL_HEADERS
     "headers/logger.h"
     "headers/injector.h"
     "headers/ui/gui.h"
+    "headers/ui/injector_window.h"
     
     ${ImGUI_H}
 )
@@ -44,6 +58,7 @@ SET(ALL_CPP
     "source/logger.cpp"
     "source/injector.cpp"
     "source/ui/gui.cpp"
+    "source/ui/injector_window.cpp"
 
     "main.cpp"
 
