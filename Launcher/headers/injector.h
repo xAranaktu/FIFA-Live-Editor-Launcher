@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include <string>
+#include <mutex>
 #include <Windows.h>
 #include <Psapi.h>
 #include <TlHelp32.h>
@@ -11,6 +12,7 @@
 #include <sddl.h>
 
 #include <logger.h>
+#include <core.h>
 
 namespace fs = std::filesystem;
 
@@ -18,33 +20,50 @@ namespace fs = std::filesystem;
 class Injector
 {
 public:
-	enum STATUS {
-		STATUS_IDLE = 0,
-	};
+    enum STATUS {
+        STATUS_INVALID = -1,
+        STATUS_IDLE = 0,
+        STATUS_WAITING,
+        STATUS_INJECTING,
+        STATUS_DONE,
+        STATUS_ERROR
+    };
 
+    std::vector<std::string> status_names = {
+        "Idle",
+        "Waiting",
+        "Injecting",
+        "Done",
+        "Error"
+    };
 
-	Injector();
-	~Injector();
+    Injector();
+    ~Injector();
 
-	bool HasBlacklistedModule(const int pid);
-	int GetGamePID();
-	void LoadProcNames();
-	void LoadBlackList();
+    void SetStatus(STATUS _status);
+    STATUS GetStatus();
+    std::string GetStatusName();
 
-	void Inject();
+    int GetGamePID();
+    void LoadProcNames();
+    void LoadBlackList();
+
+    void Inject();
 
 private:
-	fs::path dll = "";
+    std::mutex m_status;
+    STATUS injection_status = STATUS_IDLE;
 
-	// Procnames we want to attach to
-	std::vector<std::string> procnames;
+    fs::path dll = "";
 
-	// Module Blacklist, terminate injection if found
-	std::vector<std::string> blacklist;
+    // Procnames we want to attach to
+    std::vector<std::string> procnames;
 
-	bool SetAccessControl(const wchar_t* file, const wchar_t* access);
-	bool HasBlacklistedModule(const int pid);
-	bool dllExists();
+    // Module Blacklist, terminate injection if found
+    std::vector<std::string> blacklist;
+
+    bool SetAccessControl(const wchar_t* file, const wchar_t* access);
+    bool HasBlacklistedModule(const int pid);
 };
 
 extern Injector g_Injector;

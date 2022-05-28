@@ -8,6 +8,21 @@ Injector::~Injector()
 {
 }
 
+void Injector::SetStatus(STATUS _status) {
+    std::lock_guard<std::mutex> lk(m_status);
+
+    injection_status = _status;
+}
+Injector::STATUS Injector::GetStatus() {
+    std::lock_guard<std::mutex> lk(m_status);
+
+    return injection_status;
+}
+
+std::string Injector::GetStatusName() {
+    return status_names.at(GetStatus());
+}
+
 // https://www.unknowncheats.me/forum/general-programming-and-reversing/177183-basic-intermediate-techniques-uwp-app-modding.html
 bool Injector::SetAccessControl(const wchar_t* file, const wchar_t* access)
 {
@@ -98,6 +113,17 @@ void Injector::LoadProcNames() {
 
 void Injector::Inject() {
     logger.Write(LOG_INFO, "[%s]", __FUNCTION__);
+
+    std::string dll_dir = g_Core.ctx.GetFolder() + "\\FIFALiveEditor.DLL";
+    dll = fs::path(dll_dir);
+    if (!fs::exists(dll)) {
+        logger.Write(LOG_ERROR, "[%s] Can't find DLL at %s", __FUNCTION__, dll_dir.c_str());
+        SetStatus(STATUS_ERROR);
+        return;
+    }
+
+    logger.Write(LOG_INFO, "[%s] DLL dir: %s", __FUNCTION__, dll_dir.c_str());
+
     LoadProcNames();
     LoadBlackList();
 
@@ -107,6 +133,7 @@ void Injector::Inject() {
     }
 
     int gamepid = 0;
+    SetStatus(STATUS_WAITING);
     while (true)
     {
         gamepid = GetGamePID();
@@ -115,15 +142,18 @@ void Injector::Inject() {
         Sleep(100);
     }
 
+    SetStatus(STATUS_INJECTING);
     const HANDLE process = OpenProcess(PROCESS_ALL_ACCESS, false, gamepid);
     if (process == INVALID_HANDLE_VALUE)
     {
         logger.Write(LOG_ERROR, "[%s] Can't open game process.", __FUNCTION__);
+        SetStatus(STATUS_ERROR);
         return;
     }
 
     if (HasBlacklistedModule(gamepid)) {
         logger.Write(LOG_ERROR, "[%s] Terminating injection because of blacklisted module", __FUNCTION__);
+        SetStatus(STATUS_ERROR);
         return;
     }
 
@@ -131,6 +161,7 @@ void Injector::Inject() {
 
     if (!SetAccessControl(dll_module.c_str(), L"S-1-15-2-1")) {
         logger.Write(LOG_ERROR, "[%s] SetAccessControl Failed", __FUNCTION__);
+        SetStatus(STATUS_ERROR);
         return;
     }
 
@@ -138,19 +169,23 @@ void Injector::Inject() {
     LPVOID alloc = VirtualAllocEx(process, 0, len, MEM_COMMIT, PAGE_READWRITE);
     if (!alloc) {
         logger.Write(LOG_ERROR, "[%s] Failed to alloc %llu bytes.", __FUNCTION__, len);
+        SetStatus(STATUS_ERROR);
         return;
     }
     if (!WriteProcessMemory(process, alloc, dll_module.data(), len, 0)) {
         logger.Write(LOG_ERROR, "[%s] WriteProcessMemory Failed", __FUNCTION__);
+        SetStatus(STATUS_ERROR);
         return;
     }
     auto thread = CreateRemoteThread(process, 0, 0, reinterpret_cast<LPTHREAD_START_ROUTINE>(LoadLibraryW), alloc, 0, 0);
     if (!thread) {
         logger.Write(LOG_ERROR, "[%s] CreateRemoteThread Failed", __FUNCTION__);
+        SetStatus(STATUS_ERROR);
         return;
     }
     WaitForSingleObject(thread, INFINITE);
     VirtualFreeEx(process, alloc, len, MEM_RESERVE);
+    SetStatus(STATUS_DONE);
 }
 
 Injector g_Injector;

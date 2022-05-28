@@ -1,32 +1,38 @@
 #pragma once
+#include <thread>
 #include <string>
 #include <vector>
 #include "imgui.h"
 #include "imgui_internal.h"
 #include "imgui_stdlib.h"
 
+#include "injector.h"
+
 namespace UIWindows {
-	class Injector
-	{
-	public:
-		enum DirectX {
-			DX12 = 0,
-			DX11 = 1
-		};
+    class UIInjector
+    {
+    public:
+        enum DirectX {
+            DX12 = 0,
+            DX11 = 1
+        };
 
-		bool show = true;
-		std::string window_name = "Injector";
+        bool show = true;
+        std::string window_name = "Injector";
 
-		Injector();
-		~Injector();
-		void Draw(bool* p_open);
-		void Dock(ImGuiID dock_id);
-		const char* GetWindowName();
+        UIInjector();
+        ~UIInjector();
+        void Draw(bool* p_open);
+        void Dock(ImGuiID dock_id);
+        const char* GetWindowName();
 
-	private:
-		int picked_direcx = DirectX::DX12;
-		std::vector<std::string> DX_strings = {
-			"DX12", "DX11"
-		};
-	};
+        void InjectDll();
+        std::string GetInjectionStatus();
+
+    private:
+        int picked_direcx = DirectX::DX12;
+        std::vector<std::string> DX_strings = {
+            "DX12", "DX11"
+        };
+    };
 }

@@ -10,27 +10,27 @@
 class GUI
 {
 public:
-	bool initialized = false;
-	bool create_dockspace_layout = true;
-	ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+    bool initialized = false;
+    bool create_dockspace_layout = true;
+    ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
-	bool show_demo_window = false;
-	bool show_info_window = true;
+    bool show_demo_window = false;
+    bool show_info_window = true;
 
-	UIWindows::Injector injector_window;
+    UIWindows::UIInjector injector_window;
 
-	GUI();
-	~GUI();
+    GUI();
+    ~GUI();
 
-	void Init();
-	void MainDockspace();
-	void SetupImGUI();
-	void DrawMainMenuBar();
-	void DrawInfoWindow(bool* p_open);
-	void Draw();
+    void Init();
+    void MainDockspace();
+    void SetupImGUI();
+    void DrawMainMenuBar();
+    void DrawInfoWindow(bool* p_open);
+    void Draw();
 
 private:
-	ImGuiID GetMainDockspaceID() { return ImGui::GetID("LauncherMainDockSpace"); };
+    ImGuiID GetMainDockspaceID() { return ImGui::GetID("LauncherMainDockSpace"); };
 };
 
 extern GUI g_GUI;

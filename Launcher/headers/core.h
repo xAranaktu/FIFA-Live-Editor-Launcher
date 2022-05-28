@@ -14,15 +14,15 @@ namespace fs = std::filesystem;
 class Core
 {
 public:
-	core::Context ctx;
+    core::Context ctx;
 
-	Core();
-	~Core();
+    Core();
+    ~Core();
 
-	void Init();
+    void Init();
 
 private:
-	void SetupLogger();
+    void SetupLogger();
 
 };
 
