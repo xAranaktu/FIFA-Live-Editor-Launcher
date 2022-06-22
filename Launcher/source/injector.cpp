@@ -58,7 +58,7 @@ bool Injector::HasBlacklistedModule(const int pid) {
     PVOID snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE, pid);
     MODULEENTRY32 modEntry = { sizeof(MODULEENTRY32) };
     while (Module32Next(snapshot, &modEntry)) {
-        for (std::string const name : blacklist) {
+        for (std::string const name : g_Config.dlls) {
             if (strcmp(modEntry.szModule, name.c_str()) == 0) {
                 logger.Write(LOG_ERROR, "Found %s module", name.c_str());
                 status = true;
@@ -77,7 +77,7 @@ int Injector::GetGamePID() {
 
     DWORD pid = 0;
     while (Process32Next(snapshot, &process)) {
-        for (std::string const name : procnames) {
+        for (std::string const name : g_Config.proc_names) {
             if (strcmp(process.szExeFile, name.c_str()) == 0) {
                 pid = process.th32ProcessID;
                 logger.Write(LOG_INFO, "Found %s (PID: %d)", name.c_str(), pid);
@@ -90,45 +90,23 @@ int Injector::GetGamePID() {
     return pid;
 }
 
-void Injector::LoadBlackList() {
-    logger.Write(LOG_INFO, "[%s]", __FUNCTION__);
-    blacklist.clear();
-
-    // TODO: Load from file?
-    blacklist.push_back(dll.filename().string());
-
-    logger.Write(LOG_INFO, "[%s] Done", __FUNCTION__);
-}
-
-void Injector::LoadProcNames() {
-    logger.Write(LOG_INFO, "[%s]", __FUNCTION__);
-    procnames.clear();
-
-    // TODO: Load from file?
-    procnames.push_back("FIFA22.exe");
-    procnames.push_back("FIFA22_Trial.exe");
-
-    logger.Write(LOG_INFO, "[%s] Done", __FUNCTION__);
-}
-
 void Injector::Inject() {
     logger.Write(LOG_INFO, "[%s]", __FUNCTION__);
 
-    std::string dll_dir = g_Core.ctx.GetFolder() + "\\FIFALiveEditor.DLL";
-    dll = fs::path(dll_dir);
-    if (!fs::exists(dll)) {
-        logger.Write(LOG_ERROR, "[%s] Can't find DLL at %s", __FUNCTION__, dll_dir.c_str());
-        SetStatus(STATUS_ERROR);
-        return;
+    std::vector<fs::path> fulldll_dirs;
+    for (auto dll : g_Config.dlls) {
+        fs::path fulldll_dir = g_Core.ctx.GetFolder() + "\\" + dll;
+        logger.Write(LOG_INFO, "[%s] DLL dir: %s", __FUNCTION__, fulldll_dir.c_str());
+        if (!fs::exists(fulldll_dir)) {
+            logger.Write(LOG_ERROR, "[%s] Can't find DLL at %s", __FUNCTION__, fulldll_dir.c_str());
+            SetStatus(STATUS_ERROR);
+            return;
+        }
+        fulldll_dirs.push_back(fulldll_dir);
     }
 
-    logger.Write(LOG_INFO, "[%s] DLL dir: %s", __FUNCTION__, dll_dir.c_str());
-
-    LoadProcNames();
-    LoadBlackList();
-
     logger.Write(LOG_INFO, "[%s] Trying to inject into one of the following procnames:", __FUNCTION__);
-    for (std::string const name : procnames) {
+    for (std::string const name : g_Config.proc_names) {
         logger.Write(LOG_INFO, "%s", name.c_str());
     }
 
@@ -157,34 +135,37 @@ void Injector::Inject() {
         return;
     }
 
-    auto dll_module = dll.wstring();
+    for (auto dll : fulldll_dirs) {
+        auto dll_module = dll.wstring();
 
-    if (!SetAccessControl(dll_module.c_str(), L"S-1-15-2-1")) {
-        logger.Write(LOG_ERROR, "[%s] SetAccessControl Failed", __FUNCTION__);
-        SetStatus(STATUS_ERROR);
-        return;
+        if (!SetAccessControl(dll_module.c_str(), L"S-1-15-2-1")) {
+            logger.Write(LOG_ERROR, "[%s] SetAccessControl Failed", __FUNCTION__);
+            SetStatus(STATUS_ERROR);
+            return;
+        }
+
+        auto len = dll_module.capacity() * sizeof(wchar_t);
+        LPVOID alloc = VirtualAllocEx(process, 0, len, MEM_COMMIT, PAGE_READWRITE);
+        if (!alloc) {
+            logger.Write(LOG_ERROR, "[%s] Failed to alloc %llu bytes.", __FUNCTION__, len);
+            SetStatus(STATUS_ERROR);
+            return;
+        }
+        if (!WriteProcessMemory(process, alloc, dll_module.data(), len, 0)) {
+            logger.Write(LOG_ERROR, "[%s] WriteProcessMemory Failed", __FUNCTION__);
+            SetStatus(STATUS_ERROR);
+            return;
+        }
+        auto thread = CreateRemoteThread(process, 0, 0, reinterpret_cast<LPTHREAD_START_ROUTINE>(LoadLibraryW), alloc, 0, 0);
+        if (!thread) {
+            logger.Write(LOG_ERROR, "[%s] CreateRemoteThread Failed", __FUNCTION__);
+            SetStatus(STATUS_ERROR);
+            return;
+        }
+        WaitForSingleObject(thread, INFINITE);
+        VirtualFreeEx(process, alloc, len, MEM_RESERVE);
     }
 
-    auto len = dll_module.capacity() * sizeof(wchar_t);
-    LPVOID alloc = VirtualAllocEx(process, 0, len, MEM_COMMIT, PAGE_READWRITE);
-    if (!alloc) {
-        logger.Write(LOG_ERROR, "[%s] Failed to alloc %llu bytes.", __FUNCTION__, len);
-        SetStatus(STATUS_ERROR);
-        return;
-    }
-    if (!WriteProcessMemory(process, alloc, dll_module.data(), len, 0)) {
-        logger.Write(LOG_ERROR, "[%s] WriteProcessMemory Failed", __FUNCTION__);
-        SetStatus(STATUS_ERROR);
-        return;
-    }
-    auto thread = CreateRemoteThread(process, 0, 0, reinterpret_cast<LPTHREAD_START_ROUTINE>(LoadLibraryW), alloc, 0, 0);
-    if (!thread) {
-        logger.Write(LOG_ERROR, "[%s] CreateRemoteThread Failed", __FUNCTION__);
-        SetStatus(STATUS_ERROR);
-        return;
-    }
-    WaitForSingleObject(thread, INFINITE);
-    VirtualFreeEx(process, alloc, len, MEM_RESERVE);
     SetStatus(STATUS_DONE);
 }
 

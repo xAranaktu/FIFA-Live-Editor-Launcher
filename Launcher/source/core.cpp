@@ -13,14 +13,31 @@ void Core::Init()
     ctx.Update(GetModuleHandle(NULL));
 
     SetupLogger();
+    g_Config.Setup(ctx.GetFolder());
     logger.Write(LOG_INFO, "[%s] Done", __FUNCTION__);
 }
 
 void Core::SetupLogger() {
     const std::string logPath = ctx.GetFolder() + "\\" + "Logs";
-    if (!fs::is_directory(logPath) || !fs::exists(logPath)) {
-        fs::create_directory(logPath);
+    std::string msg = "Failed to create Logs directory:\n" + logPath + "\nError: ";
+    bool failed = false;
+
+    try {
+        if (!fs::is_directory(logPath) || !fs::exists(logPath)) {
+            if (!fs::create_directory(logPath)) {
+                msg += "Unknown";
+                failed = true;
+            }
+        }
     }
+    catch (fs::filesystem_error const& e) {
+        msg += std::string(e.what());
+        
+        failed = true;
+    }
+
+    if (failed)
+        MessageBox(NULL, msg.c_str(), "WARNING", MB_ICONWARNING);
 
     SYSTEMTIME currTimeLog;
     GetLocalTime(&currTimeLog);

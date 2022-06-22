@@ -45,22 +45,12 @@ public:
     std::string GetStatusName();
 
     int GetGamePID();
-    void LoadProcNames();
-    void LoadBlackList();
 
     void Inject();
 
 private:
     std::mutex m_status;
     STATUS injection_status = STATUS_IDLE;
-
-    fs::path dll = "";
-
-    // Procnames we want to attach to
-    std::vector<std::string> procnames;
-
-    // Module Blacklist, terminate injection if found
-    std::vector<std::string> blacklist;
 
     bool SetAccessControl(const wchar_t* file, const wchar_t* access);
     bool HasBlacklistedModule(const int pid);

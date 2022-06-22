@@ -9,16 +9,27 @@ namespace UIWindows {
 
         ImGui::Text("STATUS: %s", GetInjectionStatus().c_str());
 
-        if (ImGui::Button("Inject")) {
-            InjectDll();
+        if (ImGui::Checkbox("Auto Inject", &g_Config.auto_inject)) {
+            g_Config.Save();
         }
-        ImGui::Text("Injection Delay (ms):");
 
-        if (ImGui::CollapsingHeader("fifasetup")) {
-            if (ImGui::Combo("DirectX", &picked_direcx, DX_strings)) {
-                // TODO: Save DirectX in fifasetup.ini
+        if (!auto_inject) {
+            ImGui::SameLine();
+            if (ImGui::Button("Inject")) {
+                InjectDll();
             }
         }
+        else {
+            if (ImGui::InputInt("Injection Delay (ms)", &g_Config.injection_delay)) {
+                g_Config.Save();
+            }
+        }
+
+        //if (ImGui::CollapsingHeader("fifasetup")) {
+        //    if (ImGui::Combo("DirectX", &picked_direcx, DX_strings)) {
+        //        // TODO: Save DirectX in fifasetup.ini
+        //    }
+        //}
 
         ImGui::End();
     }
