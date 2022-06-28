@@ -65,8 +65,9 @@ SET(ALL_CPP
     ${ImGUI_SRC}
 )
 
+SET(APP_ICON "appicon.rc")
 
-add_executable(${PROJECT_NAME} WIN32 ${ALL_CPP} ${ALL_HEADERS})
+add_executable(${PROJECT_NAME} WIN32 ${ALL_CPP} ${ALL_HEADERS} ${APP_ICON})
 
 target_link_libraries(${PROJECT_NAME} ${WinSDK})
 
