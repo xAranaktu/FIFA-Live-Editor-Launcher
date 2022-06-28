@@ -14,6 +14,8 @@ void Core::Init()
 
     SetupLogger();
     g_Config.Setup(ctx.GetFolder());
+
+    g_Config.Load();
     logger.Write(LOG_INFO, "[%s] Done", __FUNCTION__);
 }
 

@@ -76,11 +76,12 @@ namespace core {
         bool contains = o.contains(from);
 
         if (contains) {
-            array_o = array_o.at(from);
+            array_o = o[from];
             is_array = array_o.is_array();
         }
 
         if (contains && is_array) {
+            to.clear();
             for (auto it : array_o)
             {
                 to.push_back(it);
