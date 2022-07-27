@@ -16,6 +16,39 @@ void Core::Init()
     g_Config.Setup(ctx.GetFolder());
 
     g_Config.Load();
+
+    logger.Write(LOG_INFO, "[%s] %s %s", __FUNCTION__, TOOL_NAME, TOOL_VERSION);
+    logger.Write(LOG_INFO, "[%s] Game Install Dir: %s", __FUNCTION__, GetGameInstallDir().c_str());
+
+    logger.Write(LOG_INFO, "[%s] Done", __FUNCTION__);
+}
+
+const char* Core::GetToolVer() {
+    return TOOL_VERSION;
+}
+
+std::string Core::GetGameInstallDir() {
+    //Computer\HKEY_LOCAL_MACHINE\SOFTWARE\EA Sports\FIFA 22
+    DWORD dwType = REG_SZ;
+    HKEY hKey = 0;
+    std::string subkey = std::string("SOFTWARE\\EA Sports\\FIFA ") + std::to_string(FIFA_EDITION);
+
+    RegOpenKey(HKEY_LOCAL_MACHINE, subkey.c_str(), &hKey);
+    
+    const char* val_name = "Install Dir";
+
+    char value_buf[1024];
+    DWORD value_length = sizeof(value_buf);
+    RegQueryValueEx(hKey, val_name, NULL, &dwType, reinterpret_cast<LPBYTE>(value_buf), &value_length);
+    return std::string(value_buf);
+}
+
+void Core::RunGame() {
+    logger.Write(LOG_INFO, "[%s]", __FUNCTION__);
+
+    std::string game_full_path = GetGameInstallDir() + "FIFA22.exe";
+    ShellExecute(NULL, "runas", game_full_path.c_str(), NULL, NULL, SW_SHOWDEFAULT);
+
     logger.Write(LOG_INFO, "[%s] Done", __FUNCTION__);
 }
 

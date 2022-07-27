@@ -154,7 +154,7 @@ void GUI::DrawMainMenuBar() {
 
 void GUI::DrawInfoWindow(bool* p_open) {
     ImGui::Begin("Info", p_open);
-    ImGui::Text("Info");
+    ImGui::Text("Version: %s", g_Core.GetToolVer());
 
     ImGui::End();
 }

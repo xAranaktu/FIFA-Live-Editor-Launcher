@@ -19,8 +19,23 @@ Injector::STATUS Injector::GetStatus() {
     return injection_status;
 }
 
+void Injector::SetInterupt(bool _interupt) {
+    std::lock_guard<std::mutex> lk(m_interupt);
+
+    should_interupt = _interupt;
+}
+bool Injector::GetInterupt() {
+    std::lock_guard<std::mutex> lk(m_interupt);
+
+    return should_interupt;
+}
+
 std::string Injector::GetStatusName() {
     return status_names.at(GetStatus());
+}
+
+std::string Injector::GetStatusDesc() {
+    return status_desc.at(GetStatus());
 }
 
 // https://www.unknowncheats.me/forum/general-programming-and-reversing/177183-basic-intermediate-techniques-uwp-app-modding.html
@@ -90,7 +105,7 @@ int Injector::GetGamePID() {
     return pid;
 }
 
-void Injector::Inject() {
+void Injector::Inject(int delay) {
     logger.Write(LOG_INFO, "[%s]", __FUNCTION__);
 
     std::vector<fs::path> fulldll_dirs;
@@ -114,6 +129,13 @@ void Injector::Inject() {
     SetStatus(STATUS_WAITING);
     while (true)
     {
+        if (GetInterupt()) {
+            logger.Write(LOG_INFO, "[%s] Interupting injection...", __FUNCTION__);
+            SetStatus(STATUS_IDLE);
+            SetInterupt(false);
+            return;
+        }
+
         gamepid = GetGamePID();
         if (gamepid > 0) break;
 
@@ -121,6 +143,8 @@ void Injector::Inject() {
     }
 
     SetStatus(STATUS_INJECTING);
+    Sleep(delay);
+
     const HANDLE process = OpenProcess(PROCESS_ALL_ACCESS, false, gamepid);
     if (process == INVALID_HANDLE_VALUE)
     {

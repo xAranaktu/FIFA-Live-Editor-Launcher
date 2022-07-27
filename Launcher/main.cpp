@@ -78,6 +78,10 @@ int WinMain(
     ImGui_ImplWin32_Init(hwnd);
     ImGui_ImplDX11_Init(g_pd3dDevice, g_pd3dDeviceContext);
 
+    if (g_Config.auto_inject) {
+        std::thread t1(&Injector::Inject, &g_Injector, g_Config.injection_delay);
+        t1.detach();
+    }
 
     // Main Window loop
     bool done = false;

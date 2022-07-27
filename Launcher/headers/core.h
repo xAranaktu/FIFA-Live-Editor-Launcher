@@ -5,6 +5,7 @@
 #include <filesystem>
 
 #include <logger.h>
+#include <consts.h>
 #include <config.h>
 #include <context.h>
 
@@ -20,6 +21,10 @@ public:
     ~Core();
 
     void Init();
+    const char* GetToolVer();
+
+    std::string GetGameInstallDir();
+    void RunGame();
 
 private:
     void SetupLogger();

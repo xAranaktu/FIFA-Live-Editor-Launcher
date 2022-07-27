@@ -42,6 +42,7 @@ SET(EXTERNAL_SRC
 
 SET(ALL_HEADERS
     "headers/core.h"
+    "headers/consts.h"
     "headers/config.h"
     "headers/context.h"
     "headers/logger.h"

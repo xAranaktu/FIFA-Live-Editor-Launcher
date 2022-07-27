@@ -12,6 +12,7 @@ namespace core {
     class Config
     {
     public:
+        std::string fname = "le_config.json";
         std::string imgui_ini = "launcher_imgui.ini";
         bool auto_inject = true;
         int injection_delay = 100;

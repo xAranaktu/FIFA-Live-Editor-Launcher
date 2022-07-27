@@ -28,9 +28,9 @@ namespace UIWindows {
 
         void InjectDll();
         std::string GetInjectionStatus();
+        std::string GetInjectionStatusDesc();
 
     private:
-        bool auto_inject = false;
         int picked_direcx = DirectX::DX12;
         std::vector<std::string> DX_strings = {
             "DX12", "DX11"
