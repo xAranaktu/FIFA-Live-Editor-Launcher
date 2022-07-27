@@ -6,6 +6,8 @@
 #include <gui.h>
 #include <core.h>
 
+#define IDI_ICON1 1000
+
 #pragma warning( disable : 6387 )
 
 #pragma comment(lib, "d3dcompiler.lib")
@@ -41,9 +43,20 @@ int WinMain(
 
     // Create application window
     //ImGui_ImplWin32_EnableDpiAwareness();
-    WNDCLASSEX wc = { sizeof(WNDCLASSEX), CS_CLASSDC, WndProc, 0L, 0L, GetModuleHandle(NULL), NULL, NULL, NULL, NULL, _T("LiveEditorLauncherWC"), NULL };
+    HINSTANCE _hInst = GetModuleHandle(NULL);
+    HICON _hIcon = LoadIcon(_hInst, MAKEINTRESOURCE(IDI_ICON1));
+    HICON _hIconSm = LoadIcon(_hInst, MAKEINTRESOURCE(IDI_ICON1));
+    WNDCLASSEX wc = { sizeof(WNDCLASSEX), CS_CLASSDC, WndProc, 0L, 0L, _hInst, _hIcon, NULL, NULL, NULL, _T("LiveEditorLauncherWC"), _hIconSm };
     ::RegisterClassEx(&wc);
-    HWND hwnd = ::CreateWindow(wc.lpszClassName, _T("FIFA Live Editor Launcher"), WS_OVERLAPPEDWINDOW, 100, 100, 1280, 800, NULL, NULL, wc.hInstance, NULL);
+    HWND hwnd = ::CreateWindow(
+        wc.lpszClassName, 
+        _T("FIFA Live Editor Launcher"), 
+        WS_OVERLAPPEDWINDOW, 100, 100, 1280, 800, 
+        NULL, 
+        NULL, 
+        _hInst,
+        NULL
+    );
 
     // Initialize Direct3D
     if (!CreateDeviceD3D(hwnd))
