@@ -83,6 +83,11 @@ int WinMain(
         t1.detach();
     }
 
+    if (g_Config.auto_start) {
+        std::thread t2(&Core::RunGame, &g_Core);
+        t2.detach();
+    }
+
     // Main Window loop
     bool done = false;
     while (!done)

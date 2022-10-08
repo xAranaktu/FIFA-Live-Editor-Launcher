@@ -46,7 +46,14 @@ std::string Core::GetGameInstallDir() {
 void Core::RunGame() {
     logger.Write(LOG_INFO, "[%s]", __FUNCTION__);
 
-    std::string game_full_path = GetGameInstallDir() + "FIFA22.exe";
+    std::string proc_name = g_Config.proc_names[0];
+
+    if (g_Config.is_trial) proc_name = g_Config.proc_names[1];
+
+    std::string game_full_path = GetGameInstallDir() + proc_name;
+
+    logger.Write(LOG_INFO, "[%s] game_full_path: %s", __FUNCTION__, game_full_path.c_str());
+
     ShellExecute(NULL, "runas", game_full_path.c_str(), NULL, NULL, SW_SHOWDEFAULT);
 
     logger.Write(LOG_INFO, "[%s] Done", __FUNCTION__);

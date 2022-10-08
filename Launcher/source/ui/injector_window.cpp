@@ -14,10 +14,6 @@ namespace UIWindows {
         }
         ImGui::Text("STATUS: %s", GetInjectionStatus().c_str());
 
-        //if (ImGui::Button("Run Game")) {
-        //    g_Core.RunGame();
-        //}
-
         if (ImGui::Checkbox("Auto Inject", &g_Config.auto_inject)) {
             if (g_Config.auto_inject) {
                 InjectDll();
@@ -47,6 +43,33 @@ namespace UIWindows {
             if (ImGui::IsItemHovered()) {
                 ImGui::SetTooltip("The delay between game process found and the injection of Live Editor core dll\nToo short may cause problems/crashes\nToo long may result in some mods not being loaded properly");
             }
+        }
+
+
+        if (ImGui::Button("Run Game")) {
+            g_Core.RunGame();
+        }
+        
+        if (ImGui::Checkbox("Auto Run Game", &g_Config.auto_start)) {
+        
+            g_Config.Save();
+        }
+        
+        ImGui::SameLine();
+        ImGui::TextDisabled("(?)");
+        if (ImGui::IsItemHovered()) {
+            ImGui::SetTooltip("Auto start the game with Live Editor (requires restart).\nFor EA Play you need to tick the 'Is Trial Game' to make it work.");
+        }
+        
+        if (ImGui::Checkbox("Is Trial Game", &g_Config.is_trial)) {
+        
+            g_Config.Save();
+        }
+        
+        ImGui::SameLine();
+        ImGui::TextDisabled("(?)");
+        if (ImGui::IsItemHovered()) {
+            ImGui::SetTooltip("Trial game is the game version available for 10h (with EA Play, but not EA Play Pro). Tick this checkbox if you are using Auto Run Game and you have trial game version");
         }
 
         //if (ImGui::CollapsingHeader("fifasetup")) {

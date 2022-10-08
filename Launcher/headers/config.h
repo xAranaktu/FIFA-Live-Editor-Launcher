@@ -15,15 +15,12 @@ namespace core {
         std::string fname = "le_config.json";
         std::string imgui_ini = "launcher_imgui.ini";
         bool auto_inject = true;
-        int injection_delay = 100;
-        std::vector<std::string> proc_names = {
-            "FIFA22.exe",
-            "FIFA22_Trial.exe"
-        };
-
-        std::vector<std::string> dlls = {
-            "FIFALiveEditor.DLL"
-        };
+        bool auto_start = true;
+        bool is_trial = false;
+        int injection_delay = 300;
+        std::vector<std::string> proc_names;
+        std::vector<std::string> window_class_names;
+        std::vector<std::string> dlls;
 
         Config();
         ~Config();

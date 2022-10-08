@@ -1,5 +1,5 @@
 #pragma once
 
-inline const int FIFA_EDITION = 22;
+inline const int FIFA_EDITION = 23;
 inline const char* TOOL_NAME = "Live Editor";
-inline const char* TOOL_VERSION = "v22.1.2.0";
+inline const char* TOOL_VERSION = "v23.1.0.0";

@@ -51,7 +51,24 @@ namespace core {
             auto_inject = laucher_o.at("auto_inject").get<bool>();
         }
 
+        logger.Write(LOG_INFO, "[%s] auto_start", __FUNCTION__);
+        if (!laucher_o.contains("auto_start")) {
+            laucher_o["auto_start"] = auto_start;
+        }
+        else {
+            auto_start = laucher_o.at("auto_start").get<bool>();
+        }
+
+        logger.Write(LOG_INFO, "[%s] is_trial", __FUNCTION__);
+        if (!laucher_o.contains("is_trial")) {
+            laucher_o["is_trial"] = is_trial;
+        }
+        else {
+            is_trial = laucher_o.at("is_trial").get<bool>();
+        }
+
         LoadFromStrArray(proc_names, "proc_names");
+        LoadFromStrArray(window_class_names, "window_class_names");
         LoadFromStrArray(dlls, "dlls");
     }
 

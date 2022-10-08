@@ -126,7 +126,8 @@ void Injector::Inject(int delay) {
     }
 
     int gamepid = 0;
-    SetStatus(STATUS_WAITING);
+    SetStatus(STATUS_WAITING_FOR_GAME);
+    logger.Write(LOG_INFO, "[%s] STATUS_WAITING_FOR_GAME", __FUNCTION__);
     while (true)
     {
         if (GetInterupt()) {
@@ -142,13 +143,40 @@ void Injector::Inject(int delay) {
         Sleep(100);
     }
 
+    SetStatus(STATUS_WAITING_FOR_WINDOW);
+    logger.Write(LOG_INFO, "[%s] STATUS_WAITING_FOR_WINDOW", __FUNCTION__);
+
+    HWND hWindow = NULL;
+    while (hWindow == NULL)
+    {
+        if (GetInterupt()) {
+            logger.Write(LOG_INFO, "[%s] Interupting injection...", __FUNCTION__);
+            SetStatus(STATUS_IDLE);
+            SetInterupt(false);
+            return;
+        }
+
+        for (std::string const name : g_Config.window_class_names) {
+            hWindow = FindWindow(name.c_str(), 0);
+        }
+
+        Sleep(100);
+    }
+
+
     SetStatus(STATUS_INJECTING);
+    logger.Write(LOG_INFO, "[%s] STATUS_INJECTING", __FUNCTION__);
     Sleep(delay);
 
-    const HANDLE process = OpenProcess(PROCESS_ALL_ACCESS, false, gamepid);
-    if (process == INVALID_HANDLE_VALUE)
+    auto game_process_id = GetGamePID();
+    HANDLE process = OpenProcess(
+        PROCESS_CREATE_THREAD | PROCESS_VM_READ | PROCESS_VM_WRITE | PROCESS_VM_OPERATION | PROCESS_QUERY_INFORMATION, 
+        false, 
+        game_process_id
+    );
+    if (!process || process == INVALID_HANDLE_VALUE)
     {
-        logger.Write(LOG_ERROR, "[%s] Can't open game process.", __FUNCTION__);
+        logger.Write(LOG_ERROR, "[%s] Can't open game process. Error: %d. PID: %d", __FUNCTION__, GetLastError(), game_process_id);
         SetStatus(STATUS_ERROR);
         return;
     }
@@ -171,7 +199,7 @@ void Injector::Inject(int delay) {
         auto len = dll_module.capacity() * sizeof(wchar_t);
         LPVOID alloc = VirtualAllocEx(process, 0, len, MEM_COMMIT, PAGE_READWRITE);
         if (!alloc) {
-            logger.Write(LOG_ERROR, "[%s] Failed to alloc %llu bytes.", __FUNCTION__, len);
+            logger.Write(LOG_ERROR, "[%s] Failed to alloc %llu bytes. Error code: %d", __FUNCTION__, len, GetLastError());
             SetStatus(STATUS_ERROR);
             return;
         }

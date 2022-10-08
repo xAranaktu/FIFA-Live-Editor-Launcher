@@ -23,7 +23,8 @@ public:
     enum STATUS {
         STATUS_INVALID = -1,
         STATUS_IDLE = 0,
-        STATUS_WAITING,
+        STATUS_WAITING_FOR_GAME,
+        STATUS_WAITING_FOR_WINDOW,
         STATUS_INJECTING,
         STATUS_DONE,
         STATUS_ERROR
@@ -31,7 +32,8 @@ public:
 
     std::vector<std::string> status_names = {
         "Idle",
-        "Waiting",
+        "Waiting for Game",
+        "Waiting for Window",
         "Injecting",
         "Done",
         "Error"
@@ -40,6 +42,7 @@ public:
     std::vector<std::string> status_desc = {
         "STATUS IDLE\nRun the game and hit Inject button/enable auto injection",
         "STATUS WAITING\nWaiting for the game process to appear. You need to run the game now.",
+        "STATUS WAITING\nWaiting for the game window.",
         "STATUS INJECTING\nInjecting",
         "STATUS DONE\nDone",
         "STATUS ERROR\nInjection failed for some reasons. You should be able to find more details in the log file"
