@@ -43,6 +43,14 @@ namespace core {
             injection_delay = laucher_o.at("injection_delay").get<int>();
         }
 
+        logger.Write(LOG_INFO, "[%s] show_disclaimer_msg", __FUNCTION__);
+        if (!laucher_o.contains("show_disclaimer_msg")) {
+            laucher_o["show_disclaimer_msg"] = show_disclaimer_msg;
+        }
+        else {
+            show_disclaimer_msg = laucher_o.at("show_disclaimer_msg").get<bool>();
+        }
+
         logger.Write(LOG_INFO, "[%s] auto_inject", __FUNCTION__);
         if (!laucher_o.contains("auto_inject")) {
             laucher_o["auto_inject"] = auto_inject;
@@ -75,13 +83,11 @@ namespace core {
     void Config::Save() {
         logger.Write(LOG_INFO, "[%s]", __FUNCTION__);
 
-        json::json_pointer p;
-
-        p = json::json_pointer(std::string("/Launcher/injection_delay"));
-        o.at(p) = injection_delay;
-
-        p = json::json_pointer(std::string("/Launcher/auto_inject"));
-        o.at(p) = auto_inject;
+        o.at(json::json_pointer(std::string("/Launcher/injection_delay"))) = injection_delay;
+        o.at(json::json_pointer(std::string("/Launcher/auto_inject"))) = auto_inject;
+        o.at(json::json_pointer(std::string("/Launcher/auto_start"))) = auto_start;
+        o.at(json::json_pointer(std::string("/Launcher/is_trial"))) = is_trial;
+        o.at(json::json_pointer(std::string("/Launcher/show_disclaimer_msg"))) = show_disclaimer_msg;
 
         std::ofstream x(fpath.c_str());
 

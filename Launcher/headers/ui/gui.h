@@ -16,6 +16,7 @@ public:
 
     bool show_demo_window = false;
     bool show_info_window = true;
+    bool show_disclaimer = true;
 
     UIWindows::UIInjector injector_window;
 
@@ -27,6 +28,7 @@ public:
     void SetupImGUI();
     void DrawMainMenuBar();
     void DrawInfoWindow(bool* p_open);
+    void DrawDisclaimer(bool* p_open);
     void Draw();
 
 private:

@@ -58,6 +58,7 @@ void GUI::MainDockspace() {
             // out_id_at_opposite_dir is in the opposite direction
             auto dock_id_left = ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Left, 0.33f, nullptr, &dockspace_id);
             auto dock_id_right = ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Right, 0.33f, nullptr, &dockspace_id);
+            auto dock_id_right_down = ImGui::DockBuilderSplitNode(dock_id_right, ImGuiDir_Down, 0.33f, nullptr, &dock_id_right);
 
             /*
             auto dock_id_top = ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Up, 0.2f, nullptr, &dockspace_id);
@@ -71,6 +72,7 @@ void GUI::MainDockspace() {
             // we now dock our windows into the docking node we made above
             injector_window.Dock(dock_id_left);
             ImGui::DockBuilderDockWindow("Info", dock_id_right);
+            ImGui::DockBuilderDockWindow("Disclaimer", dock_id_right_down);
 
             ImGui::DockBuilderFinish(dockspace_id);
         }
@@ -137,6 +139,7 @@ void GUI::DrawMainMenuBar() {
         {
             ImGui::MenuItem(injector_window.GetWindowName(), NULL, &injector_window.show);
             ImGui::MenuItem("Info", NULL, &show_info_window);
+            ImGui::MenuItem("Disclaimer", NULL, &show_disclaimer);
             ImGui::EndMenu();
         }
         //if (ImGui::BeginMenu("Edit"))
@@ -160,6 +163,22 @@ void GUI::DrawInfoWindow(bool* p_open) {
     ImGui::End();
 }
 
+void GUI::DrawDisclaimer(bool* p_open) {
+    ImGui::Begin("Disclaimer", p_open);
+
+    ImGui::TextDisabled("(?)");
+    if (ImGui::IsItemHovered()) {
+        ImGui::SetTooltip(DisclaimerContent);
+    }
+
+    if (ImGui::Checkbox("Show Warning at startup", &g_Config.show_disclaimer_msg)) {
+        g_Config.Save();
+    }
+    
+
+    ImGui::End();
+}
+
 void GUI::Draw() {
     MainDockspace();
 
@@ -171,6 +190,9 @@ void GUI::Draw() {
 
     if (show_info_window)
         DrawInfoWindow(&show_info_window);
+
+    if (show_disclaimer)
+        DrawDisclaimer(&show_disclaimer);
 
 }
 

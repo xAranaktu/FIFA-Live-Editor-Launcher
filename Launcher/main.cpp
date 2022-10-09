@@ -38,6 +38,18 @@ int WinMain(
     // Init our code
     g_Core.Init();
 
+    if (g_Config.show_disclaimer_msg) {
+        std::string msg = std::string(DisclaimerContent) + "\n\nDo you want to continue?";
+
+        if (MessageBox(NULL, msg.c_str(), "Disclaimer", MB_ICONWARNING | MB_OKCANCEL) != IDOK) {
+            // Early exit
+            logger.Write(LOG_INFO, "Disclaimer Early Exit");
+
+            return 1;
+        }
+    }
+
+
     // Init GUI
     g_GUI.Init();
 

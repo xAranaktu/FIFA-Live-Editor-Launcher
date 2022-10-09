@@ -14,6 +14,7 @@ namespace core {
     public:
         std::string fname = "le_config.json";
         std::string imgui_ini = "launcher_imgui.ini";
+        bool show_disclaimer_msg = true;
         bool auto_inject = true;
         bool auto_start = true;
         bool is_trial = false;
