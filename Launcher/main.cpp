@@ -49,6 +49,15 @@ int WinMain(
         }
     }
 
+    if (g_Injector.GetGamePID() != 0) {
+        MessageBox(NULL, "Game is Open\nRun the Live Editor before the game.", "Game is Open", MB_ICONERROR);
+
+        // Early exit
+        logger.Write(LOG_INFO, "Game is Open Early Exit");
+
+        return 1;
+    }
+
 
     // Init GUI
     g_GUI.Init();

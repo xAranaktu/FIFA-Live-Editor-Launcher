@@ -14,21 +14,21 @@ namespace UIWindows {
         }
         ImGui::Text("STATUS: %s", GetInjectionStatus().c_str());
 
-        if (ImGui::Checkbox("Auto Inject", &g_Config.auto_inject)) {
-            if (g_Config.auto_inject) {
-                InjectDll();
-            }
-            else {
-                // Stop the auto injection loop
-                g_Injector.SetInterupt(true);
-            }
+        //if (ImGui::Checkbox("Auto Inject", &g_Config.auto_inject)) {
+        //    if (g_Config.auto_inject) {
+        //        InjectDll();
+        //    }
+        //    else {
+        //        // Stop the auto injection loop
+        //        g_Injector.SetInterupt(true);
+        //    }
 
-            g_Config.Save();
-        }
+        //    g_Config.Save();
+        //}
 
-        if (ImGui::IsItemHovered()) {
-            ImGui::SetTooltip("If enable the launcher will automatically attempt to find the game process and inject the Live Editor core dll into it.");
-        }
+        //if (ImGui::IsItemHovered()) {
+        //    ImGui::SetTooltip("If enable the launcher will automatically attempt to find the game process and inject the Live Editor core dll into it.");
+        //}
 
         if (!g_Config.auto_inject) {
             if (ImGui::Button("Inject")) {
@@ -45,13 +45,16 @@ namespace UIWindows {
             }
         }
 
-
         if (ImGui::Button("Run Game")) {
-            g_Core.RunGame();
+            if (g_Injector.GetStatus() != Injector::STATUS::STATUS_WAITING_FOR_GAME) {
+                MessageBox(NULL, "You can't run the game multiple times.\nRestart the Launcher.", "Multirun Attempt", MB_ICONERROR);
+            }
+            else {
+                g_Core.RunGame();
+            }
         }
         
         if (ImGui::Checkbox("Auto Run Game", &g_Config.auto_start)) {
-        
             g_Config.Save();
         }
         
@@ -62,7 +65,6 @@ namespace UIWindows {
         }
         
         if (ImGui::Checkbox("Is Trial Game", &g_Config.is_trial)) {
-        
             g_Config.Save();
         }
         

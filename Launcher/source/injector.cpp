@@ -181,11 +181,11 @@ void Injector::Inject(int delay) {
         return;
     }
 
-    if (HasBlacklistedModule(gamepid)) {
-        logger.Write(LOG_ERROR, "[%s] Terminating injection because of blacklisted module", __FUNCTION__);
-        SetStatus(STATUS_ERROR);
-        return;
-    }
+    //if (HasBlacklistedModule(gamepid)) {
+    //    logger.Write(LOG_ERROR, "[%s] Terminating injection because of blacklisted module", __FUNCTION__);
+    //    SetStatus(STATUS_ERROR);
+    //    return;
+    //}
 
     for (auto dll : fulldll_dirs) {
         auto dll_module = dll.wstring();
