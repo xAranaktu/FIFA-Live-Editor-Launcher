@@ -111,9 +111,9 @@ void Injector::Inject(int delay) {
     std::vector<fs::path> fulldll_dirs;
     for (auto dll : g_Config.dlls) {
         fs::path fulldll_dir = g_Core.ctx.GetFolder() + "\\" + dll;
-        logger.Write(LOG_INFO, "[%s] DLL dir: %s", __FUNCTION__, fulldll_dir.c_str());
+        logger.Write(LOG_INFO, "[%s] DLL dir: %s", __FUNCTION__, fulldll_dir.string().c_str());
         if (!fs::exists(fulldll_dir)) {
-            logger.Write(LOG_ERROR, "[%s] Can't find DLL at %s", __FUNCTION__, fulldll_dir.c_str());
+            logger.Write(LOG_ERROR, "[%s] Can't find DLL at %s", __FUNCTION__, fulldll_dir.string().c_str());
             SetStatus(STATUS_ERROR);
             return;
         }

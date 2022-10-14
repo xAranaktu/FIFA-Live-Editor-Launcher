@@ -8,7 +8,7 @@ Core::~Core()
 {
 }
 
-void Core::Init()
+bool Core::Init()
 {
     ctx.Update(GetModuleHandle(NULL));
 
@@ -17,10 +17,39 @@ void Core::Init()
 
     g_Config.Load();
 
+    std::string game_install_dir = GetGameInstallDir();
+    std::string le_dir = ctx.GetFolder();
+
     logger.Write(LOG_INFO, "[%s] %s %s", __FUNCTION__, TOOL_NAME, TOOL_VERSION);
-    logger.Write(LOG_INFO, "[%s] Game Install Dir: %s", __FUNCTION__, GetGameInstallDir().c_str());
+    logger.Write(LOG_INFO, "[%s] Game Install Dir: %s", __FUNCTION__, game_install_dir.c_str());
+    logger.Write(LOG_INFO, "[%s] Live Editor Dir: %s", __FUNCTION__, le_dir.c_str());
+
+
+    std::string app_data("AppData\\Local\\Temp");
+    if (le_dir.find(app_data) != std::string::npos) {
+        logger.Write(LOG_ERROR, "ERROR: Not extracted");
+
+        MessageBox(NULL, "Archive not extracted\n\nUnpack live editor with winrar or alternative software if you want to use it", "Not extracted", MB_ICONERROR);
+        return false;
+    }
+
+    if (!isASCII(game_install_dir)) {
+        logger.Write(LOG_ERROR, "ERROR: Invalid chars in game install dir");
+
+        MessageBox(NULL, "Your game installation directory contains non-ASCII character(s) which are not supported by the Live Editor.\n\nSolution:\nMove game to other directory with ASCII only characters.", "INVALID CHARACTER", MB_ICONERROR);
+        return false;
+    }
+
+    if (!isASCII(le_dir)) {
+        logger.Write(LOG_ERROR, "ERROR: Invalid chars in live editor dir");
+
+        MessageBox(NULL, "Live Editor installation directory contains non-ASCII character(s) which are not supported.\n\nSolution:\nDownload Live Editor again and put it in directory with ASCII only characters.", "INVALID CHARACTER", MB_ICONERROR);
+        return false;
+    }
 
     logger.Write(LOG_INFO, "[%s] Done", __FUNCTION__);
+
+    return true;
 }
 
 const char* Core::GetToolVer() {
@@ -40,6 +69,7 @@ std::string Core::GetGameInstallDir() {
     char value_buf[1024];
     DWORD value_length = sizeof(value_buf);
     RegQueryValueEx(hKey, val_name, NULL, &dwType, reinterpret_cast<LPBYTE>(value_buf), &value_length);
+
     return std::string(value_buf);
 }
 
@@ -90,6 +120,12 @@ void Core::SetupLogger() {
         std::setw(4) << std::setfill('0') << currTimeLog.wYear << ".txt";
     const std::string logFile = logPath + "\\" + ssLogFile.str();
     logger.SetFile(logFile);
+}
+
+bool Core::isASCII(const std::string& s) {
+    return !std::any_of(s.begin(), s.end(), [](char c) {
+        return static_cast<unsigned char>(c) > 127;
+    });
 }
 
 Core g_Core;

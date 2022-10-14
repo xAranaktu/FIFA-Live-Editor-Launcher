@@ -36,7 +36,10 @@ int WinMain(
     _In_ int nShowCmd
 ) {
     // Init our code
-    g_Core.Init();
+    if (!g_Core.Init()) {
+        // Init failed, early exit
+        return 1;
+    }
 
     if (g_Config.show_disclaimer_msg) {
         std::string msg = std::string(DisclaimerContent) + "\n\nDo you want to continue?";

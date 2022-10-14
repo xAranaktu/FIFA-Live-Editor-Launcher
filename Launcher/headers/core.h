@@ -20,11 +20,13 @@ public:
     Core();
     ~Core();
 
-    void Init();
+    bool Init();
     const char* GetToolVer();
 
     std::string GetGameInstallDir();
     void RunGame();
+
+    bool isASCII(const std::string& s);
 
 private:
     void SetupLogger();
