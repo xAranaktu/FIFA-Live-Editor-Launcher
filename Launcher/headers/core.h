@@ -25,6 +25,7 @@ public:
 
     std::string GetGameInstallDir();
     void RunGame();
+    void DisableAnticheat();
 
     bool isASCII(const std::string& s);
 

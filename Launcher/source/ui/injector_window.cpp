@@ -63,6 +63,16 @@ namespace UIWindows {
         if (ImGui::IsItemHovered()) {
             ImGui::SetTooltip("Auto start the game with Live Editor (requires restart).\nFor EA Play you need to tick the 'Is Trial Game' to make it work.");
         }
+
+        if (ImGui::Checkbox("Auto Close Launcher", &g_Config.close_after_injection)) {
+            g_Config.Save();
+        }
+
+        ImGui::SameLine();
+        ImGui::TextDisabled("(?)");
+        if (ImGui::IsItemHovered()) {
+            ImGui::SetTooltip("Live Editor will shutdown itself after successfull DLL injection. (recommended)");
+        }
         
         if (ImGui::Checkbox("Is Trial Game", &g_Config.is_trial)) {
             g_Config.Save();

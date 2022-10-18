@@ -30,6 +30,13 @@ bool Injector::GetInterupt() {
     return should_interupt;
 }
 
+bool Injector::CanShutdown() {
+    if (g_Config.close_after_injection) 
+        return GetStatus() == STATUS::STATUS_DONE;
+
+    return false;
+}
+
 std::string Injector::GetStatusName() {
     return status_names.at(GetStatus());
 }
@@ -105,6 +112,26 @@ int Injector::GetGamePID() {
     return pid;
 }
 
+bool Injector::AnticheatDetected() {
+    PVOID snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+    PROCESSENTRY32 process;
+    process.dwSize = sizeof(process);
+
+    DWORD pid = 0;
+    while (Process32Next(snapshot, &process)) {
+        for (std::string const name : g_Config.anticheat_proc_names) {
+            if (strcmp(process.szExeFile, name.c_str()) == 0) {
+                pid = process.th32ProcessID;
+                logger.Write(LOG_INFO, "Found Anticheat %s (PID: %d)", name.c_str(), pid);
+                break;
+            }
+        }
+    }
+
+    CloseHandle(snapshot);
+    return pid;
+}
+
 void Injector::Inject(int delay) {
     logger.Write(LOG_INFO, "[%s]", __FUNCTION__);
 
@@ -149,6 +176,14 @@ void Injector::Inject(int delay) {
     HWND hWindow = NULL;
     while (hWindow == NULL)
     {
+        if (AnticheatDetected()) {
+            MessageBox(NULL, "You run the FIFA with Live Editor you need to disable the EA Anticheat\nIf anticheat is disabled then try to clear cache on EA App if you are using it.", "Failed - EA Anticheat Detected", MB_ICONERROR);
+
+            SetStatus(STATUS_ERROR);
+            SetInterupt(false);
+            return;
+        }
+
         if (GetInterupt()) {
             logger.Write(LOG_INFO, "[%s] Interupting injection...", __FUNCTION__);
             SetStatus(STATUS_IDLE);
@@ -199,8 +234,15 @@ void Injector::Inject(int delay) {
         auto len = dll_module.capacity() * sizeof(wchar_t);
         LPVOID alloc = VirtualAllocEx(process, 0, len, MEM_COMMIT, PAGE_READWRITE);
         if (!alloc) {
-            logger.Write(LOG_ERROR, "[%s] Failed to alloc %llu bytes. Error code: %d", __FUNCTION__, len, GetLastError());
+            auto err_code = GetLastError();
+
+            logger.Write(LOG_ERROR, "[%s] Failed to alloc %llu bytes. Error code: %d", __FUNCTION__, len, err_code);
             SetStatus(STATUS_ERROR);
+
+            if (err_code == 5) {
+                MessageBox(NULL, "Failed to allocate space.\nDid you disabled the EA Anticheat?", "Failed", MB_ICONERROR);
+            }
+
             return;
         }
         if (!WriteProcessMemory(process, alloc, dll_module.data(), len, 0)) {

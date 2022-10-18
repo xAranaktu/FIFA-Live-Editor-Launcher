@@ -15,10 +15,14 @@ namespace core {
         std::string fname = "le_config.json";
         std::string imgui_ini = "launcher_imgui.ini";
         bool show_disclaimer_msg = true;
+        bool close_after_injection = true;
         bool auto_inject = true;
         bool auto_start = true;
         bool is_trial = false;
         int injection_delay = 300;
+        std::vector<std::string> anticheat_proc_names = {
+            "EAAntiCheat.GameServiceLauncher.exe"
+        };
         std::vector<std::string> proc_names;
         std::vector<std::string> window_class_names;
         std::vector<std::string> dlls;

@@ -59,7 +59,10 @@ public:
     void SetInterupt(bool _interupt);
     bool GetInterupt();
 
+    bool CanShutdown();
+
     int GetGamePID();
+    bool AnticheatDetected();
 
     void Inject(int delay);
 

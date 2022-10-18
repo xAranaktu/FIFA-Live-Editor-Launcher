@@ -47,6 +47,8 @@ bool Core::Init()
         return false;
     }
 
+    DisableAnticheat();
+
     logger.Write(LOG_INFO, "[%s] Done", __FUNCTION__);
 
     return true;
@@ -71,6 +73,58 @@ std::string Core::GetGameInstallDir() {
     RegQueryValueEx(hKey, val_name, NULL, &dwType, reinterpret_cast<LPBYTE>(value_buf), &value_length);
 
     return std::string(value_buf);
+}
+
+void Core::DisableAnticheat() {
+    logger.Write(LOG_INFO, "[%s]", __FUNCTION__);
+
+    std::string installerdata_path = GetGameInstallDir() + "__Installer\\installerdata.xml";
+    logger.Write(LOG_INFO, "[%s] installerdata_path: %s", __FUNCTION__, installerdata_path.c_str());
+
+    std::ifstream f_installerdata(installerdata_path.c_str());
+    if (!f_installerdata) {
+        logger.Write(LOG_WARN, "[%s] can't open installerdata.xml", __FUNCTION__);
+        return;
+    }
+    std::vector<std::string> new_content;
+
+    std::string line_trial = "      <filePath>[HKEY_LOCAL_MACHINE\\SOFTWARE\\EA Sports\\FIFA 23\\Install Dir]FIFA23_Trial.exe</filePath>";
+    std::string line_full = "      <filePath>[HKEY_LOCAL_MACHINE\\SOFTWARE\\EA Sports\\FIFA 23\\Install Dir]FIFA23.exe</filePath>";
+
+    std::string line_to_find = "<filePath>[HKEY_LOCAL_MACHINE";
+    bool is_trial_line = true;
+    for (std::string line; std::getline(f_installerdata, line); )
+    {
+        if (line.find(line_to_find) != std::string::npos) {
+            // Needs replace
+            if (is_trial_line) {
+                new_content.push_back(line_trial);
+                is_trial_line = false;
+            }
+            else {
+                new_content.push_back(line_full);
+            }
+        }
+        else {
+            // No need to replace
+            new_content.push_back(line);
+        }
+    }
+    f_installerdata.close();
+
+    std::ofstream f_modified_installerdata(installerdata_path.c_str());
+    if (!f_modified_installerdata) {
+        logger.Write(LOG_WARN, "[%s] can't open installerdata.xml to write", __FUNCTION__);
+        return;
+    }
+
+    for (auto line : new_content) {
+        f_modified_installerdata << line  << "\n";
+    }
+
+    f_modified_installerdata.close();
+
+    logger.Write(LOG_INFO, "[%s] Done", __FUNCTION__);
 }
 
 void Core::RunGame() {

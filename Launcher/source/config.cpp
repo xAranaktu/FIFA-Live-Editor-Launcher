@@ -35,7 +35,7 @@ namespace core {
 
         auto laucher_o = o["Launcher"];
 
-        logger.Write(LOG_INFO, "[%s] injection_delay", __FUNCTION__);
+        // logger.Write(LOG_INFO, "[%s] injection_delay", __FUNCTION__);
         if (!laucher_o.contains("injection_delay")) {
             laucher_o["injection_delay"] = injection_delay;
         }
@@ -43,7 +43,9 @@ namespace core {
             injection_delay = laucher_o.at("injection_delay").get<int>();
         }
 
-        logger.Write(LOG_INFO, "[%s] show_disclaimer_msg", __FUNCTION__);
+        
+
+        // logger.Write(LOG_INFO, "[%s] show_disclaimer_msg", __FUNCTION__);
         if (!laucher_o.contains("show_disclaimer_msg")) {
             laucher_o["show_disclaimer_msg"] = show_disclaimer_msg;
         }
@@ -51,7 +53,15 @@ namespace core {
             show_disclaimer_msg = laucher_o.at("show_disclaimer_msg").get<bool>();
         }
 
-        logger.Write(LOG_INFO, "[%s] auto_inject", __FUNCTION__);
+        // logger.Write(LOG_INFO, "[%s] close_after_injection", __FUNCTION__);
+        if (!laucher_o.contains("close_after_injection")) {
+            laucher_o["close_after_injection"] = close_after_injection;
+        }
+        else {
+            close_after_injection = laucher_o.at("close_after_injection").get<bool>();
+        }
+
+        //logger.Write(LOG_INFO, "[%s] auto_inject", __FUNCTION__);
         if (!laucher_o.contains("auto_inject")) {
             laucher_o["auto_inject"] = auto_inject;
         }
@@ -59,7 +69,7 @@ namespace core {
             auto_inject = laucher_o.at("auto_inject").get<bool>();
         }
 
-        logger.Write(LOG_INFO, "[%s] auto_start", __FUNCTION__);
+        //logger.Write(LOG_INFO, "[%s] auto_start", __FUNCTION__);
         if (!laucher_o.contains("auto_start")) {
             laucher_o["auto_start"] = auto_start;
         }
@@ -67,7 +77,7 @@ namespace core {
             auto_start = laucher_o.at("auto_start").get<bool>();
         }
 
-        logger.Write(LOG_INFO, "[%s] is_trial", __FUNCTION__);
+        //logger.Write(LOG_INFO, "[%s] is_trial", __FUNCTION__);
         if (!laucher_o.contains("is_trial")) {
             laucher_o["is_trial"] = is_trial;
         }
@@ -88,6 +98,7 @@ namespace core {
         o.at(json::json_pointer(std::string("/Launcher/auto_start"))) = auto_start;
         o.at(json::json_pointer(std::string("/Launcher/is_trial"))) = is_trial;
         o.at(json::json_pointer(std::string("/Launcher/show_disclaimer_msg"))) = show_disclaimer_msg;
+        o.at(json::json_pointer(std::string("/Launcher/close_after_injection"))) = close_after_injection;
 
         std::ofstream x(fpath.c_str());
 

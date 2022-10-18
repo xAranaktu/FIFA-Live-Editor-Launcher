@@ -112,10 +112,18 @@ int WinMain(
         t2.detach();
     }
 
+    auto clear_color = g_GUI.clear_color;
+    const float clear_color_with_alpha[4] = { clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w };
+
     // Main Window loop
     bool done = false;
     while (!done)
     {
+        if (g_Injector.CanShutdown()) {
+            logger.Write(LOG_INFO, "Injection done - shutdown");
+            break;
+        }
+
         // Poll and handle messages (inputs, window resize, etc.)
         // See the WndProc() function below for our to dispatch events to the Win32 backend.
         MSG msg;
@@ -139,8 +147,7 @@ int WinMain(
 
         // Rendering
         ImGui::Render();
-        auto clear_color = g_GUI.clear_color;
-        const float clear_color_with_alpha[4] = { clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w };
+        
         g_pd3dDeviceContext->OMSetRenderTargets(1, &g_mainRenderTargetView, NULL);
         g_pd3dDeviceContext->ClearRenderTargetView(g_mainRenderTargetView, clear_color_with_alpha);
         ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
@@ -153,7 +160,7 @@ int WinMain(
         }
 
         g_pSwapChain->Present(1, 0); // Present with vsync
-        //g_pSwapChain->Present(0, 0); // Present without vsync
+        // g_pSwapChain->Present(0, 0); // Present without vsync
     }
 
     // Cleanup
