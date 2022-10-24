@@ -36,14 +36,14 @@ bool Core::Init()
     if (!isASCII(game_install_dir)) {
         logger.Write(LOG_ERROR, "ERROR: Invalid chars in game install dir");
 
-        MessageBox(NULL, "Your game installation directory contains non-ASCII character(s) which are not supported by the Live Editor.\n\nSolution:\nMove game to other directory with ASCII only characters.", "INVALID CHARACTER", MB_ICONERROR);
+        MessageBox(NULL, "Your game installation directory contains non-English character(s) which are not supported by the Live Editor.\n\nSolution:\nMove game to other path with English only characters.", "INVALID CHARACTER", MB_ICONERROR);
         return false;
     }
 
     if (!isASCII(le_dir)) {
         logger.Write(LOG_ERROR, "ERROR: Invalid chars in live editor dir");
 
-        MessageBox(NULL, "Live Editor installation directory contains non-ASCII character(s) which are not supported.\n\nSolution:\nDownload Live Editor again and put it in directory with ASCII only characters.", "INVALID CHARACTER", MB_ICONERROR);
+        MessageBox(NULL, "Live Editor installation directory contains non-English character(s) which are not supported.\n\nSolution:\nDownload Live Editor again and put it in path with English only characters.", "INVALID CHARACTER", MB_ICONERROR);
         return false;
     }
 
