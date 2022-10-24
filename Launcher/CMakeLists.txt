@@ -49,6 +49,7 @@ SET(ALL_HEADERS
     "headers/injector.h"
     "headers/ui/gui.h"
     "headers/ui/injector_window.h"
+    "headers/ui/imgui_helper.h"
     
     ${ImGUI_H}
 )
