@@ -12,9 +12,11 @@ namespace UIWindows {
     class UIInjector
     {
     public:
-        enum DirectX {
-            DX12 = 0,
-            DX11 = 1
+        enum Platform {
+            Origin = 0,
+            EAApp,
+            Origin_Steam,
+            EAApp_Steam,
         };
 
         bool show = true;
@@ -31,9 +33,9 @@ namespace UIWindows {
         std::string GetInjectionStatusDesc();
 
     private:
-        int picked_direcx = DirectX::DX12;
-        std::vector<std::string> DX_strings = {
-            "DX12", "DX11"
+        int picked_platform = Platform::EAApp;
+        std::vector<std::string> Platform_strings = {
+            "Origin", "EA App", "Steam & Origin", "Steam & EA App"
         };
     };
 }

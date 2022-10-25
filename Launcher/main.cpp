@@ -121,6 +121,7 @@ int WinMain(
     {
         if (g_Injector.CanShutdown()) {
             logger.Write(LOG_INFO, "Injection done - shutdown");
+            g_Core.onExit();
             break;
         }
 
@@ -131,8 +132,11 @@ int WinMain(
         {
             ::TranslateMessage(&msg);
             ::DispatchMessage(&msg);
-            if (msg.message == WM_QUIT)
+            if (msg.message == WM_QUIT) {
+                g_Core.onExit();
                 done = true;
+            }
+
         }
         if (done)
             break;
@@ -162,6 +166,8 @@ int WinMain(
         g_pSwapChain->Present(1, 0); // Present with vsync
         // g_pSwapChain->Present(0, 0); // Present without vsync
     }
+
+    
 
     // Cleanup
     ImGui_ImplDX11_Shutdown();

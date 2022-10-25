@@ -53,6 +53,13 @@ namespace core {
             show_disclaimer_msg = laucher_o.at("show_disclaimer_msg").get<bool>();
         }
 
+        if (!laucher_o.contains("platform_origin")) {
+            laucher_o["platform_origin"] = platform_origin;
+        }
+        else {
+            platform_origin = laucher_o.at("platform_origin").get<bool>();
+        }
+
         // logger.Write(LOG_INFO, "[%s] close_after_injection", __FUNCTION__);
         if (!laucher_o.contains("close_after_injection")) {
             laucher_o["close_after_injection"] = close_after_injection;

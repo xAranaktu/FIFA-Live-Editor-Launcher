@@ -21,16 +21,25 @@ public:
     ~Core();
 
     bool Init();
+    void onExit();
     const char* GetToolVer();
 
     std::string GetGameInstallDir();
     void RunGame();
-    void DisableAnticheat();
-
+    void ToggleAnticheat(bool disable);
     bool isASCII(const std::string& s);
+
+    void ApplyPlatform(bool isOrigin);
 
 private:
     void SetupLogger();
+
+    std::string GetInstallerDataPath();
+    std::string GetEAACLauncherPath();
+
+    void CopyFakeEAAC();
+    void BackupOrgGameFiles();
+    void RestoreOrgGameFiles();
 
 };
 

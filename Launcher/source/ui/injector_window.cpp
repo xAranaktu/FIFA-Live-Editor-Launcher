@@ -45,6 +45,12 @@ namespace UIWindows {
             }
         }
 
+        //if (ImGui::Combo("Platform", &picked_platform, Platform_strings)) {
+        //    g_Config.platform_origin = (picked_platform == Platform::Origin || picked_platform == Platform::Origin_Steam);
+        //    g_Core.ApplyPlatform(g_Config.platform_origin);
+        //    g_Config.Save();
+        //}
+
         if (ImGui::Button("Run Game")) {
             if (g_Injector.GetStatus() != Injector::STATUS::STATUS_WAITING_FOR_GAME) {
                 MessageBox(NULL, "You can't run the game multiple times.\nRestart the Launcher.", "Multirun Attempt", MB_ICONERROR);
@@ -53,7 +59,7 @@ namespace UIWindows {
                 g_Core.RunGame();
             }
         }
-        
+
         if (ImGui::Checkbox("Auto Run Game", &g_Config.auto_start)) {
             g_Config.Save();
         }
@@ -83,12 +89,6 @@ namespace UIWindows {
         if (ImGui::IsItemHovered()) {
             ImGui::SetTooltip("Trial game is the game version available for 10h (with EA Play, but not EA Play Pro). Tick this checkbox if you are using Auto Run Game and you have trial game version");
         }
-
-        //if (ImGui::CollapsingHeader("fifasetup")) {
-        //    if (ImGui::Combo("DirectX", &picked_direcx, DX_strings)) {
-        //        // TODO: Save DirectX in fifasetup.ini
-        //    }
-        //}
 
         ImGui::End();
     }

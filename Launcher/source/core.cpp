@@ -46,12 +46,17 @@ bool Core::Init()
         MessageBox(NULL, "Live Editor installation directory contains non-English character(s) which are not supported.\n\nSolution:\nDownload Live Editor again and put it in path with English only characters.", "INVALID CHARACTER", MB_ICONERROR);
         return false;
     }
-
-    DisableAnticheat();
+    RestoreOrgGameFiles();
+    BackupOrgGameFiles();
+    ApplyPlatform(g_Config.platform_origin);
 
     logger.Write(LOG_INFO, "[%s] Done", __FUNCTION__);
 
     return true;
+}
+
+void Core::onExit() {
+    RestoreOrgGameFiles();
 }
 
 const char* Core::GetToolVer() {
@@ -64,22 +69,34 @@ std::string Core::GetGameInstallDir() {
     HKEY hKey = 0;
     std::string subkey = std::string("SOFTWARE\\EA Sports\\FIFA ") + std::to_string(FIFA_EDITION);
 
-    RegOpenKey(HKEY_LOCAL_MACHINE, subkey.c_str(), &hKey);
+    LSTATUS open_status = RegOpenKey(HKEY_LOCAL_MACHINE, subkey.c_str(), &hKey);
+    if (open_status != ERROR_SUCCESS) {
+        logger.Write(LOG_ERROR, "[%s] RegOpenKey failed %d", __FUNCTION__, open_status);
+    }
     
     const char* val_name = "Install Dir";
 
     char value_buf[1024];
     DWORD value_length = sizeof(value_buf);
-    RegQueryValueEx(hKey, val_name, NULL, &dwType, reinterpret_cast<LPBYTE>(value_buf), &value_length);
+    LSTATUS query_status = RegQueryValueEx(hKey, val_name, NULL, &dwType, reinterpret_cast<LPBYTE>(value_buf), &value_length);
+
+    if (query_status != ERROR_SUCCESS) {
+        logger.Write(LOG_ERROR, "[%s] RegQueryValueEx failed %d", __FUNCTION__, query_status);
+        return std::string("");
+    }
 
     return std::string(value_buf);
 }
 
-void Core::DisableAnticheat() {
+void Core::ToggleAnticheat(bool disable) {
     logger.Write(LOG_INFO, "[%s]", __FUNCTION__);
 
-    std::string installerdata_path = GetGameInstallDir() + "__Installer\\installerdata.xml";
+    std::string installerdata_path = GetInstallerDataPath();
     logger.Write(LOG_INFO, "[%s] installerdata_path: %s", __FUNCTION__, installerdata_path.c_str());
+    if (installerdata_path.empty()) {
+        logger.Write(LOG_WARN, "[%s] can't find installerdata.xml", __FUNCTION__);
+        return;
+    }
 
     std::ifstream f_installerdata(installerdata_path.c_str());
     if (!f_installerdata) {
@@ -90,6 +107,10 @@ void Core::DisableAnticheat() {
 
     std::string line_trial = "      <filePath>[HKEY_LOCAL_MACHINE\\SOFTWARE\\EA Sports\\FIFA 23\\Install Dir]FIFA23_Trial.exe</filePath>";
     std::string line_full = "      <filePath>[HKEY_LOCAL_MACHINE\\SOFTWARE\\EA Sports\\FIFA 23\\Install Dir]FIFA23.exe</filePath>";
+
+    if (!disable) {
+        line_full = line_trial = "      <filePath>[HKEY_LOCAL_MACHINE\\SOFTWARE\\EA Sports\\FIFA 23\\Install Dir]EAAntiCheat.GameServiceLauncher.exe</filePath>";
+    }
 
     std::string line_to_find = "<filePath>[HKEY_LOCAL_MACHINE";
     bool is_trial_line = true;
@@ -112,14 +133,14 @@ void Core::DisableAnticheat() {
     }
     f_installerdata.close();
 
-    std::ofstream f_modified_installerdata(installerdata_path.c_str());
+    std::ofstream f_modified_installerdata(installerdata_path.c_str(), std::ios::trunc | std::ios::binary);
     if (!f_modified_installerdata) {
         logger.Write(LOG_WARN, "[%s] can't open installerdata.xml to write", __FUNCTION__);
         return;
     }
 
     for (auto line : new_content) {
-        f_modified_installerdata << line  << "\n";
+        f_modified_installerdata << line << "\n";
     }
 
     f_modified_installerdata.close();
@@ -141,6 +162,18 @@ void Core::RunGame() {
     ShellExecute(NULL, "runas", game_full_path.c_str(), NULL, NULL, SW_SHOWDEFAULT);
 
     logger.Write(LOG_INFO, "[%s] Done", __FUNCTION__);
+}
+
+void Core::ApplyPlatform(bool isOrigin) {
+    if (isOrigin) {
+        // Disable EAAC on Origin
+        //ToggleAnticheat(true);
+    }
+    else {
+        // Keep EAAC on EAApp, but use fake EAAntiCheat.GameServiceLauncher.exe
+        //ToggleAnticheat(false);
+        CopyFakeEAAC();
+    }
 }
 
 void Core::SetupLogger() {
@@ -180,6 +213,117 @@ bool Core::isASCII(const std::string& s) {
     return !std::any_of(s.begin(), s.end(), [](char c) {
         return static_cast<unsigned char>(c) > 127;
     });
+}
+
+std::string Core::GetInstallerDataPath() {
+    return "";
+
+
+    //std::string installerdata_path = GetGameInstallDir();
+    //if (installerdata_path.empty()) return installerdata_path;
+    
+    //return installerdata_path + "__Installer\\installerdata.xml";
+}
+std::string Core::GetEAACLauncherPath() {
+    std::string eaac_path = GetGameInstallDir();
+    if (eaac_path.empty()) return eaac_path;
+
+    return eaac_path + "EAAntiCheat.GameServiceLauncher.exe";
+}
+
+void Core::CopyFakeEAAC() {
+    logger.Write(LOG_INFO, "[%s]", __FUNCTION__);
+    const std::string fake_eaac_path = ctx.GetFolder() + "\\" + "EAAntiCheat.GameServiceLauncher.exe";
+
+    try {
+        std::string eaac_path = GetEAACLauncherPath();
+        if (!eaac_path.empty()) {
+            std::string bak = eaac_path + ".backup";
+            if (fs::exists(bak)) {
+                if (fs::exists(eaac_path))    fs::remove(eaac_path);
+
+                fs::copy(fake_eaac_path, eaac_path);
+            }
+            else {
+                logger.Write(LOG_ERROR, "[%s] Can't find eaac backup", __FUNCTION__);
+            }
+        }
+    }
+    catch (fs::filesystem_error const& e) {
+        logger.Write(LOG_ERROR, "[%s] Restore EAAC error %s", __FUNCTION__, e.what());
+    }
+
+    logger.Write(LOG_INFO, "[%s] Done", __FUNCTION__);
+}
+
+void Core::BackupOrgGameFiles() {
+    logger.Write(LOG_INFO, "[%s]", __FUNCTION__);
+
+    try {
+        std::string installerdata_path = GetInstallerDataPath();
+        if (!installerdata_path.empty()) {
+            std::string bak = installerdata_path + ".backup";
+            if (fs::exists(bak))    fs::remove(bak);
+
+            fs::copy(installerdata_path, bak);
+        }
+    }
+    catch (fs::filesystem_error const& e) {
+        logger.Write(LOG_ERROR, "[%s] Backup installerdata error %s", __FUNCTION__, e.what());
+    }
+
+    try {
+        std::string eaac_path = GetEAACLauncherPath();
+        if (!eaac_path.empty()) {
+            std::string bak = eaac_path + ".backup";
+            if (fs::exists(bak))    fs::remove(bak);
+
+            fs::copy(eaac_path, bak);
+        }
+    }
+    catch (fs::filesystem_error const& e) {
+        logger.Write(LOG_ERROR, "[%s] Backup EAAC error %s", __FUNCTION__, e.what());
+    }
+
+    logger.Write(LOG_INFO, "[%s] Done", __FUNCTION__);
+}
+void Core::RestoreOrgGameFiles() {
+    logger.Write(LOG_INFO, "[%s]", __FUNCTION__);
+
+    try {
+        std::string installerdata_path = GetInstallerDataPath();
+        if (!installerdata_path.empty()) {
+            std::string bak = installerdata_path + ".backup";
+            if (fs::exists(bak)) {
+                if (fs::exists(installerdata_path))    fs::remove(installerdata_path);
+
+                fs::copy(bak, installerdata_path);
+                fs::remove(bak);
+            }
+
+        }
+    }
+    catch (fs::filesystem_error const& e) {
+        logger.Write(LOG_ERROR, "[%s] Restore installerdata error %s", __FUNCTION__, e.what());
+    }
+
+    try {
+        std::string eaac_path = GetEAACLauncherPath();
+        if (!eaac_path.empty()) {
+            std::string bak = eaac_path + ".backup";
+            if (fs::exists(bak)) {
+                if (fs::exists(eaac_path))    fs::remove(eaac_path);
+
+                fs::copy(bak, eaac_path);
+                fs::remove(bak);
+            }
+        }
+    }
+    catch (fs::filesystem_error const& e) {
+        logger.Write(LOG_ERROR, "[%s] Restore EAAC error %s", __FUNCTION__, e.what());
+    }
+
+    logger.Write(LOG_INFO, "[%s] Done", __FUNCTION__);
 }
 
 Core g_Core;

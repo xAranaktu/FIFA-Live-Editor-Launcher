@@ -176,13 +176,13 @@ void Injector::Inject(int delay) {
     HWND hWindow = NULL;
     while (hWindow == NULL)
     {
-        if (AnticheatDetected()) {
-            MessageBox(NULL, "You run the FIFA with Live Editor you need to disable the EA Anticheat\nIf anticheat is disabled then try to clear cache on EA App if you are using it.", "Failed - EA Anticheat Detected", MB_ICONERROR);
-
-            SetStatus(STATUS_ERROR);
-            SetInterupt(false);
-            return;
-        }
+        // if (AnticheatDetected()) {
+        //     MessageBox(NULL, "You run the FIFA with Live Editor you need to disable the EA Anticheat\nIf anticheat is disabled then try to clear cache on EA App if you are using it.", "Failed - EA Anticheat Detected", MB_ICONERROR);
+        // 
+        //     SetStatus(STATUS_ERROR);
+        //     SetInterupt(false);
+        //     return;
+        // }
 
         if (GetInterupt()) {
             logger.Write(LOG_INFO, "[%s] Interupting injection...", __FUNCTION__);
