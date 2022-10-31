@@ -237,7 +237,7 @@ std::string Core::GetEAACLauncherPath() {
 
 void Core::CopyFakeEAAC() {
     logger.Write(LOG_INFO, "[%s]", __FUNCTION__);
-    const std::string fake_eaac_path = ctx.GetFolder() + "\\" + "EAAntiCheat.GameServiceLauncher.exe";
+    const std::string fake_eaac_path = ctx.GetFolder() + "\\FakeEAACLauncher\\EAAntiCheat.GameServiceLauncher.exe";
 
     try {
         std::string eaac_path = GetEAACLauncherPath();
