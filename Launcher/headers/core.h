@@ -8,6 +8,8 @@
 #include <consts.h>
 #include <config.h>
 #include <context.h>
+#include <Psapi.h>
+#include <TlHelp32.h>
 
 namespace fs = std::filesystem;
 

@@ -56,6 +56,28 @@ bool Core::Init()
 }
 
 void Core::onExit() {
+    logger.Write(LOG_INFO, "[%s] Waiting for EAAntiCheat.GameServiceLauncher.exe", __FUNCTION__);
+
+    int attempts = 0;
+    DWORD pid = 0;
+
+    do
+    {
+        pid = 0;
+        PVOID snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+        PROCESSENTRY32 process;
+        process.dwSize = sizeof(process);
+        while (Process32Next(snapshot, &process)) {
+            if (strcmp(process.szExeFile, "EAAntiCheat.GameServiceLauncher.exe") == 0) {
+                pid = process.th32ProcessID;
+                break;
+            }
+        }
+        CloseHandle(snapshot);
+        Sleep(1000);
+    } while (pid > 0);
+
+    logger.Write(LOG_INFO, "[%s] Trying to restore", __FUNCTION__);
     RestoreOrgGameFiles();
 }
 
