@@ -182,7 +182,6 @@ void GUI::DrawDisclaimer(bool* p_open) {
     if (ImGui::Checkbox("Show Warning at startup", &g_Config.show_disclaimer_msg)) {
         g_Config.Save();
     }
-    
 
     ImGui::End();
 }

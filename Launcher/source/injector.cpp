@@ -170,33 +170,33 @@ void Injector::Inject(int delay) {
         Sleep(100);
     }
 
-    SetStatus(STATUS_WAITING_FOR_WINDOW);
-    logger.Write(LOG_INFO, "[%s] STATUS_WAITING_FOR_WINDOW", __FUNCTION__);
+    //SetStatus(STATUS_WAITING_FOR_WINDOW);
+    //logger.Write(LOG_INFO, "[%s] STATUS_WAITING_FOR_WINDOW", __FUNCTION__);
 
-    HWND hWindow = NULL;
-    while (hWindow == NULL)
-    {
-        // if (AnticheatDetected()) {
-        //     MessageBox(NULL, "You run the FIFA with Live Editor you need to disable the EA Anticheat\nIf anticheat is disabled then try to clear cache on EA App if you are using it.", "Failed - EA Anticheat Detected", MB_ICONERROR);
-        // 
-        //     SetStatus(STATUS_ERROR);
-        //     SetInterupt(false);
-        //     return;
-        // }
+    //HWND hWindow = NULL;
+    //while (hWindow == NULL)
+    //{
+    //    // if (AnticheatDetected()) {
+    //    //     MessageBox(NULL, "You run the FIFA with Live Editor you need to disable the EA Anticheat\nIf anticheat is disabled then try to clear cache on EA App if you are using it.", "Failed - EA Anticheat Detected", MB_ICONERROR);
+    //    // 
+    //    //     SetStatus(STATUS_ERROR);
+    //    //     SetInterupt(false);
+    //    //     return;
+    //    // }
 
-        if (GetInterupt()) {
-            logger.Write(LOG_INFO, "[%s] Interupting injection...", __FUNCTION__);
-            SetStatus(STATUS_IDLE);
-            SetInterupt(false);
-            return;
-        }
+    //    if (GetInterupt()) {
+    //        logger.Write(LOG_INFO, "[%s] Interupting injection...", __FUNCTION__);
+    //        SetStatus(STATUS_IDLE);
+    //        SetInterupt(false);
+    //        return;
+    //    }
 
-        for (std::string const name : g_Config.window_class_names) {
-            hWindow = FindWindow(name.c_str(), 0);
-        }
+    //    for (std::string const name : g_Config.window_class_names) {
+    //        hWindow = FindWindow(name.c_str(), 0);
+    //    }
 
-        Sleep(100);
-    }
+    //    Sleep(100);
+    //}
 
 
     SetStatus(STATUS_INJECTING);
@@ -204,6 +204,13 @@ void Injector::Inject(int delay) {
     Sleep(delay);
 
     auto game_process_id = GetGamePID();
+
+    while (game_process_id == 0)
+    {
+        Sleep(100);
+        game_process_id = GetGamePID();
+    }
+
     HANDLE process = OpenProcess(
         PROCESS_CREATE_THREAD | PROCESS_VM_READ | PROCESS_VM_WRITE | PROCESS_VM_OPERATION | PROCESS_QUERY_INFORMATION, 
         false, 
