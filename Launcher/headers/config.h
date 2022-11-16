@@ -20,7 +20,7 @@ namespace core {
         bool auto_inject = true;
         bool auto_start = true;
         bool is_trial = false;
-        int injection_delay = 300;
+        int injection_delay = 3000;
         std::vector<std::string> anticheat_proc_names = {
             "EAAntiCheat.GameServiceLauncher.exe"
         };
