@@ -51,6 +51,7 @@ public:
     Injector();
     ~Injector();
 
+    void SetDelay(int d);
     void SetStatus(STATUS _status);
     STATUS GetStatus();
     std::string GetStatusName();
@@ -61,16 +62,17 @@ public:
 
     bool CanShutdown();
 
-    int GetGamePID();
+    int GetGamePID(int invalid = 0);
     bool AnticheatDetected();
 
-    void Inject(int delay);
+    void Inject();
 
 private:
     std::mutex m_status;
     std::mutex m_interupt;
     STATUS injection_status = STATUS_IDLE;
 
+    int delay = 0;
     bool should_interupt = false;
 
     bool SetAccessControl(const wchar_t* file, const wchar_t* access);

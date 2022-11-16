@@ -8,6 +8,10 @@ Injector::~Injector()
 {
 }
 
+void Injector::SetDelay(int d) {
+    delay = d;
+}
+
 void Injector::SetStatus(STATUS _status) {
     std::lock_guard<std::mutex> lk(m_status);
 
@@ -92,7 +96,7 @@ bool Injector::HasBlacklistedModule(const int pid) {
     return status;
 }
 
-int Injector::GetGamePID() {
+int Injector::GetGamePID(int invalid) {
     PVOID snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
     PROCESSENTRY32 process;
     process.dwSize = sizeof(process);
@@ -102,7 +106,12 @@ int Injector::GetGamePID() {
         for (std::string const name : g_Config.proc_names) {
             if (strcmp(process.szExeFile, name.c_str()) == 0) {
                 pid = process.th32ProcessID;
-                logger.Write(LOG_INFO, "Found %s (PID: %d)", name.c_str(), pid);
+                if (pid == invalid) {
+                    pid = 0;
+                    continue;
+                }
+
+                logger.Write(LOG_INFO, "Found %s (PID: %d)", process.szExeFile, pid);
                 break;
             }
         }
@@ -132,7 +141,7 @@ bool Injector::AnticheatDetected() {
     return pid;
 }
 
-void Injector::Inject(int delay) {
+void Injector::Inject() {
     logger.Write(LOG_INFO, "[%s]", __FUNCTION__);
 
     std::vector<fs::path> fulldll_dirs;
@@ -170,45 +179,20 @@ void Injector::Inject(int delay) {
         Sleep(100);
     }
 
-    //SetStatus(STATUS_WAITING_FOR_WINDOW);
-    //logger.Write(LOG_INFO, "[%s] STATUS_WAITING_FOR_WINDOW", __FUNCTION__);
-
-    //HWND hWindow = NULL;
-    //while (hWindow == NULL)
-    //{
-    //    // if (AnticheatDetected()) {
-    //    //     MessageBox(NULL, "You run the FIFA with Live Editor you need to disable the EA Anticheat\nIf anticheat is disabled then try to clear cache on EA App if you are using it.", "Failed - EA Anticheat Detected", MB_ICONERROR);
-    //    // 
-    //    //     SetStatus(STATUS_ERROR);
-    //    //     SetInterupt(false);
-    //    //     return;
-    //    // }
-
-    //    if (GetInterupt()) {
-    //        logger.Write(LOG_INFO, "[%s] Interupting injection...", __FUNCTION__);
-    //        SetStatus(STATUS_IDLE);
-    //        SetInterupt(false);
-    //        return;
-    //    }
-
-    //    for (std::string const name : g_Config.window_class_names) {
-    //        hWindow = FindWindow(name.c_str(), 0);
-    //    }
-
-    //    Sleep(100);
-    //}
-
-
     SetStatus(STATUS_INJECTING);
-    logger.Write(LOG_INFO, "[%s] STATUS_INJECTING", __FUNCTION__);
+    logger.Write(LOG_INFO, "[%s] STATUS_INJECTING, delay %d ms", __FUNCTION__, delay);
     Sleep(delay);
 
-    auto game_process_id = GetGamePID();
-
-    while (game_process_id == 0)
+    auto game_process_id = 0;
+    while (true)
     {
+        game_process_id = GetGamePID(gamepid);
+
+        if (game_process_id > 0) {
+            break;
+        }
+
         Sleep(100);
-        game_process_id = GetGamePID();
     }
 
     HANDLE process = OpenProcess(

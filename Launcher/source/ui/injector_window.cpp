@@ -37,6 +37,7 @@ namespace UIWindows {
         }
         else {
             if (ImGui::InputInt("Delay (ms)", &g_Config.injection_delay)) {
+                g_Injector.SetDelay(g_Config.injection_delay);
                 g_Config.Save();
             }
 
@@ -101,7 +102,8 @@ namespace UIWindows {
     }
 
     void UIInjector::InjectDll() {
-        std::thread t1(&Injector::Inject, &g_Injector, g_Config.injection_delay);
+        g_Injector.SetDelay(g_Config.injection_delay);
+        std::thread t1(&Injector::Inject, &g_Injector);
         t1.detach();
     }
 
