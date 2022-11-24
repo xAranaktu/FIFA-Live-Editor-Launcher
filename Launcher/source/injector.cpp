@@ -181,7 +181,8 @@ void Injector::Inject() {
                 break;
             }
             else {
-                logger.Write(LOG_WARN, "[%s] OpenProcess1 failed %d PID: %d", __FUNCTION__, GetLastError(), gamepid);
+                DWORD err = GetLastError();
+                logger.Write(LOG_WARN, "[%s] OpenProcess1 failed: %s (%d) PID: %d", __FUNCTION__, std::system_category().message(err).c_str(), err, gamepid);
             }
         }
 
@@ -199,7 +200,8 @@ void Injector::Inject() {
                     break;
                 }
                 else {
-                    logger.Write(LOG_WARN, "[%s] OpenProcess2 failed %d PID: %d", __FUNCTION__, GetLastError(), game_process_id);
+                    DWORD err = GetLastError();
+                    logger.Write(LOG_WARN, "[%s] OpenProcess2 failed: %s (%d) PID: %d", __FUNCTION__, std::system_category().message(err).c_str(), err, game_process_id);
                 }
             }
         }
@@ -219,14 +221,13 @@ void Injector::Inject() {
         auto len = dll_module.capacity() * sizeof(wchar_t);
         LPVOID alloc = VirtualAllocEx(process, 0, len, MEM_COMMIT, PAGE_READWRITE);
         if (!alloc) {
-            auto err_code = GetLastError();
+            DWORD err = GetLastError();
+            std::string err_msg = std::system_category().message(err);
 
-            logger.Write(LOG_ERROR, "[%s] Failed to alloc %llu bytes. Error code: %d", __FUNCTION__, len, err_code);
+            logger.Write(LOG_ERROR, "[%s] Failed to alloc %llu bytes. Error: %s (%d)", __FUNCTION__, len, err_msg.c_str(), err);
             SetStatus(STATUS_ERROR);
 
-            if (err_code == 5) {
-                MessageBox(NULL, "Failed to allocate space.\nDid you disabled the EA Anticheat?", "Failed", MB_ICONERROR);
-            }
+            MessageBox(NULL, "Failed to allocate space.\nDid you disabled the EA Anticheat?", "Failed", MB_ICONERROR);
 
             return;
         }
