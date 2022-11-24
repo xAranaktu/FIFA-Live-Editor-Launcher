@@ -103,6 +103,7 @@ int WinMain(
     ImGui_ImplDX11_Init(g_pd3dDevice, g_pd3dDeviceContext);
 
     if (g_Config.auto_inject) {
+        g_Injector.SetDelay(g_Config.injection_delay);
         std::thread t1(&Injector::Inject, &g_Injector);
         t1.detach();
     }
