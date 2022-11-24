@@ -95,7 +95,6 @@ int Injector::GetGamePID(int invalid) {
                 }
 
                 logger.Write(LOG_INFO, "Found %s (PID: %d)", process.szExeFile, pid);
-                break;
             }
         }
     }
