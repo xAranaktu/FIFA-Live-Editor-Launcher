@@ -76,7 +76,6 @@ private:
     bool should_interupt = false;
 
     bool SetAccessControl(const wchar_t* file, const wchar_t* access);
-    bool HasBlacklistedModule(const int pid);
 };
 
 extern Injector g_Injector;

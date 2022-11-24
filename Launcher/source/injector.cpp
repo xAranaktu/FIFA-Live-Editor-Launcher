@@ -79,23 +79,6 @@ init:
     goto end;
 }
 
-bool Injector::HasBlacklistedModule(const int pid) {
-    bool status = false;
-    PVOID snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE, pid);
-    MODULEENTRY32 modEntry = { sizeof(MODULEENTRY32) };
-    while (Module32Next(snapshot, &modEntry)) {
-        for (std::string const name : g_Config.dlls) {
-            if (strcmp(modEntry.szModule, name.c_str()) == 0) {
-                logger.Write(LOG_ERROR, "Found %s module", name.c_str());
-                status = true;
-                break;
-            }
-        }
-    }
-    CloseHandle(snapshot);
-    return status;
-}
-
 int Injector::GetGamePID(int invalid) {
     PVOID snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
     PROCESSENTRY32 process;
@@ -183,35 +166,47 @@ void Injector::Inject() {
     logger.Write(LOG_INFO, "[%s] STATUS_INJECTING, delay %d ms", __FUNCTION__, delay);
     Sleep(delay);
 
-    auto game_process_id = 0;
+    HANDLE process = NULL;
+    int game_process_id = 0;
     while (true)
     {
-        game_process_id = GetGamePID(gamepid);
+        // OpenProcess1 when auto inject to already started process
+        {
+            process = OpenProcess(
+                PROCESS_CREATE_THREAD | PROCESS_VM_READ | PROCESS_VM_WRITE | PROCESS_VM_OPERATION | PROCESS_QUERY_INFORMATION,
+                false,
+                gamepid
+            );
+            if (process != NULL) {
+                logger.Write(LOG_INFO, "[%s] OpenProcess1 %d", __FUNCTION__, gamepid);
+                break;
+            }
+            else {
+                logger.Write(LOG_WARN, "[%s] OpenProcess1 failed %d PID: %d", __FUNCTION__, GetLastError(), gamepid);
+            }
+        }
 
-        if (game_process_id > 0) {
-            break;
+        // OpenProcess2 when using "run game" button
+        {
+            game_process_id = GetGamePID(gamepid);
+            if (game_process_id > 0) {
+                process = OpenProcess(
+                    PROCESS_CREATE_THREAD | PROCESS_VM_READ | PROCESS_VM_WRITE | PROCESS_VM_OPERATION | PROCESS_QUERY_INFORMATION,
+                    false,
+                    game_process_id
+                );
+                if (process != NULL) {
+                    logger.Write(LOG_INFO, "[%s] OpenProcess2 %d", __FUNCTION__, game_process_id);
+                    break;
+                }
+                else {
+                    logger.Write(LOG_WARN, "[%s] OpenProcess2 failed %d PID: %d", __FUNCTION__, GetLastError(), game_process_id);
+                }
+            }
         }
 
         Sleep(100);
     }
-
-    HANDLE process = OpenProcess(
-        PROCESS_CREATE_THREAD | PROCESS_VM_READ | PROCESS_VM_WRITE | PROCESS_VM_OPERATION | PROCESS_QUERY_INFORMATION, 
-        false, 
-        game_process_id
-    );
-    if (!process || process == INVALID_HANDLE_VALUE)
-    {
-        logger.Write(LOG_ERROR, "[%s] Can't open game process. Error: %d. PID: %d", __FUNCTION__, GetLastError(), game_process_id);
-        SetStatus(STATUS_ERROR);
-        return;
-    }
-
-    //if (HasBlacklistedModule(gamepid)) {
-    //    logger.Write(LOG_ERROR, "[%s] Terminating injection because of blacklisted module", __FUNCTION__);
-    //    SetStatus(STATUS_ERROR);
-    //    return;
-    //}
 
     for (auto dll : fulldll_dirs) {
         auto dll_module = dll.wstring();
@@ -250,6 +245,7 @@ void Injector::Inject() {
         WaitForSingleObject(thread, INFINITE);
         VirtualFreeEx(process, alloc, len, MEM_RESERVE);
     }
+    CloseHandle(process);
 
     SetStatus(STATUS_DONE);
 }
