@@ -4,5 +4,5 @@ Launcher for the [FIFA Live Editor](https://github.com/xAranaktu/FIFA-23-Live-Ed
 The "virus ridden junk". ;) 
 Feel free to compile it by yourself then, without any viruses.
 
-Source of the fake EA Anticheat launcher can be found [here](https://pastebin.com/0egrWbq0)
+Source of the fake EA Anticheat launcher can be found [here](https://pastebin.com/raw/7AKVC4q0)
 
