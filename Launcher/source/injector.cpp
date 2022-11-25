@@ -79,28 +79,24 @@ init:
     goto end;
 }
 
-int Injector::GetGamePID(int invalid) {
+std::vector<int> Injector::GetGamePIDs() {
+    std::vector<int> result;
+
     PVOID snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
     PROCESSENTRY32 process;
     process.dwSize = sizeof(process);
 
-    DWORD pid = 0;
     while (Process32Next(snapshot, &process)) {
         for (std::string const name : g_Config.proc_names) {
             if (strcmp(process.szExeFile, name.c_str()) == 0) {
-                pid = process.th32ProcessID;
-                if (pid == invalid) {
-                    pid = 0;
-                    continue;
-                }
-
-                logger.Write(LOG_INFO, "Found %s (PID: %d)", process.szExeFile, pid);
+                result.push_back(process.th32ProcessID);
+                // logger.Write(LOG_INFO, "Found %s (PID: %d)", process.szExeFile, pid);
             }
         }
     }
 
     CloseHandle(snapshot);
-    return pid;
+    return result;
 }
 
 bool Injector::AnticheatDetected() {
@@ -123,11 +119,83 @@ bool Injector::AnticheatDetected() {
     return pid;
 }
 
+bool Injector::DoInjectDLL(int pid) {
+    char buf_err[2048];
+    memset(buf_err, 0, sizeof(buf_err));
+
+    HANDLE process = OpenProcess(
+        PROCESS_CREATE_THREAD | PROCESS_VM_READ | PROCESS_VM_WRITE | PROCESS_VM_OPERATION | PROCESS_QUERY_INFORMATION,
+        false,
+        pid
+    );
+
+    if (!process) {
+        DWORD err = GetLastError();
+        sprintf_s(buf_err, sizeof(buf_err), "[%s] OpenProcess failed: %s (%d)",
+            __FUNCTION__,
+            std::system_category().message(err).c_str(),
+            err
+        );
+
+        m_game_ids_errors[pid] = std::string(buf_err);
+
+        return false;
+    }
+
+    for (auto dll : fulldll_dirs) {
+        auto dll_module = dll.wstring();
+
+        if (!SetAccessControl(dll_module.c_str(), L"S-1-15-2-1")) {
+            sprintf_s(buf_err, sizeof(buf_err), "[%s] SetAccessControl Failed", __FUNCTION__);
+            m_game_ids_errors[pid] = std::string(buf_err);
+
+            CloseHandle(process);
+            return false;
+        }
+
+        auto len = dll_module.capacity() * sizeof(wchar_t);
+        LPVOID alloc = VirtualAllocEx(process, 0, len, MEM_COMMIT, PAGE_READWRITE);
+        if (!alloc) {
+            DWORD err = GetLastError();
+
+            sprintf_s(buf_err, sizeof(buf_err), "[%s] Failed to alloc %llu bytes. Error: %s (%d)",
+                __FUNCTION__,
+                len,
+                std::system_category().message(err).c_str(),
+                err
+            );
+            m_game_ids_errors[pid] = std::string(buf_err);
+
+            CloseHandle(process);
+            return false;
+        }
+        if (!WriteProcessMemory(process, alloc, dll_module.data(), len, 0)) {
+            sprintf_s(buf_err, sizeof(buf_err), "[%s] WriteProcessMemory Failed", __FUNCTION__);
+            m_game_ids_errors[pid] = std::string(buf_err);
+
+            CloseHandle(process);
+            return false;
+        }
+        auto thread = CreateRemoteThread(process, 0, 0, reinterpret_cast<LPTHREAD_START_ROUTINE>(LoadLibraryW), alloc, 0, 0);
+        if (!thread) {
+            sprintf_s(buf_err, sizeof(buf_err), "[%s] CreateRemoteThread Failed", __FUNCTION__);
+            m_game_ids_errors[pid] = std::string(buf_err);
+
+            CloseHandle(process);
+            return false;
+        }
+        WaitForSingleObject(thread, INFINITE);
+        VirtualFreeEx(process, alloc, len, MEM_RESERVE);
+    }
+    CloseHandle(process);
+    return true;
+}
+
 void Injector::Inject() {
     logger.Write(LOG_INFO, "[%s]", __FUNCTION__);
 
-    std::vector<fs::path> fulldll_dirs;
-    for (auto dll : g_Config.dlls) {
+    fulldll_dirs.clear();
+    for (std::string dll : g_Config.dlls) {
         fs::path fulldll_dir = g_Core.ctx.GetFolder() + "\\" + dll;
         logger.Write(LOG_INFO, "[%s] DLL dir: %s", __FUNCTION__, fulldll_dir.string().c_str());
         if (!fs::exists(fulldll_dir)) {
@@ -143,7 +211,6 @@ void Injector::Inject() {
         logger.Write(LOG_INFO, "%s", name.c_str());
     }
 
-    int gamepid = 0;
     SetStatus(STATUS_WAITING_FOR_GAME);
     logger.Write(LOG_INFO, "[%s] STATUS_WAITING_FOR_GAME", __FUNCTION__);
     while (true)
@@ -154,9 +221,9 @@ void Injector::Inject() {
             SetInterupt(false);
             return;
         }
-
-        gamepid = GetGamePID();
-        if (gamepid > 0) break;
+        
+        if (GetGamePIDs().size() > 0)
+            break;
 
         Sleep(100);
     }
@@ -165,89 +232,72 @@ void Injector::Inject() {
     logger.Write(LOG_INFO, "[%s] STATUS_INJECTING, delay %d ms", __FUNCTION__, delay);
     Sleep(delay);
 
-    HANDLE process = NULL;
-    int game_process_id = 0;
-    while (true)
+    bool success = true;
+    HWND hWindow = NULL;
+    while (hWindow == NULL)
     {
-        // OpenProcess1 when auto inject to already started process
-        {
-            process = OpenProcess(
-                PROCESS_CREATE_THREAD | PROCESS_VM_READ | PROCESS_VM_WRITE | PROCESS_VM_OPERATION | PROCESS_QUERY_INFORMATION,
-                false,
-                gamepid
-            );
-            if (process != NULL) {
-                logger.Write(LOG_INFO, "[%s] OpenProcess1 %d", __FUNCTION__, gamepid);
-                break;
-            }
-            else {
-                DWORD err = GetLastError();
-                logger.Write(LOG_WARN, "[%s] OpenProcess1 failed: %s (%d) PID: %d", __FUNCTION__, std::system_category().message(err).c_str(), err, gamepid);
-            }
+        if (GetInterupt()) {
+            logger.Write(LOG_INFO, "[%s] Interupting injection...", __FUNCTION__);
+            SetStatus(STATUS_IDLE);
+            SetInterupt(false);
+            return;
         }
 
-        // OpenProcess2 when using "run game" button
-        {
-            game_process_id = GetGamePID(gamepid);
-            if (game_process_id > 0) {
-                process = OpenProcess(
-                    PROCESS_CREATE_THREAD | PROCESS_VM_READ | PROCESS_VM_WRITE | PROCESS_VM_OPERATION | PROCESS_QUERY_INFORMATION,
-                    false,
-                    game_process_id
-                );
-                if (process != NULL) {
-                    logger.Write(LOG_INFO, "[%s] OpenProcess2 %d", __FUNCTION__, game_process_id);
-                    break;
-                }
-                else {
-                    DWORD err = GetLastError();
-                    logger.Write(LOG_WARN, "[%s] OpenProcess2 failed: %s (%d) PID: %d", __FUNCTION__, std::system_category().message(err).c_str(), err, game_process_id);
-                }
-            }
+        std::vector<int> proc_ids = GetGamePIDs();
+
+        if (proc_ids.size() == 0) {
+            logger.Write(LOG_WARN, "[%s] No game processes", __FUNCTION__);
+            success = false;
+            break;
         }
 
+        for (int pid : proc_ids) {
+            if (m_game_ids.count(pid) == 0) {
+                // Add Process ID
+                m_game_ids[pid] = false;
+            }
+
+            if (m_game_ids.count(pid) == 1 && m_game_ids[pid] == true) {
+                // Already injected to this game proc
+                continue;
+            }
+
+            m_game_ids[pid] = DoInjectDLL(pid);
+        }
+
+        hWindow = FindWindow("FIFA 23", 0);
         Sleep(100);
     }
-
-    for (auto dll : fulldll_dirs) {
-        auto dll_module = dll.wstring();
-
-        if (!SetAccessControl(dll_module.c_str(), L"S-1-15-2-1")) {
-            logger.Write(LOG_ERROR, "[%s] SetAccessControl Failed", __FUNCTION__);
-            SetStatus(STATUS_ERROR);
-            return;
-        }
-
-        auto len = dll_module.capacity() * sizeof(wchar_t);
-        LPVOID alloc = VirtualAllocEx(process, 0, len, MEM_COMMIT, PAGE_READWRITE);
-        if (!alloc) {
-            DWORD err = GetLastError();
-            std::string err_msg = std::system_category().message(err);
-
-            logger.Write(LOG_ERROR, "[%s] Failed to alloc %llu bytes. Error: %s (%d)", __FUNCTION__, len, err_msg.c_str(), err);
-            SetStatus(STATUS_ERROR);
-
-            MessageBox(NULL, "Failed to allocate space.\nDid you disabled the EA Anticheat?", "Failed", MB_ICONERROR);
-
-            return;
-        }
-        if (!WriteProcessMemory(process, alloc, dll_module.data(), len, 0)) {
-            logger.Write(LOG_ERROR, "[%s] WriteProcessMemory Failed", __FUNCTION__);
-            SetStatus(STATUS_ERROR);
-            return;
-        }
-        auto thread = CreateRemoteThread(process, 0, 0, reinterpret_cast<LPTHREAD_START_ROUTINE>(LoadLibraryW), alloc, 0, 0);
-        if (!thread) {
-            logger.Write(LOG_ERROR, "[%s] CreateRemoteThread Failed", __FUNCTION__);
-            SetStatus(STATUS_ERROR);
-            return;
-        }
-        WaitForSingleObject(thread, INFINITE);
-        VirtualFreeEx(process, alloc, len, MEM_RESERVE);
+    if (hWindow) {
+        logger.Write(LOG_INFO, "[%s] Game Window Found", __FUNCTION__);
     }
-    CloseHandle(process);
 
-    SetStatus(STATUS_DONE);
+    if (success) {
+        SetStatus(STATUS_DONE);
+    }
+    else {
+        logger.Write(LOG_ERROR, "[%s] Injection failed...", __FUNCTION__);
+
+        SetStatus(STATUS_ERROR);
+        std::stringstream ss;
+
+        for (const auto& [pid, _status] : m_game_ids) {
+            if (_status) {
+                ss << "PID: " << pid << "STATUS: " << "OK\n";
+            }
+            else {
+                if (m_game_ids_errors.count(pid) == 1) {
+                    ss << "PID: " << pid << "ERROR: " << m_game_ids_errors.at(pid) <<"\n";
+                }
+                else {
+                    ss << "PID: " << pid << "ERROR: " << "UNKNOWN\n";
+                }
+            }
+        }
+
+        logger.Write(LOG_ERROR, "[%s] %s", __FUNCTION__, ss.str().c_str());
+        MessageBox(NULL, ss.str().c_str(), "Failed", MB_ICONERROR);
+    }
 }
 
 Injector g_Injector;

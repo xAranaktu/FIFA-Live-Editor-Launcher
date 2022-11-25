@@ -52,7 +52,7 @@ int WinMain(
         }
     }
 
-    if (g_Injector.GetGamePID() != 0) {
+    if (g_Injector.GetGamePIDs().size() > 0) {
         MessageBox(NULL, "Game is Open\nRun the Live Editor before the game.", "Game is Open", MB_ICONERROR);
 
         // Early exit

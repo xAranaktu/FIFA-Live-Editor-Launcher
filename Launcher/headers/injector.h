@@ -62,7 +62,8 @@ public:
 
     bool CanShutdown();
 
-    int GetGamePID(int invalid = 0);
+    // Get ALL game process IDs
+    std::vector<int> GetGamePIDs();
     bool AnticheatDetected();
 
     void Inject();
@@ -72,10 +73,19 @@ private:
     std::mutex m_interupt;
     STATUS injection_status = STATUS_IDLE;
 
-    int delay = 0;
+    std::vector<fs::path> fulldll_dirs;
+
+    // PID - Injection done
+    std::map<int, bool> m_game_ids;
+
+    // Errors
+    std::map<int, std::string> m_game_ids_errors;
+
+    int delay = 3000;
     bool should_interupt = false;
 
     bool SetAccessControl(const wchar_t* file, const wchar_t* access);
+    bool DoInjectDLL(int pid);
 };
 
 extern Injector g_Injector;
