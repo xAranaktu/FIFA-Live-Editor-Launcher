@@ -86,6 +86,7 @@ private:
 
     bool SetAccessControl(const wchar_t* file, const wchar_t* access);
     bool DoInjectDLL(int pid);
+    bool Interupt();
 };
 
 extern Injector g_Injector;

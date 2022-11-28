@@ -194,6 +194,8 @@ bool Injector::DoInjectDLL(int pid) {
 void Injector::Inject() {
     logger.Write(LOG_INFO, "[%s]", __FUNCTION__);
 
+    std::stringstream ssError;
+
     fulldll_dirs.clear();
     for (std::string dll : g_Config.dlls) {
         fs::path fulldll_dir = g_Core.ctx.GetFolder() + "\\" + dll;
@@ -213,19 +215,11 @@ void Injector::Inject() {
 
     SetStatus(STATUS_WAITING_FOR_GAME);
     logger.Write(LOG_INFO, "[%s] STATUS_WAITING_FOR_GAME", __FUNCTION__);
-    while (true)
+    while (GetGamePIDs().empty())
     {
-        if (GetInterupt()) {
-            logger.Write(LOG_INFO, "[%s] Interupting injection...", __FUNCTION__);
-            SetStatus(STATUS_IDLE);
-            SetInterupt(false);
-            return;
-        }
-        
-        if (GetGamePIDs().size() > 0)
-            break;
+        if (Interupt()) return;
 
-        Sleep(100);
+        Sleep(10);
     }
 
     SetStatus(STATUS_INJECTING);
@@ -234,21 +228,19 @@ void Injector::Inject() {
 
     bool success = true;
     HWND hWindow = NULL;
+    int attempts = 0;
     while (hWindow == NULL)
     {
-        if (GetInterupt()) {
-            logger.Write(LOG_INFO, "[%s] Interupting injection...", __FUNCTION__);
-            SetStatus(STATUS_IDLE);
-            SetInterupt(false);
-            return;
-        }
+        if (Interupt()) return;
 
         std::vector<int> proc_ids = GetGamePIDs();
 
-        if (proc_ids.size() == 0) {
+        if (proc_ids.empty())   attempts++;
+
+        if (attempts >= 30) {
             logger.Write(LOG_WARN, "[%s] No game processes", __FUNCTION__);
+            ssError << "No game found after 30 attempts\n";
             success = false;
-            break;
         }
 
         for (int pid : proc_ids) {
@@ -266,7 +258,7 @@ void Injector::Inject() {
         }
 
         hWindow = FindWindow("FIFA 23", 0);
-        Sleep(100);
+        Sleep(50);
     }
     if (hWindow) {
         logger.Write(LOG_INFO, "[%s] Game Window Found", __FUNCTION__);
@@ -279,25 +271,35 @@ void Injector::Inject() {
         logger.Write(LOG_ERROR, "[%s] Injection failed...", __FUNCTION__);
 
         SetStatus(STATUS_ERROR);
-        std::stringstream ss;
 
         for (const auto& [pid, _status] : m_game_ids) {
             if (_status) {
-                ss << "PID: " << pid << "STATUS: " << "OK\n";
+                ssError << "PID: " << pid << " STATUS: " << "OK\n";
             }
             else {
                 if (m_game_ids_errors.count(pid) == 1) {
-                    ss << "PID: " << pid << "ERROR: " << m_game_ids_errors.at(pid) <<"\n";
+                    ssError << "PID: " << pid << " ERROR: " << m_game_ids_errors.at(pid) <<"\n";
                 }
                 else {
-                    ss << "PID: " << pid << "ERROR: " << "UNKNOWN\n";
+                    ssError << "PID: " << pid << " ERROR: " << "UNKNOWN\n";
                 }
             }
         }
 
-        logger.Write(LOG_ERROR, "[%s] %s", __FUNCTION__, ss.str().c_str());
-        MessageBox(NULL, ss.str().c_str(), "Failed", MB_ICONERROR);
+        logger.Write(LOG_ERROR, "[%s] %s", __FUNCTION__, ssError.str().c_str());
+        MessageBox(NULL, ssError.str().c_str(), "Failed", MB_ICONERROR);
     }
+}
+
+bool Injector::Interupt() {
+    if (GetInterupt()) {
+        logger.Write(LOG_INFO, "[%s] Interupting injection...", __FUNCTION__);
+        SetStatus(STATUS_IDLE);
+        SetInterupt(false);
+        return true;
+    }
+
+    return false;
 }
 
 Injector g_Injector;
