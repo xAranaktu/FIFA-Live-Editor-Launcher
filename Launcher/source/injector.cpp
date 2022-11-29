@@ -228,19 +228,21 @@ void Injector::Inject() {
 
     bool success = true;
     HWND hWindow = NULL;
-    int attempts = 0;
+    // Max Wait ~60 seconds
+    int max_attempts = 1200;
     while (hWindow == NULL)
     {
         if (Interupt()) return;
 
         std::vector<int> proc_ids = GetGamePIDs();
 
-        if (proc_ids.empty())   attempts++;
+        if (proc_ids.empty())   max_attempts--;
 
-        if (attempts >= 30) {
+        if (max_attempts <= 0) {
             logger.Write(LOG_WARN, "[%s] No game processes", __FUNCTION__);
-            ssError << "No game found after 30 attempts\n";
+            ssError << "No game found after " << max_attempts << " attempts\n";
             success = false;
+            break;
         }
 
         for (int pid : proc_ids) {
@@ -248,13 +250,11 @@ void Injector::Inject() {
                 // Add Process ID
                 m_game_ids[pid] = false;
             }
-
-            if (m_game_ids.count(pid) == 1 && m_game_ids[pid] == true) {
-                // Already injected to this game proc
-                continue;
+            else {
+                if (!m_game_ids[pid]) {
+                    m_game_ids[pid] = DoInjectDLL(pid);
+                }
             }
-
-            m_game_ids[pid] = DoInjectDLL(pid);
         }
 
         hWindow = FindWindow("FIFA 23", 0);
