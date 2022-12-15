@@ -229,16 +229,17 @@ void Injector::Inject() {
     bool success = true;
     HWND hWindow = NULL;
     // Max Wait ~60 seconds
-    int max_attempts = 1200;
+    static int max_attempts = 1200;
+    int attempts = 0;
     while (hWindow == NULL)
     {
         if (Interupt()) return;
 
         std::vector<int> proc_ids = GetGamePIDs();
 
-        if (proc_ids.empty())   max_attempts--;
+        if (proc_ids.empty())   attempts++;
 
-        if (max_attempts <= 0) {
+        if (attempts >= max_attempts) {
             logger.Write(LOG_WARN, "[%s] No game processes", __FUNCTION__);
             ssError << "No game found after " << max_attempts << " attempts\n";
             success = false;
