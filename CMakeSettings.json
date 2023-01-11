@@ -8,8 +8,7 @@
             "cmakeCommandArgs": "",
             "buildCommandArgs": "-m -v:minimal",
             "ctestCommandArgs": "",
-            "inheritEnvironments": [],
-            "variables": []
+            "inheritEnvironments": []
         },
         {
             "name": "x64-Release",
