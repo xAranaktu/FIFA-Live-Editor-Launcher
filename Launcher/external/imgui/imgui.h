@@ -2142,6 +2142,7 @@ struct ImGuiIO
     bool        BackendUsingLegacyNavInputArray;    // 0: using AddKeyAnalogEvent(), 1: writing to legacy io.NavInputs[] directly
     ImWchar16   InputQueueSurrogate;                // For AddInputCharacterUTF16()
     ImVector<ImWchar> InputQueueCharacters;         // Queue of _characters_ input (obtained by platform backend). Fill using AddInputCharacter() helper.
+    int         FrameCountSinceLastInput;           // How many frames since the last input event; a value of 0 indicates that the current frame was triggered by an input.
 
     IMGUI_API   ImGuiIO();
 };

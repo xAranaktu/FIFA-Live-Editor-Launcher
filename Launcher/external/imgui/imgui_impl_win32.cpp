@@ -19,6 +19,7 @@
 #define WIN32_LEAN_AND_MEAN
 #endif
 #include <windows.h>
+#include <math.h> // isinf
 #include <windowsx.h> // GET_X_LPARAM(), GET_Y_LPARAM()
 #include <tchar.h>
 #include <dwmapi.h>
@@ -595,6 +596,7 @@ IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hwnd, UINT msg, WPARA
         POINT mouse_pos = { (LONG)GET_X_LPARAM(lParam), (LONG)GET_Y_LPARAM(lParam) };
         if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
             ::ClientToScreen(hwnd, &mouse_pos);
+        io.FrameCountSinceLastInput = 0;
         io.AddMousePosEvent((float)mouse_pos.x, (float)mouse_pos.y);
         break;
     }
@@ -602,6 +604,7 @@ IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hwnd, UINT msg, WPARA
         if (bd->MouseHwnd == hwnd)
             bd->MouseHwnd = NULL;
         bd->MouseTracked = false;
+        io.FrameCountSinceLastInput = 0;
         io.AddMousePosEvent(-FLT_MAX, -FLT_MAX);
         break;
     case WM_LBUTTONDOWN: case WM_LBUTTONDBLCLK:
@@ -617,6 +620,7 @@ IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hwnd, UINT msg, WPARA
         if (bd->MouseButtonsDown == 0 && ::GetCapture() == NULL)
             ::SetCapture(hwnd);
         bd->MouseButtonsDown |= 1 << button;
+        io.FrameCountSinceLastInput = 0;
         io.AddMouseButtonEvent(button, true);
         return 0;
     }
@@ -633,15 +637,22 @@ IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hwnd, UINT msg, WPARA
         bd->MouseButtonsDown &= ~(1 << button);
         if (bd->MouseButtonsDown == 0 && ::GetCapture() == hwnd)
             ::ReleaseCapture();
+        io.FrameCountSinceLastInput = 0;
         io.AddMouseButtonEvent(button, false);
         return 0;
     }
     case WM_MOUSEWHEEL:
+    {
+        io.FrameCountSinceLastInput = 0;
         io.AddMouseWheelEvent(0.0f, (float)GET_WHEEL_DELTA_WPARAM(wParam) / (float)WHEEL_DELTA);
         return 0;
+    }
     case WM_MOUSEHWHEEL:
+    {
+        io.FrameCountSinceLastInput = 0;
         io.AddMouseWheelEvent((float)GET_WHEEL_DELTA_WPARAM(wParam) / (float)WHEEL_DELTA, 0.0f);
         return 0;
+    }
     case WM_KEYDOWN:
     case WM_KEYUP:
     case WM_SYSKEYDOWN:
@@ -682,6 +693,7 @@ IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hwnd, UINT msg, WPARA
                 if (IsVkDown(VK_LMENU) == is_key_down) { ImGui_ImplWin32_AddKeyEvent(ImGuiKey_LeftAlt, is_key_down, VK_LMENU, scancode); }
                 if (IsVkDown(VK_RMENU) == is_key_down) { ImGui_ImplWin32_AddKeyEvent(ImGuiKey_RightAlt, is_key_down, VK_RMENU, scancode); }
             }
+            io.FrameCountSinceLastInput = 0;
         }
         return 0;
     }
@@ -1189,6 +1201,21 @@ void ImGui_ImplWin32_EnableAlphaCompositing(void* hwnd)
         DWM_BLURBEHIND bb = {};
         bb.dwFlags = DWM_BB_ENABLE;
         ::DwmEnableBlurBehindWindow((HWND)hwnd, &bb);
+    }
+}
+
+void ImGui_ImplWin32_WaitForEvent()
+{
+    ImGui_ImplWin32_Data* bd = ImGui_ImplWin32_GetBackendData();
+    if (!bd) return;
+    BOOL window_is_hidden = !IsWindowVisible(bd->hWnd) || IsIconic(bd->hWnd);
+
+    double event_waiting_time = ImGui::GetIO().FrameCountSinceLastInput > 2 ? 1.0 : 0.0;
+    double waiting_time = window_is_hidden ? INFINITE : event_waiting_time;
+    if (waiting_time > 0.0)
+    {
+        DWORD waiting_time_ms = isinf(waiting_time) ? INFINITE : (DWORD)(1000.0 * waiting_time);
+        ::MsgWaitForMultipleObjectsEx(0, NULL, waiting_time_ms, QS_ALLINPUT, MWMO_INPUTAVAILABLE | MWMO_ALERTABLE);
     }
 }
 

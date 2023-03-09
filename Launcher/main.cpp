@@ -120,6 +120,7 @@ int WinMain(
     bool done = false;
     while (!done)
     {
+        ImGui_ImplWin32_WaitForEvent();
         if (g_Injector.CanShutdown()) {
             logger.Write(LOG_INFO, "Injection done - shutdown");
             g_Core.onExit();
