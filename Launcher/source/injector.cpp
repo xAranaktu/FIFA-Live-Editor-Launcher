@@ -219,7 +219,7 @@ void Injector::Inject() {
     {
         if (Interupt()) return;
 
-        Sleep(10);
+        Sleep(100);
     }
 
     SetStatus(STATUS_INJECTING);
