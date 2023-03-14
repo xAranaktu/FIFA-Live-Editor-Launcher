@@ -11,6 +11,12 @@ Core::~Core()
 bool Core::Init()
 {
     ctx.Update(GetModuleHandle(NULL));
+    std::filesystem::path le_dir = ctx.GetFolder();
+    std::string app_data("AppData\\Local\\Temp");
+    if (ToUTF8String(le_dir).find(app_data) != std::string::npos) {
+        MessageBox(NULL, "Archive not extracted\n\nUnpack live editor with winrar or alternative software if you want to use it", "Not extracted", MB_ICONERROR);
+        return false;
+    }
 
     SetupLogger();
     g_Config.Setup(ctx.GetFolder());
@@ -18,11 +24,11 @@ bool Core::Init()
     g_Config.Load();
 
     std::filesystem::path game_install_dir = GetGameInstallDir();
-    std::filesystem::path le_dir = ctx.GetFolder();
 
     logger.Write(LOG_INFO, "[%s] %s %s", __FUNCTION__, TOOL_NAME, TOOL_VERSION);
     logger.Write(LOG_INFO, "[%s] Game Install Dir: %s", __FUNCTION__, ToUTF8String(game_install_dir).c_str());
     logger.Write(LOG_INFO, "[%s] Live Editor Dir: %s", __FUNCTION__, ToUTF8String(le_dir).c_str());
+
 
     std::string procname = "FIFA" + std::to_string(FIFA_EDITION) + ".exe";
     std::filesystem::path proc_full_path = game_install_dir / procname;
