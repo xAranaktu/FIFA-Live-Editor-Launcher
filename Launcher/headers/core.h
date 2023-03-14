@@ -4,6 +4,7 @@
 #include <sstream>
 #include <filesystem>
 
+#include <misc.h>
 #include <logger.h>
 #include <consts.h>
 #include <config.h>
@@ -28,7 +29,6 @@ public:
 
     fs::path GetGameInstallDir();
     void RunGame();
-    bool isASCII(const std::string& s);
 
 private:
     void SetupLogger();

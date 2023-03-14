@@ -21,30 +21,18 @@ bool Core::Init()
     std::filesystem::path le_dir = ctx.GetFolder();
 
     logger.Write(LOG_INFO, "[%s] %s %s", __FUNCTION__, TOOL_NAME, TOOL_VERSION);
-    logger.Write(LOG_INFO, "[%s] Game Install Dir: %s", __FUNCTION__, game_install_dir.c_str());
-    logger.Write(LOG_INFO, "[%s] Live Editor Dir: %s", __FUNCTION__, le_dir.string().c_str());
+    logger.Write(LOG_INFO, "[%s] Game Install Dir: %s", __FUNCTION__, ToUTF8String(game_install_dir).c_str());
+    logger.Write(LOG_INFO, "[%s] Live Editor Dir: %s", __FUNCTION__, ToUTF8String(le_dir).c_str());
 
-    // std::string app_data("AppData\\Local\\Temp");
-    // if (le_dir.find(app_data) != std::string::npos) {
-    //     logger.Write(LOG_ERROR, "ERROR: Not extracted");
-    // 
-    //     MessageBox(NULL, "Archive not extracted\n\nUnpack live editor with winrar or alternative software if you want to use it", "Not extracted", MB_ICONERROR);
-    //     return false;
-    // }
-    // 
-    // if (!isASCII(game_install_dir)) {
-    //     logger.Write(LOG_ERROR, "ERROR: Invalid chars in game install dir");
-    // 
-    //     MessageBox(NULL, "Your game installation directory contains non-English character(s) which are not supported by the Live Editor.\n\nSolution:\nMove game to other path with English only characters.", "INVALID CHARACTER", MB_ICONERROR);
-    //     return false;
-    // }
-    // 
-    // if (!isASCII(le_dir)) {
-    //     logger.Write(LOG_ERROR, "ERROR: Invalid chars in live editor dir");
-    // 
-    //     MessageBox(NULL, "Live Editor installation directory contains non-English character(s) which are not supported.\n\nSolution:\nDownload Live Editor again and put it in path with English only characters.", "INVALID CHARACTER", MB_ICONERROR);
-    //     return false;
-    // }
+    std::string procname = "FIFA" + std::to_string(FIFA_EDITION) + ".exe";
+    std::filesystem::path proc_full_path = game_install_dir / procname;
+    if (!std::filesystem::exists(proc_full_path)) {
+        std::string msg = "Can't find " + procname + " in:\n" + ToUTF8String(game_install_dir);
+        logger.Write(LOG_FATAL, "[%s] %s ", __FUNCTION__, msg.c_str());
+        MessageBox(NULL, msg.c_str(), "ERROR", MB_ICONERROR);
+        return false;
+    }
+
     RestoreOrgGameFiles();
     BackupOrgGameFiles();
     CopyFakeEAAC();
@@ -138,7 +126,7 @@ void Core::RunGame() {
 
 void Core::SetupLogger() {
     const std::filesystem::path logPath = ctx.GetFolder() / "Logs";
-    std::string msg = "Failed to create Logs directory:\n" + logPath.string() + "\nError: ";
+    std::string msg = "Failed to create Logs directory:\n" + ToUTF8String(logPath) + "\nError: ";
     bool failed = false;
 
     try {
@@ -167,13 +155,6 @@ void Core::SetupLogger() {
         std::setw(4) << std::setfill('0') << currTimeLog.wYear << ".txt";
     const std::filesystem::path logFile = logPath / ssLogFile.str();
     logger.SetFile(logFile);
-}
-
-bool Core::isASCII(const std::string& s) {
-    return true;
-    //return !std::any_of(s.begin(), s.end(), [](char c) {
-    //    return static_cast<unsigned char>(c) > 127;
-    //});
 }
 
 fs::path Core::GetEAACLauncherPath() {

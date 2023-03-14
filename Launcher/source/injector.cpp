@@ -199,9 +199,9 @@ void Injector::Inject() {
     fulldll_dirs.clear();
     for (std::string dll : g_Config.dlls) {
         fs::path fulldll_dir = g_Core.ctx.GetFolder() / dll;
-        logger.Write(LOG_INFO, "[%s] DLL dir: %s", __FUNCTION__, fulldll_dir.string().c_str());
+        logger.Write(LOG_INFO, "[%s] DLL dir: %s", __FUNCTION__, ToUTF8String(fulldll_dir).c_str());
         if (!fs::exists(fulldll_dir)) {
-            logger.Write(LOG_ERROR, "[%s] Can't find DLL at %s", __FUNCTION__, fulldll_dir.string().c_str());
+            logger.Write(LOG_ERROR, "[%s] Can't find DLL at %s", __FUNCTION__, ToUTF8String(fulldll_dir).c_str());
             SetStatus(STATUS_ERROR);
             return;
         }

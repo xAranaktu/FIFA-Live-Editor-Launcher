@@ -48,6 +48,7 @@ SET(ALL_HEADERS
     "headers/context.h"
     "headers/logger.h"
     "headers/injector.h"
+    "headers/misc.h"
     "headers/ui/gui.h"
     "headers/ui/injector_window.h"
     "headers/ui/imgui_helper.h"
@@ -60,6 +61,7 @@ SET(ALL_CPP
     "source/config.cpp"
     "source/logger.cpp"
     "source/injector.cpp"
+    "source/misc.cpp"
     "source/ui/gui.cpp"
     "source/ui/injector_window.cpp"
 
