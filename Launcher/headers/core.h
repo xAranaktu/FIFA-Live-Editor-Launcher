@@ -26,18 +26,16 @@ public:
     void onExit();
     const char* GetToolVer();
 
-    std::string GetGameInstallDir();
+    fs::path GetGameInstallDir();
     void RunGame();
-    void ToggleAnticheat(bool disable);
     bool isASCII(const std::string& s);
-
-    void ApplyPlatform(bool isOrigin);
 
 private:
     void SetupLogger();
 
-    std::string GetInstallerDataPath();
-    std::string GetEAACLauncherPath();
+    fs::path GetEAACLauncherPath();
+    fs::path GetFakeEAACPath();
+    fs::path GetBAKPathFor(fs::path p);
 
     void CopyFakeEAAC();
     void BackupOrgGameFiles();

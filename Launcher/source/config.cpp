@@ -9,15 +9,15 @@ namespace core {
     {
     }
 
-    void Config::Setup(std::string folder) {
+    void Config::Setup(std::filesystem::path folder) {
         logger.Write(LOG_INFO, "[%s]", __FUNCTION__);
 
-        fpath = folder + "\\" + fname;
+        fpath = folder / fname;
 
         if (!fs::exists(fpath)) {
             logger.Write(LOG_INFO, "[%s] Config not found: %s", __FUNCTION__, fpath.c_str());
 
-            std::string msg = "Config not found:\n" + fpath;
+            std::string msg = "Config not found:\n" + fpath.string();
 
             MessageBox(NULL, msg.c_str(), "WARNING", MB_ICONWARNING);
         }

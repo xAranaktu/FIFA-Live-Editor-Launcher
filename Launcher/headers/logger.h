@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include <filesystem>
 #include <vector>
 #include <iomanip>
 #include <Windows.h>
@@ -26,14 +27,14 @@ public:
     Logger();
     ~Logger();
     bool IsDebugLevel();
-    void SetFile(const std::string& fileName);
+    void SetFile(const std::filesystem::path& fileName);
     void SetMinLevel(LogLevel level);
     void Clear() const;
     void Write(LogLevel level, const std::string& text) const;
     void Write(LogLevel level, const char* fmt, ...) const;
 
 private:
-    std::string file = "";
+    std::filesystem::path file = "";
     std::string levelText(LogLevel level) const;
     LogLevel minLevel = LOG_INFO;
 };

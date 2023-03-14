@@ -35,6 +35,7 @@ SET(EXTERNAL_H
 
 SET(EXTERNAL_SRC
     "external/nlohmann/json.hpp"
+    "external/nlohmann/json_fwd.hpp"
     "external/nlohmann/fifo_map.hpp"
     "external/tinyxml2.cpp"
     "external/ImGuiFileDialog/ImGuiFileDialog.cpp"

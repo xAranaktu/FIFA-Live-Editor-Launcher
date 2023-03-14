@@ -9,7 +9,7 @@ bool Logger::IsDebugLevel() {
     return minLevel == LOG_DEBUG;
 }
 
-void Logger::SetFile(const std::string& fileName) {
+void Logger::SetFile(const std::filesystem::path& fileName) {
     file = fileName;
 }
 

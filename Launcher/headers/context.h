@@ -2,6 +2,10 @@
 #include <psapi.h>
 #include <string>
 
+namespace std::fs {
+    using namespace std::filesystem;
+}
+
 //https://github.com/E66666666/GTAVManualTransmission/blob/b2854a1896456c80826e076a2e99131acd2281b6/Gears/Util/Paths.cpp
 namespace core
 {
@@ -17,17 +21,16 @@ namespace core
         } m_ModuleContext;
 
         HMODULE             m_ModuleHandle = NULL;
-        std::string         sfullModPath = "";
+        std::fs::path       sfullModPath = "";
 
-        std::string GetFolder()
+        std::fs::path GetFolder()
         {
-            return sfullModPath.substr(0, sfullModPath.find_last_of("\\"));
+            return sfullModPath.parent_path();
         };
 
         std::string GetName()
         {
-            size_t lastIndex = sfullModPath.find_last_of("\\") + 1;
-            return sfullModPath.substr(lastIndex, sfullModPath.length() - lastIndex);
+            return sfullModPath.filename().string();
         };
 
         void Update(HMODULE hModule)

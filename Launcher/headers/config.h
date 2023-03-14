@@ -31,12 +31,12 @@ namespace core {
         Config();
         ~Config();
 
-        void Setup(std::string folder);
+        void Setup(std::filesystem::path folder);
 
         void Load();
         void Save();
     private:
-        std::string fpath;
+        std::filesystem::path fpath;
         json o = json::object();
 
         void LoadFromStrArray(std::vector<std::string>& to, std::string from);
