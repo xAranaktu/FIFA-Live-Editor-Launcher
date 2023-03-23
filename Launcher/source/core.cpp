@@ -117,11 +117,29 @@ void Core::RunGame() {
     std::filesystem::path game_full_path = GetGameInstallDir() / proc_name;
 
     if (fs::exists(game_full_path)) {
-        logger.Write(LOG_INFO, "[%s] game_full_path: %s", __FUNCTION__, game_full_path.c_str());
+        auto sFullPath = ToUTF8String(game_full_path);
 
-        ShellExecuteW(NULL, L"runas", game_full_path.c_str(), params.c_str(), NULL, SW_SHOWDEFAULT);
+        logger.Write(LOG_INFO, "[%s] game_full_path: %s", __FUNCTION__, sFullPath.c_str());
 
-        logger.Write(LOG_INFO, "[%s] Done", __FUNCTION__);
+        SHELLEXECUTEINFOW ShExecInfo;
+        ShExecInfo.cbSize = sizeof(SHELLEXECUTEINFOW);
+        ShExecInfo.fMask = NULL;
+        ShExecInfo.hwnd = NULL;
+        ShExecInfo.lpVerb = L"runas";
+        ShExecInfo.lpFile = wcsdup(game_full_path.wstring().c_str());
+        ShExecInfo.lpParameters = wcsdup(params.c_str());
+        ShExecInfo.lpDirectory = NULL;
+        ShExecInfo.nShow = SW_SHOWDEFAULT;
+        ShExecInfo.hInstApp = NULL;
+
+        bool result = ShellExecuteExW(&ShExecInfo);
+        if (!result) {
+            DWORD err = GetLastError();
+            logger.Write(LOG_INFO, "[%s] Done %d, err %d %s", __FUNCTION__, result, err, std::system_category().message(err).c_str());
+        }
+        else {
+            logger.Write(LOG_INFO, "[%s] Done", __FUNCTION__);
+        }
     }
     else {
         std::wstring msg = L"Can't Find File:\n" + game_full_path.wstring();

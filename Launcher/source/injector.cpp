@@ -81,42 +81,42 @@ init:
 
 std::vector<int> Injector::GetGamePIDs() {
     std::vector<int> result;
+    TCHAR szProcessName[MAX_PATH] = TEXT("<unknown>");
+    DWORD aProcesses[2048], cbNeeded, cbNeededMod, cProcesses;
+    HMODULE hMod;
+    unsigned int i;
 
-    PVOID snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
-    PROCESSENTRY32 process;
-    process.dwSize = sizeof(process);
+    if (!K32EnumProcesses(aProcesses, sizeof(aProcesses), &cbNeeded))
+    {
+        return result;
+    }
+    cProcesses = cbNeeded / sizeof(DWORD);
+    for (i = 0; i < cProcesses; i++)
+    {
+        DWORD processID = aProcesses[i];
+        if (processID == 0) continue;
+        HANDLE hProcess = OpenProcess(
+            PROCESS_QUERY_INFORMATION | PROCESS_VM_READ,
+            FALSE, processID
+        );
+        if (hProcess == NULL) continue;
 
-    while (Process32Next(snapshot, &process)) {
+        if (K32EnumProcessModulesEx(hProcess, &hMod, sizeof(hMod), &cbNeededMod, LIST_MODULES_64BIT))
+        {
+            K32GetModuleBaseNameA(hProcess, hMod, szProcessName, sizeof(szProcessName) / sizeof(TCHAR));
+        }
+
         for (std::string const name : g_Config.proc_names) {
-            if (strcmp(process.szExeFile, name.c_str()) == 0) {
-                result.push_back(process.th32ProcessID);
-                // logger.Write(LOG_INFO, "Found %s (PID: %d)", process.szExeFile, pid);
+            if (strcmp(szProcessName, name.c_str()) == 0) {
+                result.push_back(processID);
+                // logger.Write(LOG_INFO, "Found %s (PID: %d)", szProcessName, processID);
             }
         }
+
+        CloseHandle(hProcess);
     }
 
-    CloseHandle(snapshot);
     return result;
-}
-
-bool Injector::AnticheatDetected() {
-    PVOID snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
-    PROCESSENTRY32 process;
-    process.dwSize = sizeof(process);
-
-    DWORD pid = 0;
-    while (Process32Next(snapshot, &process)) {
-        for (std::string const name : g_Config.anticheat_proc_names) {
-            if (strcmp(process.szExeFile, name.c_str()) == 0) {
-                pid = process.th32ProcessID;
-                logger.Write(LOG_INFO, "Found Anticheat %s (PID: %d)", name.c_str(), pid);
-                break;
-            }
-        }
-    }
-
-    CloseHandle(snapshot);
-    return pid;
 }
 
 bool Injector::DoInjectDLL(int pid) {

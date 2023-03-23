@@ -64,8 +64,6 @@ public:
 
     // Get ALL game process IDs
     std::vector<int> GetGamePIDs();
-    bool AnticheatDetected();
-
     void Inject();
 
 private:
