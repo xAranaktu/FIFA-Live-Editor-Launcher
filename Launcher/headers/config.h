@@ -3,6 +3,7 @@
 #include <vector>
 #include <filesystem>
 #include <logger.h>
+#include <misc.h>
 #include <../external/nlohmann/json.hpp>
 
 namespace fs = std::filesystem;

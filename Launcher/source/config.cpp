@@ -15,7 +15,7 @@ namespace core {
         fpath = folder / fname;
 
         if (!fs::exists(fpath)) {
-            logger.Write(LOG_INFO, "[%s] Config not found: %s", __FUNCTION__, fpath.c_str());
+            logger.Write(LOG_INFO, "[%s] Config not found: %s", __FUNCTION__, ToUTF8String(fpath).c_str());
 
             std::string msg = "Config not found:\n" + fpath.string();
 
@@ -24,7 +24,7 @@ namespace core {
     }
 
     void Config::Load() {
-        logger.Write(LOG_INFO, "[%s] From %s", __FUNCTION__, fpath.c_str());
+        logger.Write(LOG_INFO, "[%s] From %s", __FUNCTION__, ToUTF8String(fpath).c_str());
         o = json::object();
         std::ifstream _stream(fpath);
         _stream >> o;
@@ -107,10 +107,10 @@ namespace core {
         o.at(json::json_pointer(std::string("/Launcher/show_disclaimer_msg"))) = show_disclaimer_msg;
         o.at(json::json_pointer(std::string("/Launcher/close_after_injection"))) = close_after_injection;
 
-        std::ofstream x(fpath.c_str());
+        std::ofstream x(fpath);
 
         if (!x) {
-            logger.Write(LOG_ERROR, "[%s] Can't write to: %s", __FUNCTION__, fpath.c_str());
+            logger.Write(LOG_ERROR, "[%s] Can't write to: %s", __FUNCTION__, ToUTF8String(fpath).c_str());
             return;
         }
 
