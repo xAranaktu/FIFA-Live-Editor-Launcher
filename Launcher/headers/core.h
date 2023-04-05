@@ -28,9 +28,11 @@ public:
     const char* GetToolVer();
 
     fs::path GetGameInstallDir();
+
     void RunGame();
 
 private:
+    bool SafeCreateDirectories(const std::filesystem::path d);
     void SetupLogger();
 
     fs::path GetEAACLauncherPath();
@@ -41,6 +43,11 @@ private:
     void BackupOrgGameFiles();
     void RestoreOrgGameFiles();
 
+    // Create Live Editor Folders and Files in C:/ (or other drive, depending on result of std::getenv("SystemDrive"))
+    bool InitDirectories();
+
+    // Create FIFA Legacy files structure
+    void CreateLegacyFilesStructure(std::filesystem::path folders_list, std::filesystem::path mods_dir);
 };
 
 extern Core g_Core;

@@ -179,7 +179,7 @@ void GUI::DrawDisclaimer(bool* p_open) {
         ImGui::SetTooltip(DisclaimerContent);
     }
 
-    if (ImGui::Checkbox("Show Warning at startup", &g_Config.show_disclaimer_msg)) {
+    if (ImGui::Checkbox("Show Warning at startup", &g_Config.launch_values.show_disclaimer_msg)) {
         g_Config.Save();
     }
 

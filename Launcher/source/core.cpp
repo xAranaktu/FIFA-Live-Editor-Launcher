@@ -19,9 +19,10 @@ bool Core::Init()
     }
 
     SetupLogger();
-    g_Config.Setup(ctx.GetFolder());
-
-    g_Config.Load();
+    if (!InitDirectories()) {
+        MessageBox(NULL, "Init Directories has failed. More info in log file", "ERROR", MB_ICONERROR);
+        return false;
+    }
 
     std::filesystem::path game_install_dir = GetGameInstallDir();
 
@@ -106,11 +107,11 @@ fs::path Core::GetGameInstallDir() {
 void Core::RunGame() {
     logger.Write(LOG_INFO, "[%s]", __FUNCTION__);
 
-    std::string proc_name = g_Config.proc_names[0];
+    std::string proc_name = g_Config.launch_values.game_proc_name;
     std::wstring params = L"";
 
-    if (g_Config.is_trial) {
-        proc_name = g_Config.proc_names[1];
+    if (g_Config.launch_values.is_trial) {
+        proc_name = g_Config.launch_values.game_proc_name_trial;
         params = L"-trial";
     }
 
@@ -146,6 +147,21 @@ void Core::RunGame() {
 
         MessageBoxW(NULL, msg.c_str(), L"ERROR", MB_ICONERROR);
     }
+}
+
+bool Core::SafeCreateDirectories(const std::filesystem::path d) {
+    try {
+        if (fs::exists(d))   return false;
+        if (!fs::create_directories(d)) {
+            logger.Write(LOG_ERROR, "[%s] Create Directory failed %s", __FUNCTION__, ToUTF8String(d).c_str());
+            return false;
+        }
+    }
+    catch (fs::filesystem_error const& e) {
+        logger.Write(LOG_ERROR, "[%s] Create Directory failed %s (%s)", __FUNCTION__, e.what(), ToUTF8String(d).c_str());
+        return false;
+    }
+    return true;
 }
 
 void Core::SetupLogger() {
@@ -257,6 +273,145 @@ void Core::RestoreOrgGameFiles() {
     }
     catch (fs::filesystem_error const& e) {
         logger.Write(LOG_ERROR, "[%s] Restore EAAC error %s", __FUNCTION__, e.what());
+    }
+
+    logger.Write(LOG_INFO, "[%s] Done", __FUNCTION__);
+}
+
+
+bool Core::InitDirectories() {
+    logger.Write(LOG_INFO, "[%s]", __FUNCTION__);
+
+    bool config_save_required = false;
+
+    std::string drive_letter(std::getenv("SystemDrive"));
+    std::filesystem::path sys_drive_path(drive_letter + "\\");
+
+    logger.Write(LOG_INFO, "[%s] SystemDrive: %s", __FUNCTION__, ToUTF8String(sys_drive_path).c_str());
+
+    std::filesystem::path live_editor_path = sys_drive_path / "FIFA 23 Live Editor";
+    SafeCreateDirectories(live_editor_path);
+
+    g_Config.Setup(live_editor_path);
+    g_Config.Load();
+
+    std::filesystem::path live_editor_data_path = live_editor_path / "data";
+    SafeCreateDirectories(live_editor_data_path);
+
+    std::filesystem::path live_editor_career_data_path = live_editor_path / "career_data";
+    SafeCreateDirectories(live_editor_career_data_path);
+
+    std::filesystem::path live_editor_mods_path = live_editor_path / "mods";
+
+    if (g_Config.directories_values.mods_root.empty()) {
+        g_Config.directories_values.mods_root = live_editor_mods_path;
+        config_save_required |= true;
+    }
+    else {
+        live_editor_mods_path = g_Config.directories_values.mods_root;
+    }
+    SafeCreateDirectories(live_editor_mods_path);
+
+    if (g_Config.directories_values.filters_storage.empty()) {
+        g_Config.directories_values.filters_storage = live_editor_data_path / "filters";
+        config_save_required |= true;
+    }
+
+    if (g_Config.directories_values.legacyfolder_export.empty()) {
+        g_Config.directories_values.legacyfolder_export = live_editor_mods_path;
+        config_save_required |= true;
+    }
+
+    // copy files
+    const std::filesystem::path dest_legacystructure = live_editor_data_path / "legacy_structure.txt";
+    const std::filesystem::path dest_dbmeta = live_editor_data_path / "db_meta.xml";
+    const std::filesystem::path dest_idmap = live_editor_data_path / "id_map.json";
+    const std::filesystem::path cur_data_path = ctx.GetFolder() / "data";
+    if (std::filesystem::exists(cur_data_path)) {
+        if (!std::filesystem::exists(dest_legacystructure)) {
+            logger.Write(LOG_INFO, "[%s] Copy legacy_structure.txt to %s", __FUNCTION__, ToUTF8String(dest_legacystructure).c_str());
+            std::filesystem::copy_file(cur_data_path / "legacy_structure.txt", dest_legacystructure);
+        }
+
+        if (!std::filesystem::exists(dest_dbmeta)) {
+            logger.Write(LOG_INFO, "[%s] Copy db_meta.xml to %s", __FUNCTION__, ToUTF8String(dest_dbmeta).c_str());
+            std::filesystem::copy_file(cur_data_path / "db_meta.xml", dest_dbmeta);
+        }
+
+        if (!std::filesystem::exists(dest_idmap)) {
+            logger.Write(LOG_INFO, "[%s] Copy id_map.json to %s", __FUNCTION__, ToUTF8String(dest_idmap).c_str());
+            std::filesystem::copy_file(cur_data_path / "id_map.json", dest_idmap);
+        }
+    }
+
+    const std::filesystem::path cur_filters_path = ctx.GetFolder() / "filters";
+    if (std::filesystem::exists(cur_filters_path)) {
+        const std::filesystem::path cur_players_filters_path = cur_filters_path / "players";
+        const std::filesystem::path cur_teams_filters_path = cur_filters_path / "teams";
+
+        const std::filesystem::path dest_players_filters = g_Config.directories_values.filters_storage / "players";
+        const std::filesystem::path dest_teams_filters = g_Config.directories_values.filters_storage / "teams";
+
+        SafeCreateDirectories(dest_players_filters);
+        SafeCreateDirectories(dest_teams_filters);
+
+        if (std::filesystem::exists(cur_players_filters_path)) {
+            for (const auto& entry : std::filesystem::directory_iterator(cur_players_filters_path))
+            {
+                if (entry.is_regular_file())
+                {
+                    std::filesystem::path new_loc = dest_players_filters / entry.path().filename();
+                    if (!std::filesystem::exists(new_loc)) {
+                        std::filesystem::copy_file(entry.path(), new_loc);
+                    }
+                }
+            }
+        }
+        
+        if (std::filesystem::exists(cur_teams_filters_path)) {
+            for (const auto& entry : std::filesystem::directory_iterator(cur_teams_filters_path))
+            {
+                if (entry.is_regular_file())
+                {
+                    std::filesystem::path new_loc = dest_teams_filters / entry.path().filename();
+                    if (!std::filesystem::exists(new_loc)) {
+                        std::filesystem::copy_file(entry.path(), new_loc);
+                    }
+                }
+            }
+        }
+    }
+
+    CreateLegacyFilesStructure(dest_legacystructure, live_editor_mods_path);
+
+    if (config_save_required) {
+        g_Config.Save();
+    }
+
+    logger.Write(LOG_INFO, "[%s] Done", __FUNCTION__);
+    return true;
+}
+
+void Core::CreateLegacyFilesStructure(std::filesystem::path folders_list, std::filesystem::path mods_dir) {
+    logger.Write(LOG_INFO, "[%s]", __FUNCTION__);
+    
+    std::filesystem::path legacy_root = mods_dir / "root";
+    SafeCreateDirectories(legacy_root);
+    legacy_root /= "Legacy";
+    SafeCreateDirectories(legacy_root);
+
+    std::ifstream folders_to_create(folders_list);
+    std::string legacy_folder;
+    std::filesystem::path full_path = "";
+    int created_folders_count = 0;
+    while (std::getline(folders_to_create, legacy_folder)) {
+        if (SafeCreateDirectories(legacy_root / legacy_folder)) {
+            created_folders_count++;
+        }
+    }
+
+    if (created_folders_count > 0) {
+        logger.Write(LOG_INFO, "[%s] Created %d legacy folders", __FUNCTION__, created_folders_count);
     }
 
     logger.Write(LOG_INFO, "[%s] Done", __FUNCTION__);

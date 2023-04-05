@@ -41,7 +41,7 @@ int WinMain(
         return 1;
     }
 
-    if (g_Config.show_disclaimer_msg) {
+    if (g_Config.launch_values.show_disclaimer_msg) {
         std::string msg = std::string(DisclaimerContent) + "\n\nDo you want to continue?";
 
         if (MessageBox(NULL, msg.c_str(), "Disclaimer", MB_ICONWARNING | MB_OKCANCEL) != IDOK) {
@@ -102,13 +102,13 @@ int WinMain(
     ImGui_ImplWin32_Init(hwnd);
     ImGui_ImplDX11_Init(g_pd3dDevice, g_pd3dDeviceContext);
 
-    if (g_Config.auto_inject) {
-        g_Injector.SetDelay(g_Config.injection_delay);
+    if (g_Config.launch_values.auto_inject) {
+        g_Injector.SetDelay(g_Config.launch_values.injection_delay);
         std::thread t1(&Injector::Inject, &g_Injector);
         t1.detach();
     }
 
-    if (g_Config.auto_start) {
+    if (g_Config.launch_values.auto_start) {
         std::thread t2(&Core::RunGame, &g_Core);
         t2.detach();
     }

@@ -30,14 +30,14 @@ namespace UIWindows {
         //    ImGui::SetTooltip("If enable the launcher will automatically attempt to find the game process and inject the Live Editor core dll into it.");
         //}
 
-        if (!g_Config.auto_inject) {
+        if (!g_Config.launch_values.auto_inject) {
             if (ImGui::Button("Inject")) {
                 InjectDll();
             }
         }
         else {
-            if (ImGui::InputInt("Delay (ms)", &g_Config.injection_delay)) {
-                g_Injector.SetDelay(g_Config.injection_delay);
+            if (ImGui::InputInt("Delay (ms)", &g_Config.launch_values.injection_delay)) {
+                g_Injector.SetDelay(g_Config.launch_values.injection_delay);
                 g_Config.Save();
             }
 
@@ -61,7 +61,7 @@ namespace UIWindows {
             }
         }
 
-        if (ImGui::Checkbox("Auto Run Game", &g_Config.auto_start)) {
+        if (ImGui::Checkbox("Auto Run Game", &g_Config.launch_values.auto_start)) {
             g_Config.Save();
         }
         
@@ -71,7 +71,7 @@ namespace UIWindows {
             ImGui::SetTooltip("Auto start the game with Live Editor (requires restart).\nFor EA Play you need to tick the 'Is Trial Game' to make it work.");
         }
 
-        if (ImGui::Checkbox("Auto Close Launcher", &g_Config.close_after_injection)) {
+        if (ImGui::Checkbox("Auto Close Launcher", &g_Config.launch_values.close_after_injection)) {
             g_Config.Save();
         }
 
@@ -81,7 +81,7 @@ namespace UIWindows {
             ImGui::SetTooltip("Live Editor will shutdown itself after successfull DLL injection. (recommended)");
         }
         
-        if (ImGui::Checkbox("Is Trial Game", &g_Config.is_trial)) {
+        if (ImGui::Checkbox("Is Trial Game", &g_Config.launch_values.is_trial)) {
             g_Config.Save();
         }
         
@@ -102,7 +102,7 @@ namespace UIWindows {
     }
 
     void UIInjector::InjectDll() {
-        g_Injector.SetDelay(g_Config.injection_delay);
+        g_Injector.SetDelay(g_Config.launch_values.injection_delay);
         std::thread t1(&Injector::Inject, &g_Injector);
         t1.detach();
     }

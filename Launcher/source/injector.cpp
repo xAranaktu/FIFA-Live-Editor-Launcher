@@ -35,7 +35,7 @@ bool Injector::GetInterupt() {
 }
 
 bool Injector::CanShutdown() {
-    if (g_Config.close_after_injection) 
+    if (g_Config.launch_values.close_after_injection) 
         return GetStatus() == STATUS::STATUS_DONE;
 
     return false;
@@ -106,11 +106,12 @@ std::vector<int> Injector::GetGamePIDs() {
             K32GetModuleBaseNameA(hProcess, hMod, szProcessName, sizeof(szProcessName) / sizeof(TCHAR));
         }
 
-        for (std::string const name : g_Config.proc_names) {
-            if (strcmp(szProcessName, name.c_str()) == 0) {
-                result.push_back(processID);
-                // logger.Write(LOG_INFO, "Found %s (PID: %d)", szProcessName, processID);
-            }
+        if (
+            strcmp(szProcessName, g_Config.launch_values.game_proc_name.c_str()) == 0 ||
+            strcmp(szProcessName, g_Config.launch_values.game_proc_name_trial.c_str()) == 0
+        ) {
+            result.push_back(processID);
+            // logger.Write(LOG_INFO, "Found %s (PID: %d)", szProcessName, processID);
         }
 
         CloseHandle(hProcess);
@@ -197,7 +198,7 @@ void Injector::Inject() {
     std::stringstream ssError;
 
     fulldll_dirs.clear();
-    for (std::string dll : g_Config.dlls) {
+    for (std::string dll : g_Config.launch_values.dlls) {
         fs::path fulldll_dir = g_Core.ctx.GetFolder() / dll;
         logger.Write(LOG_INFO, "[%s] DLL dir: %s", __FUNCTION__, ToUTF8String(fulldll_dir).c_str());
         if (!fs::exists(fulldll_dir)) {
@@ -208,10 +209,11 @@ void Injector::Inject() {
         fulldll_dirs.push_back(fulldll_dir);
     }
 
-    logger.Write(LOG_INFO, "[%s] Trying to inject into one of the following procnames:", __FUNCTION__);
-    for (std::string const name : g_Config.proc_names) {
-        logger.Write(LOG_INFO, "%s", name.c_str());
-    }
+    logger.Write(LOG_INFO, "[%s] Trying to inject into %s or %s", 
+        __FUNCTION__,
+        g_Config.launch_values.game_proc_name.c_str(),
+        g_Config.launch_values.game_proc_name_trial.c_str()
+    );
 
     SetStatus(STATUS_WAITING_FOR_GAME);
     logger.Write(LOG_INFO, "[%s] STATUS_WAITING_FOR_GAME", __FUNCTION__);
