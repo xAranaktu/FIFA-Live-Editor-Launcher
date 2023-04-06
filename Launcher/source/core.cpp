@@ -66,6 +66,7 @@ void Core::onExit() {
                 pid = process.th32ProcessID;
                 break;
             }
+            Sleep(100);
         }
         CloseHandle(snapshot);
         Sleep(1000);
@@ -73,6 +74,18 @@ void Core::onExit() {
 
     logger.Write(LOG_INFO, "[%s] Trying to restore", __FUNCTION__);
     RestoreOrgGameFiles();
+}
+
+void Core::DetectFIFAModManager() {
+    logger.Write(LOG_INFO, "[%s]", __FUNCTION__);
+
+    // Check if FIFAModData exists in game dir
+    std::filesystem::path FIFAModDataDir = GetGameInstallDir() / "FIFAModData";
+    if (std::filesystem::exists(FIFAModDataDir)) {
+        logger.Write(LOG_INFO, "[%s] Found %s", __FUNCTION__, ToUTF8String(FIFAModDataDir).c_str());
+    }
+
+    logger.Write(LOG_INFO, "[%s] Done", __FUNCTION__);
 }
 
 const char* Core::GetToolVer() {

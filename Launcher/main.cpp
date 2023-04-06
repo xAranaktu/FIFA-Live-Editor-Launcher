@@ -61,6 +61,7 @@ int WinMain(
         return 1;
     }
 
+    g_Core.DetectFIFAModManager();
 
     // Init GUI
     g_GUI.Init();

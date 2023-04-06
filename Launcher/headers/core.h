@@ -25,6 +25,9 @@ public:
 
     bool Init();
     void onExit();
+
+    void DetectFIFAModManager();
+
     const char* GetToolVer();
 
     fs::path GetGameInstallDir();
