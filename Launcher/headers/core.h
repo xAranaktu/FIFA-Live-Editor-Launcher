@@ -38,6 +38,10 @@ private:
     bool SafeCreateDirectories(const std::filesystem::path d);
     void SetupLogger();
 
+    bool SetLEDataPathRegVal(std::wstring data);
+    fs::path GetLEDataPathRegVal();
+
+    fs::path GetLEDataPath();
     fs::path GetEAACLauncherPath();
     fs::path GetFakeEAACPath();
     fs::path GetBAKPathFor(fs::path p);

@@ -108,11 +108,13 @@ fs::path Core::GetGameInstallDir() {
     char value_buf[1024];
     DWORD value_length = sizeof(value_buf);
     LSTATUS query_status = RegQueryValueEx(hKey, val_name, NULL, &dwType, reinterpret_cast<LPBYTE>(value_buf), &value_length);
+    RegCloseKey(hKey);
 
     if (query_status != ERROR_SUCCESS) {
         logger.Write(LOG_ERROR, "[%s] RegQueryValueEx failed %d", __FUNCTION__, query_status);
         return fs::path("");
     }
+
 
     return fs::path(value_buf);
 }
@@ -210,6 +212,75 @@ void Core::SetupLogger() {
     logger.SetFile(logFile);
 }
 
+fs::path Core::GetLEDataPathRegVal() {
+    fs::path result;
+
+    HKEY hKey;
+    std::string key = std::string("SOFTWARE\\Live Editor\\FIFA ") + std::to_string(FIFA_EDITION) + "\\Data Dir";
+    LSTATUS lOpenStatus = RegOpenKeyEx(HKEY_LOCAL_MACHINE, key.c_str(), 0, KEY_ALL_ACCESS, &hKey);
+    if (lOpenStatus != ERROR_SUCCESS) {
+        RegCloseKey(hKey);
+        return result;
+    }
+
+    DWORD dwType = REG_SZ;
+    wchar_t value_buf[1024];
+    DWORD value_length = sizeof(value_buf);
+    LSTATUS query_status = RegQueryValueExW(hKey, L"Data Dir", NULL, &dwType, reinterpret_cast<LPBYTE>(value_buf), &value_length);
+    RegCloseKey(hKey);
+    if (query_status != ERROR_SUCCESS) {
+        logger.Write(LOG_WARN, "[%s] RegQueryValueEx failed %d", __FUNCTION__, query_status);
+        return fs::path("");
+    }
+
+    return fs::path(value_buf);
+}
+
+bool Core::SetLEDataPathRegVal(std::wstring data)
+{
+    HKEY hKey;
+    std::string key = std::string("SOFTWARE\\Live Editor\\FIFA ") + std::to_string(FIFA_EDITION) + "\\Data Dir";
+    if (RegCreateKeyExA(HKEY_LOCAL_MACHINE, key.c_str(), 0, NULL, REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &hKey, NULL) != ERROR_SUCCESS) {
+        logger.Write(LOG_WARN, "[%s] RegCreateKeyExA failed ", __FUNCTION__);
+        return false;
+    }
+    else {
+        DWORD cbData = static_cast<DWORD>((data.size() + static_cast<size_t>(1)) * sizeof(wchar_t));
+        LSTATUS lSetStatus = RegSetValueExW(hKey, L"Data Dir", 0, REG_SZ, (LPBYTE)data.c_str(), cbData);
+        RegCloseKey(hKey);
+
+        if (lSetStatus != ERROR_SUCCESS)
+        {
+            logger.Write(LOG_WARN, "[%s] RegSetValueExW failed %d", __FUNCTION__, lSetStatus);
+            return false;
+        }
+    }
+
+    return true;
+}
+
+fs::path Core::GetLEDataPath() {
+    logger.Write(LOG_INFO, "[%s]", __FUNCTION__);
+
+    std::filesystem::path result = GetLEDataPathRegVal();
+
+    if (!result.empty()) {
+        logger.Write(LOG_INFO, "[%s] Found Reg Val: %s", __FUNCTION__, ToUTF8String(result).c_str());
+        return result;
+    }
+    else {
+        std::filesystem::path result(std::string(std::getenv("SystemDrive")) + "\\");
+        result /= "FIFA " + std::to_string(FIFA_EDITION) + " Live Editor";
+
+        if (!SetLEDataPathRegVal(result.wstring())) {
+            logger.Write(LOG_WARN, "[%s] SetLEDataPathRegVal failed", __FUNCTION__);
+        }
+
+        logger.Write(LOG_INFO, "[%s] Default: %s", __FUNCTION__, ToUTF8String(result).c_str());
+        return result;
+    }
+}
+
 fs::path Core::GetEAACLauncherPath() {
     fs::path result = GetGameInstallDir();
     if (result.empty()) return result;
@@ -297,12 +368,7 @@ bool Core::InitDirectories() {
 
     bool config_save_required = false;
 
-    std::string drive_letter(std::getenv("SystemDrive"));
-    std::filesystem::path sys_drive_path(drive_letter + "\\");
-
-    logger.Write(LOG_INFO, "[%s] SystemDrive: %s", __FUNCTION__, ToUTF8String(sys_drive_path).c_str());
-
-    std::filesystem::path live_editor_path = sys_drive_path / "FIFA 23 Live Editor";
+    std::filesystem::path live_editor_path = GetLEDataPath(); 
     SafeCreateDirectories(live_editor_path);
 
     g_Config.Setup(live_editor_path);
