@@ -11,6 +11,8 @@ GUI::~GUI() {
 void GUI::Init() {
     if (initialized) return;
 
+    locale_window.Init();
+
     initialized = true;
 }
 
@@ -60,16 +62,8 @@ void GUI::MainDockspace() {
             auto dock_id_right = ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Right, 0.33f, nullptr, &dockspace_id);
             auto dock_id_right_down = ImGui::DockBuilderSplitNode(dock_id_right, ImGuiDir_Down, 0.33f, nullptr, &dock_id_right);
 
-            /*
-            auto dock_id_top = ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Up, 0.2f, nullptr, &dockspace_id);
-            auto dock_id_down = ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Down, 0.25f, nullptr, &dockspace_id);
-            auto dock_id_left = ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Left, 0.2f, nullptr, &dockspace_id);
-            auto dock_id_right = ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Right, 0.15f, nullptr, &dockspace_id);
-            //auto dock_id_left2 = ImGui::DockBuilderSplitNode(dock_id_left, ImGuiDir_Down, 0.2f, nullptr, &dock_id_left);
-            //auto dock_id_down2 = ImGui::DockBuilderSplitNode(dock_id_down, ImGuiDir_Right, 0.15f, nullptr, &dock_id_down);
-            */
-
             // we now dock our windows into the docking node we made above
+            locale_window.Dock(dockspace_id);
             injector_window.Dock(dock_id_left);
             ImGui::DockBuilderDockWindow("Info", dock_id_right);
             ImGui::DockBuilderDockWindow("Disclaimer", dock_id_right_down);
@@ -191,6 +185,9 @@ void GUI::Draw() {
 
     if (show_demo_window)
         ImGui::ShowDemoWindow(&show_demo_window);
+
+    if (locale_window.show)
+        locale_window.Draw(&locale_window.show);
 
     if (injector_window.show)
         injector_window.Draw(&injector_window.show);

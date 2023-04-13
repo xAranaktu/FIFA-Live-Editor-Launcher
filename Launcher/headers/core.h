@@ -31,6 +31,7 @@ public:
     const char* GetToolVer();
 
     fs::path GetGameInstallDir();
+    fs::path GetLEDataPath();
 
     void RunGame();
 
@@ -41,7 +42,6 @@ private:
     bool SetLEDataPathRegVal(std::wstring data);
     fs::path GetLEDataPathRegVal();
 
-    fs::path GetLEDataPath();
     fs::path GetEAACLauncherPath();
     fs::path GetFakeEAACPath();
     fs::path GetBAKPathFor(fs::path p);

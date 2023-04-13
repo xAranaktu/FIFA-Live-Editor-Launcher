@@ -30,6 +30,7 @@ SET(ImGUI_SRC
 SET(EXTERNAL_H
     "external/IconsFontAwesome5.h"
     "external/tinyxml2.h"
+    "external/AES/AES.h"
     "external/ImGuiFileDialog/ImGuiFileDialog.h"
 )
 
@@ -38,6 +39,7 @@ SET(EXTERNAL_SRC
     "external/nlohmann/json_fwd.hpp"
     "external/nlohmann/fifo_map.hpp"
     "external/tinyxml2.cpp"
+    "external/AES/AES.cpp"
     "external/ImGuiFileDialog/ImGuiFileDialog.cpp"
 )
 
@@ -50,6 +52,7 @@ SET(ALL_HEADERS
     "headers/injector.h"
     "headers/misc.h"
     "headers/ui/gui.h"
+    "headers/ui/locale_window.h"
     "headers/ui/injector_window.h"
     "headers/ui/imgui_helper.h"
     
@@ -63,6 +66,7 @@ SET(ALL_CPP
     "source/injector.cpp"
     "source/misc.cpp"
     "source/ui/gui.cpp"
+    "source/ui/locale_window.cpp"
     "source/ui/injector_window.cpp"
 
     "main.cpp"
@@ -76,6 +80,7 @@ add_executable(${PROJECT_NAME} WIN32 ${ALL_CPP} ${ALL_HEADERS} ${APP_ICON})
 
 target_link_libraries(${PROJECT_NAME} ${WinSDK})
 
+target_include_directories(${PROJECT_NAME} PRIVATE "external/AES/")
 target_include_directories(${PROJECT_NAME} PRIVATE "external/imgui/")
 target_include_directories(${PROJECT_NAME} PRIVATE "headers/")
 target_include_directories(${PROJECT_NAME} PRIVATE "headers/ui/")

@@ -6,6 +6,7 @@
 #include "imgui_impl_win32.h"
 #include "imgui_impl_dx11.h"
 #include "injector_window.h"
+#include "locale_window.h"
 
 // Main User Interface
 class GUI
@@ -20,6 +21,7 @@ public:
     bool show_disclaimer = true;
 
     UIWindows::UIInjector injector_window;
+    UIWindows::UILocaleIni locale_window;
 
     GUI();
     ~GUI();
