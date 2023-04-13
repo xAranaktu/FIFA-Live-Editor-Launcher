@@ -66,10 +66,10 @@ void Core::onExit() {
                 pid = process.th32ProcessID;
                 break;
             }
-            Sleep(100);
+            Sleep(10);
         }
         CloseHandle(snapshot);
-        Sleep(1000);
+        Sleep(100);
     } while (pid > 0);
 
     logger.Write(LOG_INFO, "[%s] Trying to restore", __FUNCTION__);
