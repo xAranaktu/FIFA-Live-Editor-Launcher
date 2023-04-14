@@ -10,9 +10,18 @@ GUI::~GUI() {
 
 void GUI::Init() {
     if (initialized) return;
+    sprintf(about_txt, "%s - %s", TOOL_NAME, TOOL_VERSION);
+
+    about_window_size = ImVec2(
+        1280.0f * 0.8f,
+        800.0f - 30.0f
+    );
+    about_window_pos = ImVec2(
+        static_cast<float>(GetSystemMetrics(SM_CXSCREEN) / 2),
+        static_cast<float>(GetSystemMetrics(SM_CYSCREEN) / 2)
+    );
 
     locale_window.Init();
-
     initialized = true;
 }
 
@@ -132,6 +141,7 @@ void GUI::DrawMainMenuBar() {
         if (ImGui::BeginMenu("Windows"))
         {
             ImGui::MenuItem(injector_window.GetWindowName(), NULL, &injector_window.show);
+            ImGui::MenuItem("Locale.Ini", NULL, &locale_window.show);
             ImGui::MenuItem("Info", NULL, &show_info_window);
             ImGui::MenuItem("Disclaimer", NULL, &show_disclaimer);
             ImGui::EndMenu();
@@ -142,6 +152,10 @@ void GUI::DrawMainMenuBar() {
             ImGui::MenuItemURL("Getting Started", "https://github.com/xAranaktu/FIFA-23-Live-Editor/wiki/Getting-Started");
             ImGui::MenuItemURL("Discord", "https://discord.gg/va9EtdB");
             ImGui::EndMenu();
+        }
+
+        if (ImGui::BeginMenu("About")) {
+            show_about = true;
         }
 
         //if (ImGui::BeginMenu("Edit"))
@@ -180,6 +194,37 @@ void GUI::DrawDisclaimer(bool* p_open) {
     ImGui::End();
 }
 
+void GUI::DrawAbout(bool* p_open) {
+    ImGuiIO& io = ImGui::GetIO();
+
+    ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoResize;
+    ImGui::SetNextWindowPos(about_window_pos, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+    ImGui::SetNextWindowSize(about_window_size, ImGuiCond_Appearing);
+    ImGui::Begin("About", p_open, window_flags);
+    ImVec2 avail_space = ImGui::GetContentRegionAvail();
+
+    ImGui::BeginGroup();
+
+    ImGui::TextCenter(std::string(about_txt));
+    ImGui::TextCenter("Created by ", "Aranaktu", "https://github.com/xAranaktu");
+
+    ImGui::EndGroup();
+
+    ImGui::BeginChild("#3rdPartyLibs", ImVec2(avail_space.x, avail_space.y * 0.40f));
+    ImGui::TextCenter("Used Libraries:");
+    ImGui::InputTextMultiline("##3rdPartyLibs Content", &third_party_libs, ImVec2(avail_space.x, -10), ImGuiInputTextFlags_AllowTabInput | ImGuiInputTextFlags_ReadOnly);
+    ImGui::EndChild();
+
+    ImGui::BeginChild("#Credits", ImVec2(avail_space.x, avail_space.y * 0.40f));
+
+    ImGui::InputTextMultiline("##Credits Content", &credits, ImVec2(-FLT_MIN, -FLT_MIN), ImGuiInputTextFlags_AllowTabInput | ImGuiInputTextFlags_ReadOnly);
+    ImGui::EndChild();
+
+    ImGui::TextCenter("Support this project on ", "Patreon", "https://www.patreon.com/xAranaktu");
+
+    ImGui::End();
+}
+
 void GUI::Draw() {
     MainDockspace();
 
@@ -197,6 +242,9 @@ void GUI::Draw() {
 
     if (show_disclaimer)
         DrawDisclaimer(&show_disclaimer);
+
+    if (show_about)
+        DrawAbout(&show_about);
 
 }
 

@@ -73,10 +73,16 @@ int WinMain(
     HICON _hIconSm = LoadIcon(_hInst, MAKEINTRESOURCE(IDI_ICON1));
     WNDCLASSEX wc = { sizeof(WNDCLASSEX), CS_CLASSDC, WndProc, 0L, 0L, _hInst, _hIcon, NULL, NULL, NULL, _T("LiveEditorLauncherWC"), _hIconSm };
     ::RegisterClassEx(&wc);
+    
+    int width = 1280;
+    int height = 800;
+    int x = (GetSystemMetrics(SM_CXSCREEN) - width) / 2;
+    int y = (GetSystemMetrics(SM_CYSCREEN) - height) / 2;
+
     HWND hwnd = ::CreateWindow(
         wc.lpszClassName, 
         _T("FIFA Live Editor Launcher"), 
-        WS_OVERLAPPEDWINDOW, 100, 100, 1280, 800, 
+        WS_OVERLAPPEDWINDOW, x, y, width, height,
         NULL, 
         NULL, 
         _hInst,
