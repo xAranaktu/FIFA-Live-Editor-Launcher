@@ -21,6 +21,7 @@ void GUI::Init() {
         static_cast<float>(GetSystemMetrics(SM_CYSCREEN) / 2)
     );
 
+    settings_window.Init();
     locale_window.Init();
     initialized = true;
 }
@@ -72,10 +73,11 @@ void GUI::MainDockspace() {
             auto dock_id_right_down = ImGui::DockBuilderSplitNode(dock_id_right, ImGuiDir_Down, 0.33f, nullptr, &dock_id_right);
 
             // we now dock our windows into the docking node we made above
+            ImGui::DockBuilderDockWindow("Restart Required", dockspace_id);
             locale_window.Dock(dockspace_id);
+            settings_window.Dock(dock_id_left);
             injector_window.Dock(dock_id_left);
             ImGui::DockBuilderDockWindow("Info", dock_id_right);
-            ImGui::DockBuilderDockWindow("Disclaimer", dock_id_right_down);
 
             ImGui::DockBuilderFinish(dockspace_id);
         }
@@ -141,7 +143,8 @@ void GUI::DrawMainMenuBar() {
         if (ImGui::BeginMenu("Windows"))
         {
             ImGui::MenuItem(injector_window.GetWindowName(), NULL, &injector_window.show);
-            ImGui::MenuItem("Locale.Ini", NULL, &locale_window.show);
+            ImGui::MenuItem(settings_window.GetWindowName(), NULL, &settings_window.show);
+            ImGui::MenuItem(locale_window.GetWindowName(), NULL, &locale_window.show);
             ImGui::MenuItem("Info", NULL, &show_info_window);
             ImGui::MenuItem("Disclaimer", NULL, &show_disclaimer);
             ImGui::EndMenu();
@@ -175,21 +178,6 @@ void GUI::DrawMainMenuBar() {
 void GUI::DrawInfoWindow(bool* p_open) {
     ImGui::Begin("Info", p_open);
     ImGui::Text("Version: %s", g_Core.GetToolVer());
-
-    ImGui::End();
-}
-
-void GUI::DrawDisclaimer(bool* p_open) {
-    ImGui::Begin("Disclaimer", p_open);
-
-    ImGui::TextDisabled("(?)");
-    if (ImGui::IsItemHovered()) {
-        ImGui::SetTooltip(DisclaimerContent);
-    }
-
-    if (ImGui::Checkbox("Show Warning at startup", &g_Config.launch_values.show_disclaimer_msg)) {
-        g_Config.Save();
-    }
 
     ImGui::End();
 }
@@ -228,24 +216,88 @@ void GUI::DrawAbout(bool* p_open) {
 void GUI::Draw() {
     MainDockspace();
 
-    if (show_demo_window)
-        ImGui::ShowDemoWindow(&show_demo_window);
+    if (restart_required) {
+        MessageBox(NULL, "Live Editor Launcher requires restart to apply the changes.", "Restart Required", MB_ICONINFORMATION);
+        restart_required = false;
+    }
 
-    if (locale_window.show)
-        locale_window.Draw(&locale_window.show);
+    if (show_demo_window)       ImGui::ShowDemoWindow(&show_demo_window);
+    if (locale_window.show)     locale_window.Draw(&locale_window.show);
+    if (injector_window.show)   injector_window.Draw(&injector_window.show);
+    if (settings_window.show)   settings_window.Draw(&settings_window.show);
+    if (show_info_window)       DrawInfoWindow(&show_info_window);
+    if (show_about)             DrawAbout(&show_about);
 
-    if (injector_window.show)
-        injector_window.Draw(&injector_window.show);
+    if (first_draw) {
+        ImGui::SetWindowFocus(injector_window.GetWindowName());
+        first_draw = false;
+    }
 
-    if (show_info_window)
-        DrawInfoWindow(&show_info_window);
+    FileDialogs();
+}
 
-    if (show_disclaimer)
-        DrawDisclaimer(&show_disclaimer);
+void GUI::ChangeModsRootDialog() {
+    // display
+    if (ImGuiFileDialog::Instance()->Display("ModsRootFD", ImGuiWindowFlags_NoCollapse, fd_min))
+    {
+        // action if OK
+        if (ImGuiFileDialog::Instance()->IsOk()) {
+            std::string filePath = ImGuiFileDialog::Instance()->GetCurrentPath();
+            if (filePath != g_Config.directories_values.mods_root) {
+                g_Config.directories_values.mods_root = filePath;
+                g_Config.Save();
+                restart_required = true;
+            }
+        }
 
-    if (show_about)
-        DrawAbout(&show_about);
+        // close
+        ImGuiFileDialog::Instance()->Close();
+    }
+}
 
+void GUI::ChangeLEDataRootDialog() {
+    // display
+    if (ImGuiFileDialog::Instance()->Display("LEDataRootFD", ImGuiWindowFlags_NoCollapse, fd_min))
+    {
+        // action if OK
+        if (ImGuiFileDialog::Instance()->IsOk()) {
+            std::filesystem::path fpath(ImGuiFileDialog::Instance()->GetCurrentPath());
+            g_Core.SetLEDataPathRegVal(fpath.wstring());
+            restart_required = true;
+        }
+
+        // close
+        ImGuiFileDialog::Instance()->Close();
+    }
+}
+
+void GUI::FileDialogs() {
+    std::string key = ImGuiFileDialog::Instance()->GetOpenedKey();
+    if (key.empty()) return;
+    if (fd_map.count(key) != 1) return;
+
+    GUI::FILE_DIALOGS opened_dialog = fd_map.at(key);
+    switch (opened_dialog)
+    {
+    case GUI::FILE_DIALOGS::FILE_DIALOG_LE_DATA_ROOT:
+        ChangeLEDataRootDialog();
+        break;
+    case GUI::FILE_DIALOGS::FILE_DIALOG_MODS_ROOT:
+        ChangeModsRootDialog();
+        break;
+    default:
+        break;
+    }
+}
+
+void GUI::CloseCurrentFileDialog() {
+    std::string opened_key = ImGuiFileDialog::Instance()->GetOpenedKey();
+
+    if (opened_key.empty()) return;
+    if (!ImGuiFileDialog::Instance()->IsOpened())   return;
+
+    // close
+    ImGuiFileDialog::Instance()->Close();
 }
 
 GUI g_GUI;

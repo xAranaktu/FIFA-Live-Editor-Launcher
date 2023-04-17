@@ -1,7 +1,6 @@
 #pragma once
 #include <thread>
 #include <string>
-#include <vector>
 #include "imgui.h"
 #include "imgui_internal.h"
 #include "imgui_stdlib.h"
@@ -12,13 +11,6 @@ namespace UIWindows {
     class UIInjector
     {
     public:
-        enum Platform {
-            Origin = 0,
-            EAApp,
-            Origin_Steam,
-            EAApp_Steam,
-        };
-
         bool show = true;
         std::string window_name = "Injector";
 
@@ -33,9 +25,5 @@ namespace UIWindows {
         std::string GetInjectionStatusDesc();
 
     private:
-        int picked_platform = Platform::EAApp;
-        std::vector<std::string> Platform_strings = {
-            "Origin", "EA App", "Steam & Origin", "Steam & EA App"
-        };
     };
 }

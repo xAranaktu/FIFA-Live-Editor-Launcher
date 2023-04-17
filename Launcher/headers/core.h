@@ -12,6 +12,9 @@
 #include <Psapi.h>
 #include <TlHelp32.h>
 
+#include "options_id.h"
+#include "localize.h"
+
 namespace fs = std::filesystem;
 
 // Hearth & Soul of our app 
@@ -32,15 +35,18 @@ public:
 
     fs::path GetGameInstallDir();
     fs::path GetLEDataPath();
+    bool SetLEDataPathRegVal(std::wstring data);
+    fs::path GetLEDataPathRegVal();
+
+    // Create Live Editor Folders and Files in C:/ (or other drive, depending on result of std::getenv("SystemDrive"))
+    bool InitDirectories();
+
 
     void RunGame();
 
 private:
     bool SafeCreateDirectories(const std::filesystem::path d);
     void SetupLogger();
-
-    bool SetLEDataPathRegVal(std::wstring data);
-    fs::path GetLEDataPathRegVal();
 
     fs::path GetEAACLauncherPath();
     fs::path GetFakeEAACPath();
@@ -50,8 +56,7 @@ private:
     void BackupOrgGameFiles();
     void RestoreOrgGameFiles();
 
-    // Create Live Editor Folders and Files in C:/ (or other drive, depending on result of std::getenv("SystemDrive"))
-    bool InitDirectories();
+    void SetupLocalize();
 
     // Create FIFA Legacy files structure
     void CreateLegacyFilesStructure(std::filesystem::path folders_list, std::filesystem::path mods_dir);

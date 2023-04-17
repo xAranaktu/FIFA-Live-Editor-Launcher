@@ -43,6 +43,10 @@ bool Core::Init()
     RestoreOrgGameFiles();
     BackupOrgGameFiles();
     CopyFakeEAAC();
+    SetupLocalize();
+
+    g_options_ids.SetFile(GetLEDataPath());
+    g_options_ids.LoadJson();
 
     logger.Write(LOG_INFO, "[%s] Done", __FUNCTION__);
 
@@ -362,6 +366,14 @@ void Core::RestoreOrgGameFiles() {
     logger.Write(LOG_INFO, "[%s] Done", __FUNCTION__);
 }
 
+
+void Core::SetupLocalize() {
+    logger.Write(LOG_INFO, "[%s]", __FUNCTION__);
+    localize.SetLangPath(ctx.GetFolder());
+    localize.LoadLangTrans("EN");
+
+    logger.Write(LOG_INFO, "[%s] Done", __FUNCTION__);
+}
 
 bool Core::InitDirectories() {
     logger.Write(LOG_INFO, "[%s]", __FUNCTION__);

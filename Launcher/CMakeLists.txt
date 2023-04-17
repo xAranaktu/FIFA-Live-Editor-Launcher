@@ -45,32 +45,40 @@ SET(EXTERNAL_SRC
 
 SET(ALL_HEADERS
     "headers/core.h"
+    "headers/localize.h"
     "headers/consts.h"
+    "headers/options_id.h"
     "headers/config.h"
     "headers/context.h"
     "headers/logger.h"
     "headers/injector.h"
     "headers/misc.h"
     "headers/ui/gui.h"
+    "headers/ui/settings_window.h"
     "headers/ui/locale_window.h"
     "headers/ui/injector_window.h"
     "headers/ui/imgui_helper.h"
     
+    ${EXTERNAL_H}
     ${ImGUI_H}
 )
 
 SET(ALL_CPP
     "source/core.cpp"
+    "source/localize.cpp"
+    "source/options_id.cpp"
     "source/config.cpp"
     "source/logger.cpp"
     "source/injector.cpp"
     "source/misc.cpp"
     "source/ui/gui.cpp"
+    "source/ui/settings_window.cpp"
     "source/ui/locale_window.cpp"
     "source/ui/injector_window.cpp"
 
     "main.cpp"
 
+    ${EXTERNAL_SRC}
     ${ImGUI_SRC}
 )
 

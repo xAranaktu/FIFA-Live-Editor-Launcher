@@ -1,5 +1,4 @@
 #include "locale_window.h"
-#include "AES.cpp"
 
 namespace UIWindows {
     UILocaleIni::UILocaleIni() {}

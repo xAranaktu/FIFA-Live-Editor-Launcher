@@ -5,16 +5,37 @@
 #include "imgui_helper.h"
 #include "imgui_impl_win32.h"
 #include "imgui_impl_dx11.h"
+#include "../external/ImGuiFileDialog/ImGuiFileDialog.h"
 #include "injector_window.h"
+#include "settings_window.h"
 #include "locale_window.h"
 
 // Main User Interface
 class GUI
 {
 public:
+    // FileDialog
+    enum FILE_DIALOGS {
+        FILE_DIALOG_LE_DATA_ROOT = 0,
+        FILE_DIALOG_MODS_ROOT,
+        FILE_DIALOG_IMPORTMINIFACE,
+        FILE_DIALOG_OPEN_LUA,
+        FILE_DIALOG_SAVE_LUA,
+        FILE_DIALOG_IMPORT_LEGACY_FILE,
+        FILE_DIALOG_EXPORT_LEGACY_FILE,
+        FILE_DIALOG_EXPORT_LEGACY_TO_FOLDER,
+        FILE_DIALOG_IMPORT_FILTER_LIST,
+        FILE_DIALOG_EXPORT_FILTER_LIST
+    };
+    ImVec2 fd_min = ImVec2(640.0f, 360.0f);
+
     bool initialized = false;
+    bool first_draw = true;
     bool create_dockspace_layout = true;
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+
+    bool restart_required = false;
+    bool scale_changed = false;
 
     bool show_demo_window = false;
     bool show_info_window = true;
@@ -22,6 +43,7 @@ public:
     bool show_about = false;
 
     UIWindows::UIInjector injector_window;
+    UIWindows::UISettings settings_window;
     UIWindows::UILocaleIni locale_window;
 
     GUI();
@@ -32,9 +54,12 @@ public:
     void SetupImGUI();
     void DrawMainMenuBar();
     void DrawInfoWindow(bool* p_open);
-    void DrawDisclaimer(bool* p_open);
     void DrawAbout(bool* p_open);
     void Draw();
+
+    void FileDialogs();
+
+    void CloseCurrentFileDialog();
 
 private:
     // ABOUT
@@ -64,6 +89,21 @@ private:
         "\nAnd everyone who decided to support me on Patreon. :)\n"
         "\n";
 
+    std::map<std::string, GUI::FILE_DIALOGS> fd_map = {
+        { "LEDataRootFD",           GUI::FILE_DIALOGS::FILE_DIALOG_LE_DATA_ROOT },
+        { "ModsRootFD",             GUI::FILE_DIALOGS::FILE_DIALOG_MODS_ROOT },
+        { "ImportMinifaceFD",       GUI::FILE_DIALOGS::FILE_DIALOG_IMPORTMINIFACE },
+        { "LoadLuaFD",              GUI::FILE_DIALOGS::FILE_DIALOG_OPEN_LUA },
+        { "SaveLuaFD",              GUI::FILE_DIALOGS::FILE_DIALOG_SAVE_LUA },
+        { "ImportLegacyFile",       GUI::FILE_DIALOGS::FILE_DIALOG_IMPORT_LEGACY_FILE },
+        { "ExportLegacyFile",       GUI::FILE_DIALOGS::FILE_DIALOG_EXPORT_LEGACY_FILE },
+        { "ExportLegacyToFolder",   GUI::FILE_DIALOGS::FILE_DIALOG_EXPORT_LEGACY_TO_FOLDER },
+        { "ExportFilterList",       GUI::FILE_DIALOGS::FILE_DIALOG_EXPORT_FILTER_LIST },
+        { "ImportFilterList",       GUI::FILE_DIALOGS::FILE_DIALOG_IMPORT_FILTER_LIST }
+    };
+
+    void ChangeModsRootDialog();
+    void ChangeLEDataRootDialog();
     ImGuiID GetMainDockspaceID() { return ImGui::GetID("LauncherMainDockSpace"); };
 };
 

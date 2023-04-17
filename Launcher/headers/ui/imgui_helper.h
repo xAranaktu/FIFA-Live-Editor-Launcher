@@ -8,8 +8,94 @@
 
 #include <imgui.h>
 #include <imgui_stdlib.h>
+#include "config.h"
+#include "localize.h"
+#include "../external/nlohmann/fifo_map.hpp"
 
 namespace ImGui {
+    inline bool LCombo(std::string lbl, int* currIndex, nlohmann::fifo_map<int, std::string>& values, bool translate_items, std::string id = "", float lbl_width = 222.0f) {
+        if (values.empty()) {
+            logger.Write(LOG_ERROR, "[GUI] [LCOMBO] Empty Values %s", lbl.c_str());
+            return false;
+        }
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(6.0f, 0.0f));
+
+        auto idx = *currIndex;
+
+        auto& style = ImGui::GetStyle();
+
+        ImGui::BeginGroup();
+        if (id.empty()) {
+            ImGui::PushID(lbl.c_str());
+        }
+        else {
+            ImGui::PushID(id.c_str());
+        }
+        ImVec2 sz = ImVec2(0.0f, ImGui::GetFrameHeight() + (style.WindowPadding.y * 2));
+        ImGui::BeginChild("", sz, false, ImGuiWindowFlags_NoScrollbar);
+
+        auto avail = ImGui::GetContentRegionAvail();
+        auto cpos = ImGui::GetCursorPos();
+
+        // ImGui::SetCursorPos(ImVec2(cpos.x + avail.x - style.ItemSpacing.x, cpos.y));
+        ImGui::PushItemWidth(avail.x);
+
+        auto trans = values.at(idx);
+        if (translate_items) {
+            trans = localize.Translate(trans.c_str());
+        }
+
+        const char* preview_value = trans.c_str();
+        bool value_changed = false;
+        if (ImGui::BeginCombo("", preview_value, 0)) {
+
+            // Display items
+            // FIXME-OPT: Use clipper (but we need to disable it on the appearing frame to make sure our call to SetItemDefaultFocus() is processed)
+            ImGuiListClipper clipper((__int32)values.size());
+
+            while (clipper.Step()) {
+                for (int i = clipper.DisplayStart; i < clipper.DisplayEnd; i++) {
+                    auto iter = values.begin();
+                    std::advance(iter, i);
+                    auto key = iter->first;
+                    auto val = iter->second;
+
+                    std::string pushid = lbl + val + "lcmbo";
+                    ImGui::PushID(pushid.c_str());
+                    const bool item_selected = (key == idx);
+                    if (translate_items) {
+                        val = localize.Translate(val.c_str());
+                    }
+
+                    const char* item_text = val.c_str();
+                    if (ImGui::Selectable(item_text, item_selected, 0, ImVec2(245.0f, 0.0f)))
+                    {
+                        value_changed = true;
+                        *currIndex = key;
+                    }
+                    if (item_selected)
+                        ImGui::SetItemDefaultFocus();
+                    ImGui::PopID();
+                }
+            }
+            ImGui::EndCombo();
+        }
+
+        if (ImGui::IsItemHovered()) {
+            ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(8.0f, 8.0f));
+            ImGui::SetTooltip(preview_value);
+            ImGui::PopStyleVar();
+        }
+
+        ImGui::PopItemWidth();
+        ImGui::EndChild();
+        ImGui::PopID();
+        ImGui::EndGroup();
+        ImGui::PopStyleVar();
+
+        return value_changed;
+    }
+
     inline void AddUnderLine(ImColor col_)
     {
         ImVec2 min = ImGui::GetItemRectMin();
