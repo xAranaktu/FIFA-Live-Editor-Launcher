@@ -221,8 +221,11 @@ fs::path Core::GetLEDataPathRegVal() {
 
     HKEY hKey;
     std::string key = std::string("SOFTWARE\\Live Editor\\FIFA ") + std::to_string(FIFA_EDITION) + "\\Data Dir";
-    LSTATUS lOpenStatus = RegOpenKeyEx(HKEY_LOCAL_MACHINE, key.c_str(), 0, KEY_ALL_ACCESS, &hKey);
+
+    logger.Write(LOG_INFO, "[%s] %s", __FUNCTION__, key.c_str());
+    LSTATUS lOpenStatus = RegOpenKeyEx(HKEY_LOCAL_MACHINE, key.c_str(), 0, KEY_READ, &hKey);
     if (lOpenStatus != ERROR_SUCCESS) {
+        logger.Write(LOG_WARN, "[%s] RegOpenKeyEx %s failed %d", __FUNCTION__, key.c_str(), lOpenStatus);
         RegCloseKey(hKey);
         return result;
     }
