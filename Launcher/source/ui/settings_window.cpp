@@ -19,8 +19,8 @@ namespace UIWindows {
         ImGui::Begin(GetWindowName(), p_open);
 
         if (ImGui::CollapsingHeader(localize.Translate("Logger").c_str())) {
-            if (ImGui::Combo(localize.Translate("log_level").c_str(), &current_log_level, avail_log_levels)) {
-                logger.SetMinLevel((LogLevel)current_log_level);
+            if (ImGui::Combo(localize.Translate("log_level").c_str(), &g_Config.logger_values.log_level, avail_log_levels)) {
+                logger.SetMinLevel((LogLevel)g_Config.logger_values.log_level);
                 save_required |= true;
             }
 

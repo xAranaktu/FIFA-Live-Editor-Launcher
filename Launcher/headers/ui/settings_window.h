@@ -26,7 +26,6 @@ namespace UIWindows {
         const char* GetWindowName();
 
     private:
-        int current_log_level = LOG_INFO;
         std::vector<std::string> avail_log_levels;
         std::vector<std::string> avail_scale_factors = {
             "auto", "x1.0", "x1.25", "x1.5", "x1.75", "x2.0", "x2.25"
