@@ -282,11 +282,15 @@ namespace core {
             logger.Write(LOG_WARN, "[%s] File not found", __FUNCTION__);
             return;
         }
-        
-        std::ifstream _stream(fpath);
         o.clear();
-        o = json::parse(_stream);
-        from_json(o);
+        std::ifstream _stream(fpath);
+        try {
+            o = json::parse(_stream);
+            from_json(o);
+        }
+        catch (nlohmann::json::exception& e) {
+            logger.Write(LOG_ERROR, "[%s] error: %s", __FUNCTION__, e.what());
+        }
 
         _stream.close();
 
@@ -296,7 +300,14 @@ namespace core {
     void Config::Save() {
         logger.Write(LOG_INFO, "[%s]", __FUNCTION__);
 
-        to_json(o);
+        try {
+            to_json(o);
+        }
+        catch (nlohmann::json::exception& e) {
+            logger.Write(LOG_ERROR, "[%s] error: %s", __FUNCTION__, e.what());
+            return;
+        }
+        
 
         std::ofstream x(fpath);
 
