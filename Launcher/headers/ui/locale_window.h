@@ -12,7 +12,7 @@ namespace UIWindows {
     {
     public:
         bool initialized = false;
-        bool show = true;
+        bool show = false;
         std::string window_name = "locale.ini";
 
         UILocaleIni();

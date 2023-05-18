@@ -300,6 +300,7 @@ namespace UIWindows {
         }
 
         keystream.close();
+        show = true;
     }
 
 }
