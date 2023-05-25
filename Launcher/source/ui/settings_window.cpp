@@ -35,6 +35,15 @@ namespace UIWindows {
         }
 
         if (ImGui::CollapsingHeader(localize.Translate("Directories").c_str())) {
+            ImGui::Text("Game Location: ");
+            ImGui::SameLine();
+            if (ImGui::Button("...")) {
+                g_GUI.CloseCurrentFileDialog();
+                ImGuiFileDialog::Instance()->OpenDialog("GameLocFD", "Choose a Directory", nullptr, ".");
+            }
+            ImGui::SameLine();
+            ImGui::Text(ToUTF8String(g_Core.GetGameInstallDir()).c_str());
+
             ImGui::Text("LE Data Root: ");
             ImGui::SameLine();
             if (ImGui::Button("...")) {

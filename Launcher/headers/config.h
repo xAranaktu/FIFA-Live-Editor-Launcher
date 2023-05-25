@@ -13,6 +13,7 @@ namespace core {
     class DirectoriesValues {
     public:
         // Default Values
+        fs::path game_loc = "";
         fs::path mods_root = "";
         fs::path filters_storage = "";
         fs::path lua_scripts = "";

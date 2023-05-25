@@ -97,6 +97,10 @@ const char* Core::GetToolVer() {
 }
 
 fs::path Core::GetGameInstallDir() {
+    if (!g_Config.directories_values.game_loc.empty()) {
+        return g_Config.directories_values.game_loc;
+    }
+
     //Computer\HKEY_LOCAL_MACHINE\SOFTWARE\EA Sports\FIFA 22
     DWORD dwType = REG_SZ;
     HKEY hKey = 0;

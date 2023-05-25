@@ -255,6 +255,23 @@ void GUI::ChangeModsRootDialog() {
     }
 }
 
+void GUI::ChangeGameLoc() {
+    if (ImGuiFileDialog::Instance()->Display("GameLocFD", ImGuiWindowFlags_NoCollapse, fd_min))
+    {
+        // action if OK
+        if (ImGuiFileDialog::Instance()->IsOk()) {
+            std::string filePath = ImGuiFileDialog::Instance()->GetCurrentPath();
+            if (filePath != g_Config.directories_values.game_loc) {
+                g_Config.directories_values.game_loc = filePath;
+                g_Config.Save();
+            }
+        }
+
+        // close
+        ImGuiFileDialog::Instance()->Close();
+    }
+}
+
 void GUI::ChangeLEDataRootDialog() {
     // display
     if (ImGuiFileDialog::Instance()->Display("LEDataRootFD", ImGuiWindowFlags_NoCollapse, fd_min))
@@ -279,6 +296,9 @@ void GUI::FileDialogs() {
     GUI::FILE_DIALOGS opened_dialog = fd_map.at(key);
     switch (opened_dialog)
     {
+    case GUI::FILE_DIALOGS::FILE_DIALOG_GAME_LOC:
+        ChangeGameLoc();
+        break;
     case GUI::FILE_DIALOGS::FILE_DIALOG_LE_DATA_ROOT:
         ChangeLEDataRootDialog();
         break;

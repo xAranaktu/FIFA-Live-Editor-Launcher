@@ -4,6 +4,7 @@ namespace core {
     void DirectoriesValues::to_json(json& j) {
         j = json{
             {"mods_root",               mods_root},
+            {"game_loc",                game_loc},
             {"filters_storage",         filters_storage},
             {"lua_scripts",             lua_scripts},
             {"import_miniface",         import_miniface},
@@ -16,6 +17,10 @@ namespace core {
     void DirectoriesValues::from_json(const json& j) {
         if (j.contains("mods_root")) {
             j.at("mods_root").get_to(mods_root);
+        }
+
+        if (j.contains("game_loc")) {
+            j.at("game_loc").get_to(game_loc);
         }
 
         if (j.contains("filters_storage")) {
