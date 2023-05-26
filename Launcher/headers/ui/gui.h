@@ -93,7 +93,7 @@ private:
     std::map<std::string, GUI::FILE_DIALOGS> fd_map = {
         { "LEDataRootFD",           GUI::FILE_DIALOGS::FILE_DIALOG_LE_DATA_ROOT },
         { "ModsRootFD",             GUI::FILE_DIALOGS::FILE_DIALOG_MODS_ROOT },
-        { "GameLocFD",             GUI::FILE_DIALOGS::FILE_DIALOG_GAME_LOC },
+        { "GameLocFD",              GUI::FILE_DIALOGS::FILE_DIALOG_GAME_LOC },
         { "ImportMinifaceFD",       GUI::FILE_DIALOGS::FILE_DIALOG_IMPORTMINIFACE },
         { "LoadLuaFD",              GUI::FILE_DIALOGS::FILE_DIALOG_OPEN_LUA },
         { "SaveLuaFD",              GUI::FILE_DIALOGS::FILE_DIALOG_SAVE_LUA },
