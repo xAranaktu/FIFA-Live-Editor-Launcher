@@ -37,7 +37,6 @@ bool Core::Init()
         std::string msg = "Can't find " + procname + " in:\n" + ToUTF8String(game_install_dir);
         logger.Write(LOG_FATAL, "[%s] %s ", __FUNCTION__, msg.c_str());
         MessageBox(NULL, msg.c_str(), "ERROR", MB_ICONERROR);
-        return false;
     }
 
     RestoreOrgGameFiles();
