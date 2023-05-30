@@ -398,6 +398,9 @@ bool Core::InitDirectories() {
     std::filesystem::path live_editor_career_data_path = live_editor_path / "career_data";
     SafeCreateDirectories(live_editor_career_data_path);
 
+    std::filesystem::path live_editor_lua_libs = live_editor_path / "lua";
+    SafeCreateDirectories(live_editor_lua_libs);
+
     std::filesystem::path live_editor_mods_path = live_editor_path / "mods";
 
     if (g_Config.directories_values.mods_root.empty()) {
