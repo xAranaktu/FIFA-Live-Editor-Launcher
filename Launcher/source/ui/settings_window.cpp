@@ -35,30 +35,36 @@ namespace UIWindows {
         }
 
         if (ImGui::CollapsingHeader(localize.Translate("Directories").c_str())) {
-            ImGui::Text("Game Location: ");
+            ImGui::Text("Game Location:     ");
             ImGui::SameLine();
+            ImGui::PushID("##GameLocFDBTN");
             if (ImGui::Button("...")) {
                 g_GUI.CloseCurrentFileDialog();
                 ImGuiFileDialog::Instance()->OpenDialog("GameLocFD", "Choose a Directory", nullptr, ".");
             }
+            ImGui::PopID();
             ImGui::SameLine();
             ImGui::Text(ToUTF8String(g_Core.GetGameInstallDir()).c_str());
 
-            ImGui::Text("LE Data Root: ");
+            ImGui::Text("LE Data Root:      ");
             ImGui::SameLine();
+            ImGui::PushID("##LEDataRootFDBTN");
             if (ImGui::Button("...")) {
                 g_GUI.CloseCurrentFileDialog();
                 ImGuiFileDialog::Instance()->OpenDialog("LEDataRootFD", "Choose a Directory", nullptr, ".");
             }
+            ImGui::PopID();
             ImGui::SameLine();
             ImGui::Text(ToUTF8String(g_Core.GetLEDataPath()).c_str());
 
-            ImGui::Text("Mods Root: ");
+            ImGui::Text("Mods Root:         ");
             ImGui::SameLine();
+            ImGui::PushID("##ModsRootFDBTN");
             if (ImGui::Button("...")) {
                 g_GUI.CloseCurrentFileDialog();
                 ImGuiFileDialog::Instance()->OpenDialog("ModsRootFD", "Choose a Directory", nullptr, ".");
             }
+            ImGui::PopID();
             ImGui::SameLine();
             ImGui::Text(ToUTF8String(g_Config.directories_values.mods_root).c_str());
         }
