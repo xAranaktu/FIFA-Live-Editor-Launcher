@@ -30,7 +30,6 @@ bool Core::Init()
     logger.Write(LOG_INFO, "[%s] Game Install Dir: %s", __FUNCTION__, ToUTF8String(game_install_dir).c_str());
     logger.Write(LOG_INFO, "[%s] Live Editor Dir: %s", __FUNCTION__, ToUTF8String(le_dir).c_str());
 
-
     std::string procname = "FIFA" + std::to_string(FIFA_EDITION) + ".exe";
     std::filesystem::path proc_full_path = game_install_dir / procname;
     if (!std::filesystem::exists(proc_full_path)) {
@@ -53,6 +52,12 @@ bool Core::Init()
 }
 
 void Core::onExit() {
+    std::filesystem::path eaac_path = GetEAACLauncherPath();
+    if (eaac_path.empty())      return;
+
+    fs::path bak = GetBAKPathFor(eaac_path);
+    if (!fs::exists(bak))       return;
+
     logger.Write(LOG_INFO, "[%s] Waiting for EAAntiCheat.GameServiceLauncher.exe", __FUNCTION__);
 
     int attempts = 0;
