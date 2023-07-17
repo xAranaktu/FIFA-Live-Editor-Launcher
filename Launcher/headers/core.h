@@ -12,6 +12,8 @@
 #include <Psapi.h>
 #include <TlHelp32.h>
 
+#include <SDK/FB/build_info.h>
+
 #include "options_id.h"
 #include "localize.h"
 
@@ -22,6 +24,7 @@ class Core
 {
 public:
     core::Context ctx;
+    BuildInfo* game_build_info = nullptr;
 
     Core();
     ~Core();
@@ -57,6 +60,7 @@ private:
     void RestoreOrgGameFiles();
 
     void SetupLocalize();
+    void ReadGameBuildInfo();
 
     // Create FIFA Legacy files structure
     void CreateLegacyFilesStructure(std::filesystem::path folders_list, std::filesystem::path mods_dir);

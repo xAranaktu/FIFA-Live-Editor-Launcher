@@ -37,6 +37,7 @@ bool Core::Init()
         logger.Write(LOG_FATAL, "[%s] %s ", __FUNCTION__, msg.c_str());
         MessageBox(NULL, msg.c_str(), "ERROR", MB_ICONERROR);
     }
+    ReadGameBuildInfo();
 
     RestoreOrgGameFiles();
     BackupOrgGameFiles();
@@ -382,6 +383,35 @@ void Core::SetupLocalize() {
     logger.Write(LOG_INFO, "[%s]", __FUNCTION__);
     localize.SetLangPath(ctx.GetFolder());
     localize.LoadLangTrans("EN");
+
+    logger.Write(LOG_INFO, "[%s] Done", __FUNCTION__);
+}
+
+void Core::ReadGameBuildInfo() {
+    logger.Write(LOG_INFO, "[%s]", __FUNCTION__);
+    std::filesystem::path build_info_dll_path = GetGameInstallDir() / "Engine.BuildInfo.dll";
+
+    if (fs::exists(build_info_dll_path)) {
+        logger.Write(LOG_INFO, "[%s] file path: %s", __FUNCTION__, ToUTF8String(build_info_dll_path).c_str());
+        game_build_info = BuildInfo::GetInstance(build_info_dll_path);
+
+        if (game_build_info) {
+            logger.Write(LOG_INFO, "----------------------[Frostbite BuildInfo]----------------------");
+            logger.Write(LOG_INFO, "BranchName:                         %s", game_build_info->getBranchName());
+            logger.Write(LOG_INFO, "LicenseeId:                         %s", game_build_info->getLicenseeId());
+            logger.Write(LOG_INFO, "StudioName:                         %s", game_build_info->getStudioName());
+            logger.Write(LOG_INFO, "Changelist:                         %d", game_build_info->getChangelist());
+            logger.Write(LOG_INFO, "SourceChangeList:                   %d", game_build_info->getSourceChangelist());
+            logger.Write(LOG_INFO, "FrostbiteChangelist:                %d", game_build_info->getFrostbiteChangelist());
+            logger.Write(LOG_INFO, "FrostbiteRelease:                   %s", game_build_info->getFrostbiteRelease());
+            logger.Write(LOG_INFO, "IsAutoBuild:                        %s", game_build_info->getIsAutoBuild() ? "true" : "false");
+            logger.Write(LOG_INFO, "Username:                           %s", game_build_info->getUsername());
+            logger.Write(LOG_INFO, "BuildTime:                          %s", game_build_info->getBuildTime());
+            logger.Write(LOG_INFO, "BuildDate:                          %s", game_build_info->getBuildDate());
+            logger.Write(LOG_INFO, "BuildIsoDate:                       %s", game_build_info->getBuildIsoDate());
+            logger.Write(LOG_INFO, "-----------------------------------------------------------------");
+        }
+    }
 
     logger.Write(LOG_INFO, "[%s] Done", __FUNCTION__);
 }

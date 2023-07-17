@@ -53,6 +53,9 @@ SET(ALL_HEADERS
     "headers/logger.h"
     "headers/injector.h"
     "headers/misc.h"
+
+    "headers/SDK/FB/build_info.h"
+
     "headers/ui/gui.h"
     "headers/ui/settings_window.h"
     "headers/ui/locale_window.h"
