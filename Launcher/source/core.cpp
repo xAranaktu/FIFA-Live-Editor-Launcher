@@ -10,6 +10,17 @@ Core::~Core()
 
 bool Core::Init()
 {
+    hMutex = OpenMutex(MUTEX_ALL_ACCESS, 0, "LELauncherMutex");
+    if (!hMutex)
+    {
+        hMutex = CreateMutex(0, 0, "LELauncherMutex");
+    }
+    else
+    {
+        MessageBox(NULL, "Live Editor Launcher is already open", "ERROR", MB_ICONERROR);
+        return false;
+    }
+
     ctx.Update(GetModuleHandle(NULL));
     std::filesystem::path le_dir = ctx.GetFolder();
     std::string app_data("AppData\\Local\\Temp");
@@ -83,6 +94,7 @@ void Core::onExit() {
 
     logger.Write(LOG_INFO, "[%s] Trying to restore", __FUNCTION__);
     RestoreOrgGameFiles();
+    ReleaseMutex(hMutex);
 }
 
 void Core::DetectFIFAModManager() {

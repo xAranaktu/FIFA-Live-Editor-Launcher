@@ -25,6 +25,7 @@ class Core
 public:
     core::Context ctx;
     BuildInfo* game_build_info = nullptr;
+    HANDLE hMutex = NULL;
 
     Core();
     ~Core();
