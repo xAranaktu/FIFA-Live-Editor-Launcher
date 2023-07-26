@@ -16,7 +16,6 @@ namespace core {
         fs::path game_loc = "";
         fs::path mods_root = "";
         fs::path filters_storage = "";
-        fs::path lua_scripts = "";
         fs::path import_miniface = "";
         fs::path legacyfolder_export = "";
         fs::path legacyfile_export = "";

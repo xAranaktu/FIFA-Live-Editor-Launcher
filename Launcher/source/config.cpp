@@ -3,14 +3,13 @@
 namespace core {
     void DirectoriesValues::to_json(json& j) {
         j = json{
-            {"mods_root",               mods_root},
-            {"game_loc",                game_loc},
-            {"filters_storage",         filters_storage},
-            {"lua_scripts",             lua_scripts},
-            {"import_miniface",         import_miniface},
-            {"legacyfolder_export",     legacyfolder_export},
-            {"legacyfile_export",       legacyfile_export},
-            {"legacyfile_import",       legacyfile_import}
+            {"mods_root",               ToUTF8String(mods_root).c_str()},
+            {"game_loc",                ToUTF8String(game_loc).c_str()},
+            {"filters_storage",         ToUTF8String(filters_storage).c_str()},
+            {"import_miniface",         ToUTF8String(import_miniface).c_str()},
+            {"legacyfolder_export",     ToUTF8String(legacyfolder_export).c_str()},
+            {"legacyfile_export",       ToUTF8String(legacyfile_export).c_str()},
+            {"legacyfile_import",       ToUTF8String(legacyfile_import).c_str()}
         };
     }
 
@@ -25,10 +24,6 @@ namespace core {
 
         if (j.contains("filters_storage")) {
             j.at("filters_storage").get_to(filters_storage);
-        }
-
-        if (j.contains("lua_scripts")) {
-            j.at("lua_scripts").get_to(lua_scripts);
         }
 
         if (j.contains("import_miniface")) {
