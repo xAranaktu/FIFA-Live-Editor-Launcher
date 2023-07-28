@@ -101,12 +101,12 @@ namespace UIWindows {
         }
 
         if (ImGui::CollapsingHeader(localize.Translate("Other").c_str())) {
-            if (ImGui::Checkbox(localize.Translate("disable_chants_short").c_str(), &g_Config.other_values.disable_chants)) {
-                save_required |= true;
-            }
+            //if (ImGui::Checkbox(localize.Translate("disable_chants_short").c_str(), &g_Config.other_values.disable_chants)) {
+            //    save_required |= true;
+            //}
 
-            if (ImGui::IsItemHovered())
-                ImGui::SetTooltip(localize.Translate("disable_chants").c_str());
+            //if (ImGui::IsItemHovered())
+            //    ImGui::SetTooltip(localize.Translate("disable_chants").c_str());
 
             save_required |= ImGui::Checkbox(localize.Translate("show_player_potential").c_str(), &g_Config.other_values.show_player_potential);
             save_required |= ImGui::Checkbox(localize.Translate("load_images_short").c_str(), &g_Config.other_values.load_images);

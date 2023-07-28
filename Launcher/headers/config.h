@@ -111,7 +111,7 @@ namespace core {
     class OtherValues {
     public:
         bool first_run = true;
-        bool disable_chants = true;
+        // bool disable_chants = true;
         bool show_player_potential = true;
         bool load_images = true;
 

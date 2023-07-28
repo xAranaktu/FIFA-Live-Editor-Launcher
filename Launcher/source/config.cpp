@@ -221,7 +221,7 @@ namespace core {
     void OtherValues::to_json(json& j) {
         j = json{
             {"first_run",               first_run},
-            {"disable_chants",          disable_chants},
+            // {"disable_chants",          disable_chants},
             {"show_player_potential",   show_player_potential},
             {"load_images",             load_images}
         };
@@ -232,9 +232,9 @@ namespace core {
             j.at("first_run").get_to(first_run);
         }
 
-        if (j.contains("disable_chants")) {
-            j.at("disable_chants").get_to(disable_chants);
-        }
+        //if (j.contains("disable_chants")) {
+        //    j.at("disable_chants").get_to(disable_chants);
+        //}
 
         if (j.contains("show_player_potential")) {
             j.at("show_player_potential").get_to(show_player_potential);
