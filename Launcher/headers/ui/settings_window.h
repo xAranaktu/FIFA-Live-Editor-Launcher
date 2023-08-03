@@ -31,6 +31,9 @@ namespace UIWindows {
             "auto", "x1.0", "x1.25", "x1.5", "x1.75", "x2.0", "x2.25"
         };
 
+        std::string le_data_root;
+        std::string game_loc;
+
         bool has_keys_options = false;
         void HotkeyMultiCombo(const char* label, std::string id, core::HotkeysValues::Hotkey& for_hotkey);
 

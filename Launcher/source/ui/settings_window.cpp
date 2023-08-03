@@ -11,6 +11,7 @@ namespace UIWindows {
         };
 
         has_keys_options = !g_options_ids.GetOptions("keys", true).empty();
+        le_data_root = ToUTF8String(g_Core.GetLEDataPath());
     }
 
     void UISettings::Draw(bool* p_open) {
@@ -44,7 +45,16 @@ namespace UIWindows {
             }
             ImGui::PopID();
             ImGui::SameLine();
-            ImGui::Text(ToUTF8String(g_Core.GetGameInstallDir()).c_str());
+
+            if (!g_Config.directories_values.game_loc.empty()) {
+                ImGui::Text(ToUTF8String(g_Config.directories_values.game_loc).c_str());
+            }
+            else {
+                if (game_loc.empty()) {
+                    game_loc = ToUTF8String(g_Core.GetGameInstallDir());
+                }
+                ImGui::Text(game_loc.c_str());
+            }
 
             ImGui::Text("LE Data Root:      ");
             ImGui::SameLine();
@@ -55,7 +65,7 @@ namespace UIWindows {
             }
             ImGui::PopID();
             ImGui::SameLine();
-            ImGui::Text(ToUTF8String(g_Core.GetLEDataPath()).c_str());
+            ImGui::Text(le_data_root.c_str());
 
             ImGui::Text("Mods Root:         ");
             ImGui::SameLine();
