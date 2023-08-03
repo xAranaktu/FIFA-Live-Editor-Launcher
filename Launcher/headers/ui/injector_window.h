@@ -25,5 +25,6 @@ namespace UIWindows {
         std::string GetInjectionStatusDesc();
 
     private:
+        bool run_game_pressed = false;
     };
 }

@@ -14,22 +14,6 @@ namespace UIWindows {
         }
         ImGui::Text("STATUS: %s", GetInjectionStatus().c_str());
 
-        //if (ImGui::Checkbox("Auto Inject", &g_Config.auto_inject)) {
-        //    if (g_Config.auto_inject) {
-        //        InjectDll();
-        //    }
-        //    else {
-        //        // Stop the auto injection loop
-        //        g_Injector.SetInterupt(true);
-        //    }
-
-        //    g_Config.Save();
-        //}
-
-        //if (ImGui::IsItemHovered()) {
-        //    ImGui::SetTooltip("If enable the launcher will automatically attempt to find the game process and inject the Live Editor core dll into it.");
-        //}
-
         if (!g_Config.launch_values.auto_inject) {
             if (ImGui::Button("Inject")) {
                 InjectDll();
@@ -46,17 +30,9 @@ namespace UIWindows {
             }
         }
 
-        //if (ImGui::Combo("Platform", &picked_platform, Platform_strings)) {
-        //    g_Config.platform_origin = (picked_platform == Platform::Origin || picked_platform == Platform::Origin_Steam);
-        //    g_Core.ApplyPlatform(g_Config.platform_origin);
-        //    g_Config.Save();
-        //}
-
-        if (ImGui::Button("Run Game")) {
-            if (g_Injector.GetStatus() != Injector::STATUS::STATUS_WAITING_FOR_GAME) {
-                MessageBox(NULL, "You can't run the game multiple times.\nRestart the Launcher.", "Multirun Attempt", MB_ICONERROR);
-            }
-            else {
+        if (g_Injector.GetStatus() == Injector::STATUS::STATUS_WAITING_FOR_GAME) {
+            if (ImGui::Button("Run Game") && !run_game_pressed) {
+                run_game_pressed = true;
                 g_Core.RunGame();
             }
         }
