@@ -439,12 +439,12 @@ void Core::ReadGameBuildInfo() {
             logger.Write(LOG_INFO, "Changelist:                         %d", game_build_info->getChangelist());
             logger.Write(LOG_INFO, "SourceChangeList:                   %d", game_build_info->getSourceChangelist());
             logger.Write(LOG_INFO, "FrostbiteChangelist:                %d", game_build_info->getFrostbiteChangelist());
-            logger.Write(LOG_INFO, "FrostbiteRelease:                   %s", game_build_info->getFrostbiteRelease());
-            logger.Write(LOG_INFO, "IsAutoBuild:                        %s", game_build_info->getIsAutoBuild() ? "true" : "false");
-            logger.Write(LOG_INFO, "Username:                           %s", game_build_info->getUsername());
-            logger.Write(LOG_INFO, "BuildTime:                          %s", game_build_info->getBuildTime());
-            logger.Write(LOG_INFO, "BuildDate:                          %s", game_build_info->getBuildDate());
-            logger.Write(LOG_INFO, "BuildIsoDate:                       %s", game_build_info->getBuildIsoDate());
+            // logger.Write(LOG_INFO, "FrostbiteRelease:                   %s", game_build_info->getFrostbiteRelease());
+            // logger.Write(LOG_INFO, "IsAutoBuild:                        %s", game_build_info->getIsAutoBuild() ? "true" : "false");
+            // logger.Write(LOG_INFO, "Username:                           %s", game_build_info->getUsername());
+            // logger.Write(LOG_INFO, "BuildTime:                          %s", game_build_info->getBuildTime());
+            // logger.Write(LOG_INFO, "BuildDate:                          %s", game_build_info->getBuildDate());
+            // logger.Write(LOG_INFO, "BuildIsoDate:                       %s", game_build_info->getBuildIsoDate());
             logger.Write(LOG_INFO, "-----------------------------------------------------------------");
         }
     }
