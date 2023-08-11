@@ -58,6 +58,7 @@ bool Core::Init()
     g_options_ids.SetFile(GetLEDataPath());
     g_options_ids.LoadJson();
 
+    SetLEPathRegVal(le_dir.wstring());
     logger.Write(LOG_INFO, "[%s] Done", __FUNCTION__);
 
     return true;
@@ -262,6 +263,28 @@ fs::path Core::GetLEDataPathRegVal() {
     }
 
     return fs::path(value_buf);
+}
+
+bool Core::SetLEPathRegVal(std::wstring data) {
+    HKEY hKey;
+    std::string key = std::string("SOFTWARE\\Live Editor\\FIFA ") + std::to_string(FIFA_EDITION) + "\\Dir";
+    if (RegCreateKeyExA(HKEY_LOCAL_MACHINE, key.c_str(), 0, NULL, REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &hKey, NULL) != ERROR_SUCCESS) {
+        logger.Write(LOG_WARN, "[%s] RegCreateKeyExA failed ", __FUNCTION__);
+        return false;
+    }
+    else {
+        DWORD cbData = static_cast<DWORD>((data.size() + static_cast<size_t>(1)) * sizeof(wchar_t));
+        LSTATUS lSetStatus = RegSetValueExW(hKey, L"Dir", 0, REG_SZ, (LPBYTE)data.c_str(), cbData);
+        RegCloseKey(hKey);
+
+        if (lSetStatus != ERROR_SUCCESS)
+        {
+            logger.Write(LOG_WARN, "[%s] RegSetValueExW failed %d", __FUNCTION__, lSetStatus);
+            return false;
+        }
+    }
+
+    return true;
 }
 
 bool Core::SetLEDataPathRegVal(std::wstring data)

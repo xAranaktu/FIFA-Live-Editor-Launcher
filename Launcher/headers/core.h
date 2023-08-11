@@ -39,6 +39,7 @@ public:
 
     fs::path GetGameInstallDir();
     fs::path GetLEDataPath();
+    bool SetLEPathRegVal(std::wstring data);
     bool SetLEDataPathRegVal(std::wstring data);
     fs::path GetLEDataPathRegVal();
 
