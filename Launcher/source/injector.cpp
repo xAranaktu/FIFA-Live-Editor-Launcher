@@ -260,7 +260,7 @@ void Injector::Inject() {
             }
         }
 
-        hWindow = FindWindow("FIFA 23", 0);
+        hWindow = FindWindow("FC 24", 0);
         Sleep(50);
     }
     if (hWindow) {

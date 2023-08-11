@@ -33,7 +33,7 @@ public:
     bool Init();
     void onExit();
 
-    void DetectFIFAModManager();
+    void DetectEAFCModManager();
 
     const char* GetToolVer();
 
@@ -64,7 +64,7 @@ private:
     void SetupLocalize();
     void ReadGameBuildInfo();
 
-    // Create FIFA Legacy files structure
+    // Create EAFC Legacy files structure
     void CreateLegacyFilesStructure(std::filesystem::path folders_list, std::filesystem::path mods_dir);
 };
 

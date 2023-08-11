@@ -54,11 +54,11 @@ namespace core {
         bool is_trial = false;
         int injection_delay = 100;
 
-        std::string game_proc_name = "FIFA23.exe";
-        std::string game_proc_name_trial = "FIFA23_Trial.exe";
+        std::string game_proc_name = "FC24.exe";
+        std::string game_proc_name_trial = "FC24_Trial.exe";
 
         std::vector<std::string> dlls = {
-            "FIFALiveEditor.DLL"
+            "FCLiveEditor.DLL"
         };
 
         void to_json(json& j);

@@ -151,7 +151,7 @@ void GUI::DrawMainMenuBar() {
         }
 
         if (ImGui::BeginMenu("Help")) {
-            ImGui::MenuItemURL("Wiki", "https://github.com/xAranaktu/FIFA-23-Live-Editor/wiki");
+            ImGui::MenuItemURL("Wiki", "https://github.com/xAranaktu/EAFC-24-Live-Editor/wiki");
             ImGui::MenuItemURL("Getting Started", "https://github.com/xAranaktu/FIFA-23-Live-Editor/wiki/Getting-Started");
             ImGui::MenuItemURL("Discord", "https://discord.gg/va9EtdB");
             ImGui::EndMenu();

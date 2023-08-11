@@ -41,7 +41,7 @@ bool Core::Init()
     logger.Write(LOG_INFO, "[%s] Game Install Dir: %s", __FUNCTION__, ToUTF8String(game_install_dir).c_str());
     logger.Write(LOG_INFO, "[%s] Live Editor Dir: %s", __FUNCTION__, ToUTF8String(le_dir).c_str());
 
-    std::string procname = "FIFA" + std::to_string(FIFA_EDITION) + ".exe";
+    std::string procname = "FC" + std::to_string(EAFC_EDITION) + ".exe";
     std::filesystem::path proc_full_path = game_install_dir / procname;
     if (!std::filesystem::exists(proc_full_path)) {
         std::string msg = "Can't find " + procname + " in:\n" + ToUTF8String(game_install_dir);
@@ -98,13 +98,13 @@ void Core::onExit() {
     ReleaseMutex(hMutex);
 }
 
-void Core::DetectFIFAModManager() {
+void Core::DetectEAFCModManager() {
     logger.Write(LOG_INFO, "[%s]", __FUNCTION__);
 
     // Check if FIFAModData exists in game dir
-    std::filesystem::path FIFAModDataDir = GetGameInstallDir() / "FIFAModData";
-    if (std::filesystem::exists(FIFAModDataDir)) {
-        logger.Write(LOG_INFO, "[%s] Found %s", __FUNCTION__, ToUTF8String(FIFAModDataDir).c_str());
+    std::filesystem::path EAFCModDataDir = GetGameInstallDir() / "FIFAModData";
+    if (std::filesystem::exists(EAFCModDataDir)) {
+        logger.Write(LOG_INFO, "[%s] Found %s", __FUNCTION__, ToUTF8String(EAFCModDataDir).c_str());
     }
 
     logger.Write(LOG_INFO, "[%s] Done", __FUNCTION__);
@@ -122,7 +122,8 @@ fs::path Core::GetGameInstallDir() {
     //Computer\HKEY_LOCAL_MACHINE\SOFTWARE\EA Sports\FIFA 22
     DWORD dwType = REG_SZ;
     HKEY hKey = 0;
-    std::string subkey = std::string("SOFTWARE\\EA Sports\\FIFA ") + std::to_string(FIFA_EDITION);
+    std::string subkey = std::string("SOFTWARE\\EA Sports\\EA SPORTS FC ") + std::to_string(EAFC_EDITION) + " BETA";
+    logger.Write(LOG_INFO, "[%s] subkey %s", __FUNCTION__, subkey.c_str());
 
     LSTATUS open_status = RegOpenKey(HKEY_LOCAL_MACHINE, subkey.c_str(), &hKey);
     if (open_status != ERROR_SUCCESS) {
@@ -242,7 +243,7 @@ fs::path Core::GetLEDataPathRegVal() {
     fs::path result;
 
     HKEY hKey;
-    std::string key = std::string("SOFTWARE\\Live Editor\\FIFA ") + std::to_string(FIFA_EDITION) + "\\Data Dir";
+    std::string key = std::string("SOFTWARE\\Live Editor\\EAFC ") + std::to_string(EAFC_EDITION) + "\\Data Dir";
 
     logger.Write(LOG_INFO, "[%s] %s", __FUNCTION__, key.c_str());
     LSTATUS lOpenStatus = RegOpenKeyEx(HKEY_LOCAL_MACHINE, key.c_str(), 0, KEY_READ, &hKey);
@@ -267,7 +268,7 @@ fs::path Core::GetLEDataPathRegVal() {
 
 bool Core::SetLEPathRegVal(std::wstring data) {
     HKEY hKey;
-    std::string key = std::string("SOFTWARE\\Live Editor\\FIFA ") + std::to_string(FIFA_EDITION) + "\\Dir";
+    std::string key = std::string("SOFTWARE\\Live Editor\\EAFC ") + std::to_string(EAFC_EDITION) + "\\Dir";
     if (RegCreateKeyExA(HKEY_LOCAL_MACHINE, key.c_str(), 0, NULL, REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &hKey, NULL) != ERROR_SUCCESS) {
         logger.Write(LOG_WARN, "[%s] RegCreateKeyExA failed ", __FUNCTION__);
         return false;
@@ -290,7 +291,7 @@ bool Core::SetLEPathRegVal(std::wstring data) {
 bool Core::SetLEDataPathRegVal(std::wstring data)
 {
     HKEY hKey;
-    std::string key = std::string("SOFTWARE\\Live Editor\\FIFA ") + std::to_string(FIFA_EDITION) + "\\Data Dir";
+    std::string key = std::string("SOFTWARE\\Live Editor\\EAFC ") + std::to_string(EAFC_EDITION) + "\\Data Dir";
     if (RegCreateKeyExA(HKEY_LOCAL_MACHINE, key.c_str(), 0, NULL, REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &hKey, NULL) != ERROR_SUCCESS) {
         logger.Write(LOG_WARN, "[%s] RegCreateKeyExA failed ", __FUNCTION__);
         return false;
@@ -321,7 +322,7 @@ fs::path Core::GetLEDataPath() {
     }
     else {
         std::filesystem::path result(std::string(std::getenv("SystemDrive")) + "\\");
-        result /= "FIFA " + std::to_string(FIFA_EDITION) + " Live Editor";
+        result /= "EAFC " + std::to_string(EAFC_EDITION) + " Live Editor";
 
         if (!SetLEDataPathRegVal(result.wstring())) {
             logger.Write(LOG_WARN, "[%s] SetLEDataPathRegVal failed", __FUNCTION__);

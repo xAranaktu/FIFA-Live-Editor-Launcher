@@ -1,4 +1,4 @@
-# FIFA-Live-Editor-Launcher
+# EAFC-Live-Editor-Launcher
 Launcher for the [FIFA Live Editor](https://github.com/xAranaktu/FIFA-23-Live-Editor)
 
 The "virus ridden junk". ;) 

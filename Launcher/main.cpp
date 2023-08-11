@@ -61,7 +61,7 @@ int WinMain(
         return 1;
     }
 
-    g_Core.DetectFIFAModManager();
+    g_Core.DetectEAFCModManager();
 
     // Init GUI
     g_GUI.Init();
@@ -81,7 +81,7 @@ int WinMain(
 
     HWND hwnd = ::CreateWindow(
         wc.lpszClassName, 
-        _T("FIFA Live Editor Launcher"), 
+        _T("FC Live Editor Launcher"), 
         WS_OVERLAPPEDWINDOW, x, y, width, height,
         NULL, 
         NULL, 
