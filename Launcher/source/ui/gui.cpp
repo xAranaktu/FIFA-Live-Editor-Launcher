@@ -190,7 +190,7 @@ void GUI::DrawInfoWindow(bool* p_open) {
         ImGui::Text("Changelist         %d", g_Core.game_build_info->getChangelist());
         ImGui::Text("SourceChangeList   %d", g_Core.game_build_info->getSourceChangelist());
         ImGui::Text("FBChangelist       %d", g_Core.game_build_info->getFrostbiteChangelist());
-        // ImGui::Text("FBRelease          %s", g_Core.game_build_info->getFrostbiteRelease());
+        ImGui::Text("FBRelease          %s", g_Core.game_build_info->getFrostbiteRelease());
     }
 
     ImGui::End();
