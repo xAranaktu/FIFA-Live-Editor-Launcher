@@ -81,7 +81,7 @@ int WinMain(
 
     HWND hwnd = ::CreateWindow(
         wc.lpszClassName, 
-        _T("FIFA Live Editor Launcher"), 
+        _T("FC Live Editor Launcher"), 
         WS_OVERLAPPEDWINDOW, x, y, width, height,
         NULL, 
         NULL, 

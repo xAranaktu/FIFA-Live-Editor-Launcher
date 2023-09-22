@@ -7,21 +7,25 @@
 class BuildInfo
 {
 public:
-    virtual const char*     getBranchName() const = 0;
-    virtual const char*     getLicenseeId() const = 0;
-    virtual const char*     getStudioName() const = 0;
-    virtual int             getChangelist() const = 0;
-    virtual int             getSourceChangelist() const = 0;
-    virtual int             getFrostbiteChangelist() const = 0;
-    virtual const char*     getFrostbiteRelease() const = 0;
-    virtual bool            getIsAutoBuild() const = 0;
-    virtual const char*     getUsername() const = 0;
-    virtual const char*     getBuildTime() const = 0;
-    virtual const char*     getBuildDate() const = 0;
-    virtual const char*     getBuildIsoDate() const = 0;
-    virtual int             getX() const = 0;
-    virtual const char*     getY() const = 0;
-    virtual const char*     getZ() const = 0;
+    virtual const char* getBranchName() const = 0;
+    virtual const char* getHostName() const = 0;
+    virtual const char* getLicenseeId() const = 0;
+    virtual const char* getStudioName() const = 0;
+    virtual int getChangelist() const = 0;
+    virtual int getSourceChangelist() const = 0;
+    virtual int getFrostbiteChangelist() const = 0;
+    virtual const char* getFrostbiteRelease() const = 0;
+    virtual const char* getFrostbiteReleaseAlt() const = 0;
+    virtual bool getIsAutoBuild() const = 0;
+    virtual const char* getUsername() const = 0;
+    virtual const char* getBuildTime() const = 0;
+    virtual const char* getBuildDate() const = 0;
+    virtual const char* getBuildIsoDate() const = 0;
+
+    virtual const char* getNullPtr() const = 0;
+    virtual const char* getNullPtr2() const = 0;
+    virtual const char* getNullPtr3() const = 0;
+    virtual int getInt4() const = 0;
 
     static BuildInfo* GetInstance(std::filesystem::path dll_path)
     {
