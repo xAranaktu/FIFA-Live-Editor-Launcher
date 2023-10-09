@@ -1,5 +1,5 @@
 # FIFA-Live-Editor-Launcher
-Launcher for the [FIFA Live Editor](https://github.com/xAranaktu/FIFA-23-Live-Editor)
+Launcher for the [FIFA Live Editor](https://github.com/xAranaktu/FC-24-Live-Editor)
 
 The "virus ridden junk". ;) 
 Feel free to compile it by yourself then, without any viruses.
