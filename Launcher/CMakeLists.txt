@@ -91,6 +91,7 @@ add_executable(${PROJECT_NAME} WIN32 ${ALL_CPP} ${ALL_HEADERS} ${APP_ICON})
 
 target_link_libraries(${PROJECT_NAME} ${WinSDK})
 
+target_include_directories(${PROJECT_NAME} PRIVATE "external/")
 target_include_directories(${PROJECT_NAME} PRIVATE "external/AES/")
 target_include_directories(${PROJECT_NAME} PRIVATE "external/imgui/")
 target_include_directories(${PROJECT_NAME} PRIVATE "headers/")

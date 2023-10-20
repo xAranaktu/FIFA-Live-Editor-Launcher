@@ -17,3 +17,24 @@ std::filesystem::path FromUTF8String(const std::string& value) {
     delete[] buf;
     return result;
 }
+
+std::vector<std::string> splitStr(std::string str, std::string delim) {
+    std::vector<std::string> result;
+
+    std::size_t current, previous = 0;
+    current = str.find_first_of(delim);
+    if (current == std::string::npos) {
+        result.push_back(str);
+        return result;
+    }
+    std::string to_add = "";
+    while (current != std::string::npos) {
+        to_add = str.substr(previous, current - previous);
+        if (!to_add.empty())
+            result.push_back(to_add);
+        previous = current + 1;
+        current = str.find_first_of(delim, previous);
+    }
+    result.push_back(str.substr(previous, current - previous));
+    return result;
+}

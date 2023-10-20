@@ -177,11 +177,21 @@ void GUI::DrawMainMenuBar() {
 
 void GUI::DrawInfoWindow(bool* p_open) {
     ImGui::Begin("Info", p_open);
-    ImGui::Text("LE Version         %s", g_Core.GetToolVer());
+    ImGui::Text("LE Version             %s", g_Core.GetToolVer());
+
+    ImGui::PushStyleColor(ImGuiCol_Text, compatibility_color);
+    ImGui::Text("Game TU                %s", GetGameTU());
+    ImGui::PopStyleColor();
+
+    ImGui::SameLine();
+    ImGui::TextDisabled("(?)");
+    if (ImGui::IsItemHovered()) {
+        ImGui::SetTooltip(game_tu_desc.c_str());
+    }
 
     if (g_Core.game_build_info) {
         ImGui::NewLine();
-        ImGui::Text("Game:");
+        ImGui::Text("Frostbite BuildInfo:");
         ImGui::Text("BuildTime          %s", g_Core.game_build_info->getBuildTime());
         ImGui::Text("BuildDate          %s", g_Core.game_build_info->getBuildDate());
         ImGui::Text("BranchName         %s", g_Core.game_build_info->getBranchName());
@@ -248,6 +258,47 @@ void GUI::Draw() {
     }
 
     FileDialogs();
+}
+
+bool GUI::GameVerIsCompatibleWithLE(std::string TU) {
+    for (const auto compatible_tu : COMPATIBLE_TITLE_UPDATES) {
+        if (TU == compatible_tu)    return true;
+    }
+
+    return false;
+}
+
+std::string GUI::GetGameTU() {
+    if (!game_tu.empty())
+        return game_tu;
+
+    game_tu = g_Core.GetTU();
+    if (game_tu == "Invalid") {
+        game_tu_desc = "Live Editor wasn't able to determine game version\nThis tool may not work properly with your game version";
+
+        // Orange
+        compatibility_color = IM_COL32(255, 165, 0, 255);
+    }
+    else if (game_tu.size() >= 10) {
+        game_tu_desc = "Your game version is newer than latest known TU by the Live Editor\nThis tool may not work properly with your game version";
+
+        // Orange
+        compatibility_color = IM_COL32(255, 165, 0, 255);
+    }
+    else if (GameVerIsCompatibleWithLE(game_tu)) {
+        game_tu_desc = "Your game version is compatible with the Live Editor";
+
+        // Lime
+        compatibility_color = IM_COL32(0, 255, 0, 255);
+    }
+    else {
+        game_tu_desc = "Your game version isn't compatible with the Live Editor";
+
+        // Red
+        compatibility_color = IM_COL32(255, 0, 0, 255);
+    }
+
+    return game_tu;
 }
 
 void GUI::ChangeModsRootDialog() {

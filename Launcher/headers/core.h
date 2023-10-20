@@ -12,8 +12,10 @@
 #include <Psapi.h>
 #include <TlHelp32.h>
 
+#include "tinyxml2.h"
 #include <SDK/FB/build_info.h>
 
+#include "misc.h"
 #include "options_id.h"
 #include "localize.h"
 
@@ -36,6 +38,8 @@ public:
     void DetectFIFAModManager();
 
     const char* GetToolVer();
+    std::string GetGameVer();
+    std::string GetTU();
 
     fs::path GetGameInstallDir();
     fs::path GetLEDataPath();

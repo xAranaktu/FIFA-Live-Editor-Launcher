@@ -104,6 +104,12 @@ private:
         { "ImportFilterList",       GUI::FILE_DIALOGS::FILE_DIALOG_IMPORT_FILTER_LIST }
     };
 
+    std::string game_tu = "";
+    std::string game_tu_desc = "";
+    ImU32 compatibility_color = IM_COL32(0, 0, 0, 255);
+
+    bool GameVerIsCompatibleWithLE(std::string TU);
+    std::string GetGameTU();
     void ChangeModsRootDialog();
     void ChangeLEDataRootDialog();
     void ChangeGameLoc();

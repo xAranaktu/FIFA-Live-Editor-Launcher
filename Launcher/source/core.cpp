@@ -114,6 +114,85 @@ const char* Core::GetToolVer() {
     return TOOL_VERSION;
 }
 
+std::string Core::GetGameVer() {
+    std::string result = "0.0.0.0";
+
+    fs::path fpath = GetGameInstallDir() / "__Installer" / "installerdata.xml";
+    if (!fs::exists(fpath)) {
+        logger.Write(LOG_ERROR, "[%s] Can't find %s", __FUNCTION__, ToUTF8String(fpath).c_str());
+        return result;
+    }
+
+    FILE* f = _wfopen(fpath.wstring().c_str(), L"rb");
+    if (!f) {
+        logger.Write(LOG_ERROR, "[%s] Can't open %s", __FUNCTION__, ToUTF8String(fpath).c_str());
+        return result;
+    }
+
+    char* fbuf = nullptr;
+
+    fseek(f, 0, SEEK_END);
+    __int64 fsize = ftell(f);
+    fseek(f, 0, SEEK_SET);
+
+    if (fsize <= 0) {
+        logger.Write(LOG_ERROR, "[%s] File is empty(?) %s", __FUNCTION__, ToUTF8String(fpath).c_str());
+        return result;
+    }
+
+    fbuf = new char[fsize];
+    fread(fbuf, fsize, 1, f);
+    fclose(f);
+
+    tinyxml2::XMLDocument xmlDoc;
+    xmlDoc.Parse(fbuf, fsize);
+    tinyxml2::XMLElement* DiPManifest = xmlDoc.FirstChildElement("DiPManifest");
+    if (DiPManifest) {
+        tinyxml2::XMLElement* buildMetaData = DiPManifest->FirstChildElement("buildMetaData");
+        if (buildMetaData) {
+            tinyxml2::XMLElement* gameVersion = buildMetaData->FirstChildElement("gameVersion");
+            if (gameVersion) {
+                result = std::string(gameVersion->Attribute("version"));
+            }
+        }
+
+    }
+
+    delete[] fbuf;
+    return result;
+}
+
+std::string Core::GetTU() {
+    std::string game_ver = GetGameVer();
+
+    if (GAME_VERSION_TU_MAP.contains(game_ver)) {
+        return GAME_VERSION_TU_MAP.at(game_ver);
+    }
+
+    auto ver_splitted = splitStr(game_ver, ".");
+    if (ver_splitted.size() != 4) {
+        return "Invalid";
+    }
+
+    int minor = std::stoi(ver_splitted[ver_splitted.size() - 1]);
+    int major = std::stoi(ver_splitted[ver_splitted.size() - 2]);
+
+    // No info about exact version for TU1, do compare with Vanilla and TU2
+    if (
+        (major == 83 && minor > 56686) ||
+        (major == 84 && minor < 7390)
+    ) {
+        // Is between Vanilla & TU2, so must be TU1
+        return "TU1";
+    }
+
+    if (major >= LATEST_MAJOR_GAME_VER && minor >= LATEST_MINOR_GAME_VER) {
+        return "TU" + std::to_string(LATEST_TU) + " or newer";
+    }
+
+    return game_ver;
+}
+
 fs::path Core::GetGameInstallDir() {
     if (!g_Config.directories_values.game_loc.empty()) {
         return g_Config.directories_values.game_loc;
