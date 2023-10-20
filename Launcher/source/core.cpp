@@ -164,6 +164,7 @@ std::string Core::GetGameVer() {
 
 std::string Core::GetTU() {
     std::string game_ver = GetGameVer();
+    logger.Write(LOG_INFO, "[%s] gameVersion %s", __FUNCTION__, game_ver.c_str());
 
     if (GAME_VERSION_TU_MAP.contains(game_ver)) {
         return GAME_VERSION_TU_MAP.at(game_ver);
