@@ -52,20 +52,21 @@ std::string Injector::GetStatusDesc() {
 // https://www.unknowncheats.me/forum/general-programming-and-reversing/177183-basic-intermediate-techniques-uwp-app-modding.html
 bool Injector::SetAccessControl(const wchar_t* file, const wchar_t* access)
 {
-    PSECURITY_DESCRIPTOR sec = nullptr;
+    bool result = false;
     PACL currentAcl = nullptr;
-    PSID sid = nullptr;
     PACL newAcl = nullptr;
-    bool status = false;
-    goto init;
-end:
-    if (newAcl) LocalFree(newAcl);
-    if (sid) LocalFree(sid);
-    if (sec) LocalFree(sec);
-    return status;
-init:
-    if (GetNamedSecurityInfoW(file, SE_FILE_OBJECT, DACL_SECURITY_INFORMATION, nullptr, nullptr, &currentAcl, nullptr, &sec) != ERROR_SUCCESS) goto end;
-    if (!ConvertStringSidToSidW(access, &sid)) goto end;
+    PSECURITY_DESCRIPTOR sec = nullptr;
+    PSID sid = nullptr;
+
+    if (GetNamedSecurityInfoW(
+        file, SE_FILE_OBJECT, DACL_SECURITY_INFORMATION, nullptr, nullptr, &currentAcl, nullptr, &sec
+    ) != ERROR_SUCCESS)
+        return result;
+
+    if (!ConvertStringSidToSidW(access, &sid))
+        return result;
+
+
     EXPLICIT_ACCESSW desc = { 0 };
     desc.grfAccessPermissions = GENERIC_READ | GENERIC_EXECUTE | GENERIC_WRITE;
     desc.grfAccessMode = SET_ACCESS;
@@ -73,10 +74,16 @@ init:
     desc.Trustee.TrusteeForm = TRUSTEE_IS_SID;
     desc.Trustee.TrusteeType = TRUSTEE_IS_WELL_KNOWN_GROUP;
     desc.Trustee.ptstrName = reinterpret_cast<wchar_t*>(sid);
-    if (SetEntriesInAclW(1, &desc, currentAcl, &newAcl) != ERROR_SUCCESS) goto end;
-    if (SetNamedSecurityInfoW(const_cast<wchar_t*>(file), SE_FILE_OBJECT, DACL_SECURITY_INFORMATION, nullptr, nullptr, newAcl, nullptr) != ERROR_SUCCESS) goto end;
-    status = true;
-    goto end;
+    if (SetEntriesInAclW(1, &desc, currentAcl, &newAcl) == ERROR_SUCCESS) {
+        SetNamedSecurityInfoW(const_cast<wchar_t*>(file), SE_FILE_OBJECT, DACL_SECURITY_INFORMATION, nullptr, nullptr, newAcl, nullptr);
+        result = true;
+    }
+
+    if (newAcl) LocalFree(newAcl);
+    if (sid)    LocalFree(sid);
+    if (sec)    LocalFree(sec);
+
+    return result;
 }
 
 std::vector<int> Injector::GetGamePIDs() {
@@ -155,7 +162,7 @@ bool Injector::DoInjectDLL(int pid) {
         }
 
         auto len = dll_module.capacity() * sizeof(wchar_t);
-        LPVOID alloc = VirtualAllocEx(process, 0, len, MEM_COMMIT, PAGE_READWRITE);
+        LPVOID alloc = VirtualAllocEx(process, 0, len, MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE);
         if (!alloc) {
             DWORD err = GetLastError();
 
@@ -186,7 +193,7 @@ bool Injector::DoInjectDLL(int pid) {
             return false;
         }
         WaitForSingleObject(thread, INFINITE);
-        VirtualFreeEx(process, alloc, len, MEM_RESERVE);
+        VirtualFreeEx(process, alloc, len, MEM_RELEASE);
     }
     CloseHandle(process);
     return true;
