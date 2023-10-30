@@ -88,6 +88,31 @@ bool Injector::SetAccessControl(const wchar_t* file, const wchar_t* access)
 
 std::vector<int> Injector::GetGamePIDs() {
     std::vector<int> result;
+
+    /*
+    DWORD pid = 0;
+    std::wstring wsTmp1(g_Config.launch_values.game_proc_name.begin(), g_Config.launch_values.game_proc_name.end());
+    std::wstring wsTmp2(g_Config.launch_values.game_proc_name_trial.begin(), g_Config.launch_values.game_proc_name_trial.end());
+
+    const wchar_t* procname1 = wsTmp1.c_str();
+    const wchar_t* procname2 = wsTmp2.c_str();
+    HANDLE snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+    PROCESSENTRY32W process = { sizeof(process) };
+    for (BOOL next = Process32FirstW(snapshot, &process); next; next = Process32NextW(snapshot, &process))
+    {
+        if (
+            wcscmp(process.szExeFile, procname1) == 0 || 
+            wcscmp(process.szExeFile, procname2) == 0
+        ) {
+            pid = process.th32ProcessID;
+            result.push_back(pid);
+            break;
+        }
+    }
+
+    if (snapshot != NULL && snapshot != INVALID_HANDLE_VALUE) CloseHandle(snapshot);
+    */
+
     TCHAR szProcessName[MAX_PATH] = TEXT("<unknown>");
     DWORD aProcesses[2048], cbNeeded, cbNeededMod, cProcesses;
     HMODULE hMod;
