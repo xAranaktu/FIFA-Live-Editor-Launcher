@@ -188,7 +188,7 @@ std::string Core::GetTU() {
     }
 
     if (major >= LATEST_MAJOR_GAME_VER && minor >= LATEST_MINOR_GAME_VER) {
-        return "TU" + std::to_string(LATEST_TU) + " or newer";
+        return "TU" + std::to_string(LATEST_TU+1) + " or newer";
     }
 
     return game_ver;
