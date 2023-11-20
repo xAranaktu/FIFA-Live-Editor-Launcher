@@ -86,6 +86,7 @@ private:
         "\n\n[SPECIAL THANKS]\n\n"
         "GalaxyMan2015 & benji      for Frosty Tool Suite\n"
         "Rinaldo                    for Database Master 15 & Revolution DB Master\n"
+        "tokke001                   for help with players traits\n"
         "FIFA Community who shares details about the game and making the game better with their mods over many years\n"
         "\nAnd everyone who decided to support me on Patreon. :)\n"
         "\n";
