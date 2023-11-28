@@ -562,6 +562,9 @@ bool Core::InitDirectories() {
     }
     SafeCreateDirectories(live_editor_mods_path);
 
+    std::filesystem::path live_editor_lua_autorun = live_editor_mods_path / "lua_autorun";
+    SafeCreateDirectories(live_editor_lua_autorun);
+
     if (g_Config.directories_values.filters_storage.empty()) {
         g_Config.directories_values.filters_storage = live_editor_data_path / "filters";
         config_save_required |= true;
