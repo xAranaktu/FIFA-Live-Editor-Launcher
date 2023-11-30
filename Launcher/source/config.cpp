@@ -82,6 +82,7 @@ namespace core {
             {"injection_delay",         injection_delay},
             {"game_proc_name",          game_proc_name},
             {"game_proc_name_trial",    game_proc_name_trial},
+            {"params",                  params},
             {"dlls",                    dlls}
         };
     }
@@ -117,6 +118,10 @@ namespace core {
 
         if (j.contains("game_proc_name_trial")) {
             j.at("game_proc_name_trial").get_to(game_proc_name_trial);
+        }
+
+        if (j.contains("params")) {
+            j.at("params").get_to(params);
         }
 
         if (j.contains("dlls")) {

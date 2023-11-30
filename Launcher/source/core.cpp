@@ -229,11 +229,13 @@ void Core::RunGame() {
     logger.Write(LOG_INFO, "[%s]", __FUNCTION__);
 
     std::string proc_name = g_Config.launch_values.game_proc_name;
-    std::wstring params = L"";
+
+    std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+    std::wstring params = converter.from_bytes(g_Config.launch_values.params);
 
     if (g_Config.launch_values.is_trial) {
         proc_name = g_Config.launch_values.game_proc_name_trial;
-        params = L"-trial";
+        params += L" -trial";
     }
 
     std::filesystem::path game_full_path = GetGameInstallDir() / proc_name;

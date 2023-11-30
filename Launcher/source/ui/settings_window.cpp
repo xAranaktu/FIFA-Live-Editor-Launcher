@@ -19,6 +19,12 @@ namespace UIWindows {
 
         ImGui::Begin(GetWindowName(), p_open);
 
+        if (ImGui::CollapsingHeader(localize.Translate("Advanced Launch Options").c_str())) {
+            if (ImGui::InputText("##advlaunchoptions", &g_Config.launch_values.params)) {
+                save_required |= true;
+            }
+        }
+
         if (ImGui::CollapsingHeader(localize.Translate("Logger").c_str())) {
             if (ImGui::Combo(localize.Translate("log_level").c_str(), &g_Config.logger_values.log_level, avail_log_levels)) {
                 logger.SetMinLevel((LogLevel)g_Config.logger_values.log_level);
