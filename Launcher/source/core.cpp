@@ -41,14 +41,14 @@ bool Core::Init()
     logger.Write(LOG_INFO, "[%s] Game Install Dir: %s", __FUNCTION__, ToUTF8String(game_install_dir).c_str());
     logger.Write(LOG_INFO, "[%s] Live Editor Dir: %s", __FUNCTION__, ToUTF8String(le_dir).c_str());
 
-    std::string procname = "FC" + std::to_string(FIFA_EDITION) + ".exe";
+    std::string procname = "Madden" + std::to_string(FIFA_EDITION) + ".exe";
     std::filesystem::path proc_full_path = game_install_dir / procname;
     if (!std::filesystem::exists(proc_full_path)) {
         std::string msg = "Can't find " + procname + " in:\n" + ToUTF8String(game_install_dir);
         logger.Write(LOG_FATAL, "[%s] %s ", __FUNCTION__, msg.c_str());
         MessageBox(NULL, msg.c_str(), "ERROR", MB_ICONERROR);
     }
-    ReadGameBuildInfo();
+    // ReadGameBuildInfo();
 
     RestoreOrgGameFiles();
     BackupOrgGameFiles();
@@ -202,7 +202,7 @@ fs::path Core::GetGameInstallDir() {
     // Computer\HKEY_LOCAL_MACHINE\SOFTWARE\EA Sports\EA SPORTS FC 24
     DWORD dwType = REG_SZ;
     HKEY hKey = 0;
-    std::string subkey = std::string("SOFTWARE\\EA Sports\\EA SPORTS FC ") + std::to_string(FIFA_EDITION);
+    std::string subkey = std::string("SOFTWARE\\EA Sports\\Madden NFL ") + std::to_string(FIFA_EDITION);
 
     LSTATUS open_status = RegOpenKey(HKEY_LOCAL_MACHINE, subkey.c_str(), &hKey);
     if (open_status != ERROR_SUCCESS) {

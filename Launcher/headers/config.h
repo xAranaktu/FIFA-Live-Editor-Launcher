@@ -54,8 +54,8 @@ namespace core {
         bool is_trial = false;
         int injection_delay = 100;
 
-        std::string game_proc_name = "FC24.exe";
-        std::string game_proc_name_trial = "FC24_Trial.exe";
+        std::string game_proc_name = "Madden24.exe";
+        std::string game_proc_name_trial = "Madden24_Trial.exe";
         std::string params = "";
 
         std::vector<std::string> dlls = {

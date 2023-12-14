@@ -8,6 +8,7 @@ namespace UIWindows {
         if (initialized)    return;
 
         file_content = "Key file not found. Run the game at least once to extract the key from game.";
+        return;
 
         LoadKey();
         
