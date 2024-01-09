@@ -3,7 +3,7 @@
 #include "imgui.h"
 #include "imgui_internal.h"
 #include "imgui_stdlib.h"
-#include "../external/IconsFontAwesome5.h"
+#include "../external/IconsFontAwesome6.h"
 #include "../external/ImGuiFileDialog/ImGuiFileDialog.h"
 #include "../external/nlohmann/fifo_map.hpp"
 

@@ -28,7 +28,7 @@ SET(ImGUI_SRC
 )
 
 SET(EXTERNAL_H
-    "external/IconsFontAwesome5.h"
+    "external/IconsFontAwesome6.h"
     "external/tinyxml2.h"
     "external/AES/AES.h"
     "external/ImGuiFileDialog/ImGuiFileDialog.h"
