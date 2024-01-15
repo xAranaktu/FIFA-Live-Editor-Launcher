@@ -153,12 +153,13 @@ void GUI::DrawMainMenuBar() {
         if (ImGui::BeginMenu("Help")) {
             ImGui::MenuItemURL("Wiki", "https://github.com/xAranaktu/FC-24-Live-Editor/wiki");
             ImGui::MenuItemURL("Getting Started", "https://github.com/xAranaktu/FC-24-Live-Editor/wiki/Getting-Started");
-            ImGui::MenuItemURL("Discord", "https://discord.gg/SbV45F7FJk");
+            ImGui::MenuItemURL("Discord", "https://discord.gg/yxAbpmNaFX");
             ImGui::EndMenu();
         }
 
         if (ImGui::BeginMenu("About")) {
             show_about = true;
+            ImGui::EndMenu();
         }
 
         //if (ImGui::BeginMenu("Edit"))
