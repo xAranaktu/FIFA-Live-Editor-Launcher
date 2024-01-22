@@ -8,14 +8,14 @@
 #include "injector.h"
 
 namespace UIWindows {
-    class UIInjector
+    class UIStatus
     {
     public:
         bool show = true;
-        std::string window_name = "Injector";
+        std::string window_name = "Status";
 
-        UIInjector();
-        ~UIInjector();
+        UIStatus();
+        ~UIStatus();
         void Draw(bool* p_open);
         void Dock(ImGuiID dock_id);
         const char* GetWindowName();

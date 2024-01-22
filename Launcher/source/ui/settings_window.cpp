@@ -25,6 +25,46 @@ namespace UIWindows {
             }
         }
 
+        if (ImGui::CollapsingHeader(localize.Translate("DLL Injector").c_str())) {
+            if (ImGui::InputInt("Delay (ms)", &g_Config.launch_values.injection_delay)) {
+                g_Injector.SetDelay(g_Config.launch_values.injection_delay);
+                save_required |= true;
+            }
+
+            if (ImGui::IsItemHovered()) {
+                ImGui::SetTooltip("The delay between game process found and the injection of Live Editor core dll\nToo short may cause problems/crashes\nToo long may result in some mods not being loaded properly");
+            }
+
+            // if (ImGui::Checkbox("Auto Run Game", &g_Config.launch_values.auto_start)) {
+            //     g_Config.Save();
+            // }
+            //ImGui::SameLine();
+            //ImGui::TextDisabled("(?)");
+            //if (ImGui::IsItemHovered()) {
+            //    ImGui::SetTooltip("Auto start the game with Live Editor (requires restart).\nFor EA Play you need to tick the 'Is Trial Game' to make it work.");
+            //}
+
+            if (ImGui::Checkbox("Auto Close Launcher", &g_Config.launch_values.close_after_injection)) {
+                save_required |= true;
+            }
+
+            ImGui::SameLine();
+            ImGui::TextDisabled("(?)");
+            if (ImGui::IsItemHovered()) {
+                ImGui::SetTooltip("Live Editor will shutdown itself after successfull DLL injection. (recommended)");
+            }
+
+            if (ImGui::Checkbox("Is Trial Game", &g_Config.launch_values.is_trial)) {
+                save_required |= true;
+            }
+
+            ImGui::SameLine();
+            ImGui::TextDisabled("(?)");
+            if (ImGui::IsItemHovered()) {
+                ImGui::SetTooltip("Trial game is the game version available for 10h (with EA Play, but not EA Play Pro). Tick this checkbox if you are using Auto Run Game and you have trial game version");
+            }
+        }
+
         if (ImGui::CollapsingHeader(localize.Translate("Logger").c_str())) {
             if (ImGui::Combo(localize.Translate("log_level").c_str(), &g_Config.logger_values.log_level, avail_log_levels)) {
                 logger.SetMinLevel((LogLevel)g_Config.logger_values.log_level);

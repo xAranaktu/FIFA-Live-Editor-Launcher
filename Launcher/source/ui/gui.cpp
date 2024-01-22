@@ -76,7 +76,7 @@ void GUI::MainDockspace() {
             ImGui::DockBuilderDockWindow("Restart Required", dockspace_id);
             locale_window.Dock(dockspace_id);
             settings_window.Dock(dock_id_left);
-            injector_window.Dock(dock_id_left);
+            status_window.Dock(dock_id_left);
             ImGui::DockBuilderDockWindow("Info", dock_id_right);
 
             ImGui::DockBuilderFinish(dockspace_id);
@@ -142,7 +142,7 @@ void GUI::DrawMainMenuBar() {
     {
         if (ImGui::BeginMenu("Windows"))
         {
-            ImGui::MenuItem(injector_window.GetWindowName(), NULL, &injector_window.show);
+            ImGui::MenuItem(status_window.GetWindowName(), NULL, &status_window.show);
             ImGui::MenuItem(settings_window.GetWindowName(), NULL, &settings_window.show);
 
             if (locale_window.IsKeyLoaded()) {
@@ -252,13 +252,13 @@ void GUI::Draw() {
 
     if (show_demo_window)       ImGui::ShowDemoWindow(&show_demo_window);
     if (locale_window.show)     locale_window.Draw(&locale_window.show);
-    if (injector_window.show)   injector_window.Draw(&injector_window.show);
+    if (status_window.show)   status_window.Draw(&status_window.show);
     if (settings_window.show)   settings_window.Draw(&settings_window.show);
     if (show_info_window)       DrawInfoWindow(&show_info_window);
     if (show_about)             DrawAbout(&show_about);
 
     if (first_draw) {
-        ImGui::SetWindowFocus(injector_window.GetWindowName());
+        ImGui::SetWindowFocus(status_window.GetWindowName());
         first_draw = false;
     }
 

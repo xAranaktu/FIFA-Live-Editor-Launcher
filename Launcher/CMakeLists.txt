@@ -59,7 +59,7 @@ SET(ALL_HEADERS
     "headers/ui/gui.h"
     "headers/ui/settings_window.h"
     "headers/ui/locale_window.h"
-    "headers/ui/injector_window.h"
+    "headers/ui/status_window.h"
     "headers/ui/imgui_helper.h"
     
     ${EXTERNAL_H}
@@ -77,7 +77,7 @@ SET(ALL_CPP
     "source/ui/gui.cpp"
     "source/ui/settings_window.cpp"
     "source/ui/locale_window.cpp"
-    "source/ui/injector_window.cpp"
+    "source/ui/status_window.cpp"
 
     "main.cpp"
 

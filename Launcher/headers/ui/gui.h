@@ -6,7 +6,7 @@
 #include "imgui_impl_win32.h"
 #include "imgui_impl_dx11.h"
 #include "../external/ImGuiFileDialog/ImGuiFileDialog.h"
-#include "injector_window.h"
+#include "status_window.h"
 #include "settings_window.h"
 #include "locale_window.h"
 
@@ -43,7 +43,7 @@ public:
     bool show_disclaimer = true;
     bool show_about = false;
 
-    UIWindows::UIInjector injector_window;
+    UIWindows::UIStatus status_window;
     UIWindows::UISettings settings_window;
     UIWindows::UILocaleIni locale_window;
 
