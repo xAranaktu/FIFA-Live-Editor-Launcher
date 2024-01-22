@@ -144,7 +144,11 @@ void GUI::DrawMainMenuBar() {
         {
             ImGui::MenuItem(injector_window.GetWindowName(), NULL, &injector_window.show);
             ImGui::MenuItem(settings_window.GetWindowName(), NULL, &settings_window.show);
-            ImGui::MenuItem(locale_window.GetWindowName(), NULL, &locale_window.show);
+
+            if (locale_window.IsKeyLoaded()) {
+                ImGui::MenuItem(locale_window.GetWindowName(), NULL, &locale_window.show);
+            }
+
             ImGui::MenuItem("Info", NULL, &show_info_window);
             ImGui::MenuItem("Disclaimer", NULL, &show_disclaimer);
             ImGui::EndMenu();

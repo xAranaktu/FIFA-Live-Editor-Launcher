@@ -21,6 +21,8 @@ namespace UIWindows {
         void Draw(bool* p_open);
         void Dock(ImGuiID dock_id);
         const char* GetWindowName();
+
+        bool IsKeyLoaded();
     
     private:
         bool has_unsaved_changes = false;
@@ -47,7 +49,7 @@ namespace UIWindows {
 
         void RestoreOrgLocale();
 
-        bool IsKeyLoaded();
+        
         void LoadKey();
     };
 }
