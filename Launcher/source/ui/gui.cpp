@@ -251,7 +251,7 @@ void GUI::Draw() {
 
     if (show_demo_window)       ImGui::ShowDemoWindow(&show_demo_window);
     if (locale_window.show)     locale_window.Draw(&locale_window.show);
-    if (status_window.show)   status_window.Draw(&status_window.show);
+    if (status_window.show)     status_window.Draw(&status_window.show);
     if (settings_window.show)   settings_window.Draw(&settings_window.show);
     if (show_info_window)       DrawInfoWindow(&show_info_window);
     if (show_about)             DrawAbout(&show_about);

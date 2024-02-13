@@ -4,7 +4,7 @@
 
 inline const int FIFA_EDITION = 24;
 inline const char* TOOL_NAME = "Live Editor";
-inline const char* TOOL_VERSION = "v24.1.1.4";
+inline const char* TOOL_VERSION = "v24.1.1.5";
 inline const char DisclaimerContent[] = {
     "Using this put you in risk of getting banned. I don't know if you will still be able to access your game account after that happen.\nAlso, EA may patch this tool at any time and from that point it may be not possible to update it at all. Enjoy while you can"
 };
@@ -21,14 +21,15 @@ inline const std::map<std::string, std::string> GAME_VERSION_TU_MAP = {
     { "1.0.84.34605",   "TU5"},
     { "1.0.84.58490",   "TU6"},
     { "1.0.85.25441",   "TU7"},
-    { "1.0.85.33923",   "TU8"}
+    { "1.0.85.33923",   "TU8"},
+    { "1.0.85.48150",   "TU9"}
 };
 
 inline const std::vector<std::string> COMPATIBLE_TITLE_UPDATES = {
-    "TU8"
+    "TU8", "TU9"
 };
 
-inline const int LATEST_TU = 8;
+inline const int LATEST_TU = 9;
 inline const int LATEST_MAJOR_GAME_VER = 85;
-inline const int LATEST_MINOR_GAME_VER = 33923;
+inline const int LATEST_MINOR_GAME_VER = 48150;
 
