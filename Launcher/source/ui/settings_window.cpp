@@ -35,15 +35,6 @@ namespace UIWindows {
                 ImGui::SetTooltip("The delay between game process found and the injection of Live Editor core dll\nToo short may cause problems/crashes\nToo long may result in some mods not being loaded properly");
             }
 
-            // if (ImGui::Checkbox("Auto Run Game", &g_Config.launch_values.auto_start)) {
-            //     g_Config.Save();
-            // }
-            //ImGui::SameLine();
-            //ImGui::TextDisabled("(?)");
-            //if (ImGui::IsItemHovered()) {
-            //    ImGui::SetTooltip("Auto start the game with Live Editor (requires restart).\nFor EA Play you need to tick the 'Is Trial Game' to make it work.");
-            //}
-
             if (ImGui::Checkbox("Auto Close Launcher", &g_Config.launch_values.close_after_injection)) {
                 save_required |= true;
             }

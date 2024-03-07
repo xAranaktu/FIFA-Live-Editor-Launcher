@@ -115,11 +115,6 @@ int WinMain(
         t1.detach();
     }
 
-    if (g_Config.launch_values.auto_start) {
-        std::thread t2(&Core::RunGame, &g_Core);
-        t2.detach();
-    }
-
     auto clear_color = g_GUI.clear_color;
     const float clear_color_with_alpha[4] = { clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w };
 

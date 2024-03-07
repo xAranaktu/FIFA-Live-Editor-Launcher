@@ -77,7 +77,6 @@ namespace core {
             {"show_disclaimer_msg",     show_disclaimer_msg},
             {"close_after_injection",   close_after_injection},
             {"auto_inject",             auto_inject},
-            {"auto_start",              auto_start},
             {"is_trial",                is_trial},
             {"injection_delay",         injection_delay},
             {"game_proc_name",          game_proc_name},
@@ -98,10 +97,6 @@ namespace core {
 
         if (j.contains("auto_inject")) {
             j.at("auto_inject").get_to(auto_inject);
-        }
-
-        if (j.contains("auto_start")) {
-            j.at("auto_start").get_to(auto_start);
         }
 
         if (j.contains("is_trial")) {
