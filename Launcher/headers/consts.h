@@ -23,14 +23,15 @@ inline const std::map<std::string, std::string> GAME_VERSION_TU_MAP = {
     { "1.0.85.25441",   "TU7"},
     { "1.0.85.33923",   "TU8"},
     { "1.0.85.48150",   "TU9"},
-    { "1.0.86.18082",   "TU10"}
+    { "1.0.86.18082",   "TU10"},
+    { "1.0.86.43378",   "TU11"}
 };
 
 inline const std::vector<std::string> COMPATIBLE_TITLE_UPDATES = {
-    "TU8", "TU9", "TU10"
+    "TU8", "TU9", "TU10", "TU11"
 };
 
-inline const int LATEST_TU = 10;
+inline const int LATEST_TU = 11;
 inline const int LATEST_MAJOR_GAME_VER = 86;
-inline const int LATEST_MINOR_GAME_VER = 18082;
+inline const int LATEST_MINOR_GAME_VER = 43378;
 
