@@ -128,8 +128,6 @@ std::string Core::GetGameVer() {
         return result;
     }
 
-    char* fbuf = nullptr;
-
     fseek(f, 0, SEEK_END);
     __int64 fsize = ftell(f);
     fseek(f, 0, SEEK_SET);
@@ -139,7 +137,7 @@ std::string Core::GetGameVer() {
         return result;
     }
 
-    fbuf = new char[fsize];
+    char* fbuf = new char[fsize];
     fread(fbuf, fsize, 1, f);
     fclose(f);
 
@@ -154,7 +152,6 @@ std::string Core::GetGameVer() {
                 result = std::string(gameVersion->Attribute("version"));
             }
         }
-
     }
 
     delete[] fbuf;
@@ -659,15 +656,8 @@ void Core::CreateLegacyFilesStructure(std::filesystem::path folders_list, std::f
     std::ifstream folders_to_create(folders_list);
     std::string legacy_folder;
     std::filesystem::path full_path = "";
-    int created_folders_count = 0;
     while (std::getline(folders_to_create, legacy_folder)) {
-        if (SafeCreateDirectories(legacy_root / legacy_folder)) {
-            created_folders_count++;
-        }
-    }
-
-    if (created_folders_count > 0) {
-        logger.Write(LOG_INFO, "[%s] Created %d legacy folders", __FUNCTION__, created_folders_count);
+        SafeCreateDirectories(legacy_root / legacy_folder);
     }
 
     logger.Write(LOG_INFO, "[%s] Done", __FUNCTION__);
