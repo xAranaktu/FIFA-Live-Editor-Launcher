@@ -50,7 +50,6 @@ namespace core {
         bool show_disclaimer_msg = true;
         bool close_after_injection = true;
         bool auto_inject = true;
-        bool auto_start = false;
         bool is_trial = false;
         int injection_delay = 100;
 
