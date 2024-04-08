@@ -278,7 +278,6 @@ bool Core::SafeCreateDirectories(const std::filesystem::path d) {
     try {
         if (fs::exists(d))   return false;
         if (!fs::create_directories(d)) {
-            logger.Write(LOG_ERROR, "[%s] Create Directory failed %s", __FUNCTION__, ToUTF8String(d).c_str());
             return false;
         }
     }
