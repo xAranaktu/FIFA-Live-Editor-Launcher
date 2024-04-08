@@ -281,7 +281,8 @@ void Injector::Inject() {
             ssError << "1. You have extracted the Live Editor archive\n";
             ssError << "2. You are using latest Live Editor version\n";
             ssError << "3. Live Editor isn't blocked by your antivirus\n";
-            ssError << "4. Your windows user have full admin rights\n\n";
+            ssError << "4. Your windows user have full admin rights\n";
+            ssError << "5. You have cleared EA App Cache\n\n";
 
             ssError << "If you met all above conditions try to run the game without FIFAModManager mods\n";
             ssError << "Also, you can try to run Live Editor launcher and instead of pressing Run Game button try to start your game manually from EA App/Steam/Epic\n\n\n";
