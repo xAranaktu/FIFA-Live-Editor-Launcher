@@ -154,6 +154,14 @@ void GUI::DrawMainMenuBar() {
         }
 
         if (ImGui::BeginMenu("Help")) {
+            if (ImGui::MenuItem("Logs")) {
+                ShellExecuteW(NULL, L"open", logger.GetFolder().wstring().c_str(), NULL, NULL, SW_SHOWDEFAULT);
+            }
+
+            if (ImGui::IsItemHovered()) {
+                ImGui::SetTooltip("Open folder with Logs in Windows File Explorer");
+            }
+
             ImGui::MenuItemURL("Wiki", "https://github.com/xAranaktu/FC-24-Live-Editor/wiki");
             ImGui::MenuItemURL("Getting Started", "https://github.com/xAranaktu/FC-24-Live-Editor/wiki/Getting-Started");
             ImGui::MenuItemURL("Discord", "https://discord.gg/yxAbpmNaFX");
