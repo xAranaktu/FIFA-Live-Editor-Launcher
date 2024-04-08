@@ -33,6 +33,8 @@ public:
     void Write(LogLevel level, const std::string& text) const;
     void Write(LogLevel level, const char* fmt, ...) const;
 
+    std::filesystem::path GetFolder() { return file.parent_path(); }
+
 private:
     std::filesystem::path file = "";
     std::string levelText(LogLevel level) const;

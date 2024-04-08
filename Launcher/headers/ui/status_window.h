@@ -16,15 +16,21 @@ namespace UIWindows {
 
         UIStatus();
         ~UIStatus();
+
         void Draw(bool* p_open);
         void Dock(ImGuiID dock_id);
         const char* GetWindowName();
 
+        void FirstDraw();
         void InjectDll();
         std::string GetInjectionStatus();
         std::string GetInjectionStatusDesc();
 
     private:
+        bool first_draw = true;
         bool run_game_pressed = false;
+
+        bool run_game_disabled = true;
+        std::string run_game_disabled_reason;
     };
 }

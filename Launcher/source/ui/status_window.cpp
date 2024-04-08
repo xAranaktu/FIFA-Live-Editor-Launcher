@@ -17,7 +17,11 @@ namespace UIWindows {
 
         if (g_Injector.GetStatus() == Injector::STATUS::STATUS_WAITING_FOR_GAME) {
             ImGui::Separator();
+
             ImGui::PushStyleVar(ImGuiStyleVar_ButtonTextAlign, ImVec2(0.5f, 0.5f));
+
+            if (run_game_disabled) ImGui::BeginDisabled();
+
             if (
                 ImGui::Button("Run Game", ImVec2(-FLT_MIN, 0.0f)) &&
                 !run_game_pressed
@@ -26,10 +30,25 @@ namespace UIWindows {
                 g_Core.RunGame();
             }
 
+            if (run_game_disabled) {
+                ImGui::EndDisabled();
+
+                ImGui::TextDisabled("(?)");
+                if (ImGui::IsItemHovered())
+                {
+                    ImGui::SetTooltip(run_game_disabled_reason.c_str());
+                }
+
+                ImGui::SameLine();
+                ImGui::Text("Can't find game exe");
+            }
+
             ImGui::PopStyleVar();
         }
 
         ImGui::End();
+
+        FirstDraw();
     }
 
     void UIStatus::Dock(ImGuiID dock_id) {
@@ -37,6 +56,23 @@ namespace UIWindows {
     }
     const char* UIStatus::GetWindowName() {
         return window_name.c_str(); 
+    }
+
+    void UIStatus::FirstDraw() {
+        if (!first_draw)    return;
+
+        std::string proc_name = g_Config.launch_values.game_proc_name;
+        std::filesystem::path game_full_path = g_Core.GetGameInstallDir() / proc_name;
+
+        if (fs::exists(game_full_path)) {
+            run_game_disabled = false;
+        }
+        else {
+            run_game_disabled = true;
+            run_game_disabled_reason = std::format("Can't find game in {}\n\nYou can still try to run the game manually from EAApp/Steam/Epic and it should work fine!", ToUTF8String(game_full_path));
+        }
+
+        first_draw = true;
     }
 
     void UIStatus::InjectDll() {
