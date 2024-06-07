@@ -22,12 +22,12 @@
             "variables": [
                 {
                     "name": "IS_DEV",
-                    "value": "False",
+                    "value": "True",
                     "type": "BOOL"
                 },
                 {
                     "name": "GEN_PDB",
-                    "value": "False",
+                    "value": "True",
                     "type": "BOOL"
                 }
             ]
