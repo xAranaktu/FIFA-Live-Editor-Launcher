@@ -288,10 +288,10 @@ std::string GUI::GetGameTU() {
         compatibility_color = IM_COL32(255, 165, 0, 255);
     }
     else if (game_tu.size() >= 10) {
-        game_tu_desc = "Your game version is newer than latest known TU by the Live Editor\nThis tool may not work properly with your game version";
+        // game_tu_desc = "Your game version is newer than latest known TU by the Live Editor\nThis tool may not work properly with your game version";
 
-        // Orange
-        compatibility_color = IM_COL32(255, 165, 0, 255);
+        // Lime
+        compatibility_color = IM_COL32(0, 255, 0, 255);
     }
     else if (GameVerIsCompatibleWithLE(game_tu)) {
         game_tu_desc = "Your game version is compatible with the Live Editor";

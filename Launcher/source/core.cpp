@@ -167,20 +167,20 @@ std::string Core::GetTU() {
         return GAME_VERSION_TU_MAP.at(game_ver);
     }
 
-    auto ver_splitted = splitStr(game_ver, ".");
-    if (ver_splitted.size() != 4) {
-        return "Invalid";
-    }
-
-    int minor = std::stoi(ver_splitted[ver_splitted.size() - 1]);
-    int major = std::stoi(ver_splitted[ver_splitted.size() - 2]);
-
-    if (
-        major > LATEST_MAJOR_GAME_VER ||
-        (major >= LATEST_MAJOR_GAME_VER && minor >= LATEST_MINOR_GAME_VER)
-    ) {
-        return "TU" + std::to_string(LATEST_TU + 1) + " or newer";
-    }
+    // auto ver_splitted = splitStr(game_ver, ".");
+    // if (ver_splitted.size() != 4) {
+    //     return "Invalid";
+    // }
+    // 
+    // int minor = std::stoi(ver_splitted[ver_splitted.size() - 1]);
+    // int major = std::stoi(ver_splitted[ver_splitted.size() - 2]);
+    // 
+    // if (
+    //     major > LATEST_MAJOR_GAME_VER ||
+    //     (major >= LATEST_MAJOR_GAME_VER && minor >= LATEST_MINOR_GAME_VER)
+    // ) {
+    //     return "TU" + std::to_string(LATEST_TU + 1) + " or newer";
+    // }
 
     return game_ver;
 }
