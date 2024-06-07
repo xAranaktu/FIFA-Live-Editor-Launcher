@@ -4,8 +4,17 @@
 // Changelog:
 // - v0.10: Initial version. Added InputText() / InputTextMultiline() calls with std::string
 
+// See more C++ related extension (fmt, RAII, syntaxis sugar) on Wiki:
+//   https://github.com/ocornut/imgui/wiki/Useful-Extensions#cness
+
 #include "imgui.h"
 #include "imgui_stdlib.h"
+
+// Clang warnings with -Weverything
+#if defined(__clang__)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wsign-conversion"    // warning: implicit conversion changes signedness
+#endif
 
 struct InputTextCallback_UserData
 {
@@ -34,14 +43,6 @@ static int InputTextCallback(ImGuiInputTextCallbackData* data)
     }
     return 0;
 }
-
-static auto vector_getter = [](void* vec, int idx, const char** out_text)
-{
-    auto& vector = *static_cast<std::vector<std::string>*>(vec);
-    if (idx < 0 || idx >= static_cast<int>(vector.size())) { return false; }
-    *out_text = vector.at(idx).c_str();
-    return true;
-};
 
 bool ImGui::InputText(const char* label, std::string* str, ImGuiInputTextFlags flags, ImGuiInputTextCallback callback, void* user_data)
 {
@@ -79,9 +80,21 @@ bool ImGui::InputTextWithHint(const char* label, const char* hint, std::string* 
     return InputTextWithHint(label, hint, (char*)str->c_str(), str->capacity() + 1, flags, InputTextCallback, &cb_user_data);
 }
 
+static auto vector_getter = [](void* vec, int idx, const char** out_text)
+{
+    auto& vector = *static_cast<std::vector<std::string>*>(vec);
+    if (idx < 0 || idx >= static_cast<int>(vector.size())) { return false; }
+    *out_text = vector.at(idx).c_str();
+    return true;
+};
+
 bool ImGui::Combo(const char* label, int* currIndex, std::vector<std::string>& values)
 {
     if (values.empty()) { return false; }
     return ImGui::Combo(label, currIndex, vector_getter,
         static_cast<void*>(&values), (__int32)values.size());
 }
+
+#if defined(__clang__)
+#pragma clang diagnostic pop
+#endif
