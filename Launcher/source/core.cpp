@@ -37,15 +37,15 @@ bool Core::Init()
 
     std::filesystem::path game_install_dir = GetGameInstallDir();
 
-    logger.Write(LOG_INFO, "[%s] %s %s", __FUNCTION__, TOOL_NAME, TOOL_VERSION);
-    logger.Write(LOG_INFO, "[%s] Game Install Dir: %s", __FUNCTION__, ToUTF8String(game_install_dir).c_str());
-    logger.Write(LOG_INFO, "[%s] Live Editor Dir: %s", __FUNCTION__, ToUTF8String(le_dir).c_str());
+    LOG_INFO(std::format("{} {}", TOOL_NAME, TOOL_VERSION));
+    LOG_INFO(std::format("Game Install Dir: {}", ToUTF8String(game_install_dir)));
+    LOG_INFO(std::format("Live Editor Dir: {}", ToUTF8String(le_dir)));
 
     std::string procname = "FC" + std::to_string(FIFA_EDITION) + ".exe";
     std::filesystem::path proc_full_path = game_install_dir / procname;
     if (!std::filesystem::exists(proc_full_path)) {
-        std::string msg = "Can't find " + procname + " in:\n" + ToUTF8String(game_install_dir);
-        logger.Write(LOG_FATAL, "[%s] %s ", __FUNCTION__, msg.c_str());
+        std::string msg = std::format("Can't find {} in :\n{}", procname, ToUTF8String(game_install_dir));
+        LOG_FATAL(msg);
     }
     ReadGameBuildInfo();
 
@@ -58,7 +58,7 @@ bool Core::Init()
     g_options_ids.LoadJson();
 
     SetLEPathRegVal(le_dir.wstring());
-    logger.Write(LOG_INFO, "[%s] Done", __FUNCTION__);
+    LOG_INFO(std::format("[{}] Done", __FUNCTION__));
 
     return true;
 }
@@ -70,7 +70,7 @@ void Core::onExit() {
     fs::path bak = GetBAKPathFor(eaac_path);
     if (!fs::exists(bak))       return;
 
-    logger.Write(LOG_INFO, "[%s] Waiting for EAAntiCheat.GameServiceLauncher.exe", __FUNCTION__);
+    LOG_INFO("Waiting for EAAntiCheat.GameServiceLauncher.exe");
 
     int attempts = 0;
     DWORD pid = 0;
@@ -92,21 +92,21 @@ void Core::onExit() {
         Sleep(100);
     } while (pid > 0);
 
-    logger.Write(LOG_INFO, "[%s] Trying to restore", __FUNCTION__);
+    LOG_INFO("Trying to restore");
     RestoreOrgGameFiles();
     ReleaseMutex(hMutex);
 }
 
 void Core::DetectFIFAModManager() {
-    logger.Write(LOG_INFO, "[%s]", __FUNCTION__);
+    LOG_INFO(std::format("[{}]", __FUNCTION__));
 
     // Check if FIFAModData exists in game dir
     std::filesystem::path FIFAModDataDir = GetGameInstallDir() / "FIFAModData";
     if (std::filesystem::exists(FIFAModDataDir)) {
-        logger.Write(LOG_INFO, "[%s] Found %s", __FUNCTION__, ToUTF8String(FIFAModDataDir).c_str());
+        LOG_INFO(std::format("[{}] Found {}", __FUNCTION__, ToUTF8String(FIFAModDataDir)));
     }
 
-    logger.Write(LOG_INFO, "[%s] Done", __FUNCTION__);
+    LOG_INFO(std::format("[{}] Done", __FUNCTION__));
 }
 
 const char* Core::GetToolVer() {
@@ -114,17 +114,18 @@ const char* Core::GetToolVer() {
 }
 
 std::string Core::GetGameVer() {
+    LOG_INFO(std::format("[{}]", __FUNCTION__));
     std::string result = "0.0.0.0";
 
     fs::path fpath = GetGameInstallDir() / "__Installer" / "installerdata.xml";
     if (!fs::exists(fpath)) {
-        logger.Write(LOG_ERROR, "[%s] Can't find %s", __FUNCTION__, ToUTF8String(fpath).c_str());
+        LOG_ERROR(std::format("[{}] Can't find {}", __FUNCTION__, ToUTF8String(fpath).c_str()));
         return result;
     }
 
     FILE* f = _wfopen(fpath.wstring().c_str(), L"rb");
     if (!f) {
-        logger.Write(LOG_ERROR, "[%s] Can't open %s", __FUNCTION__, ToUTF8String(fpath).c_str());
+        LOG_ERROR(std::format("[{}] Can't open {}", __FUNCTION__, ToUTF8String(fpath).c_str()));
         return result;
     }
 
@@ -133,7 +134,7 @@ std::string Core::GetGameVer() {
     fseek(f, 0, SEEK_SET);
 
     if (fsize <= 0) {
-        logger.Write(LOG_ERROR, "[%s] File is empty(?) %s", __FUNCTION__, ToUTF8String(fpath).c_str());
+        LOG_ERROR(std::format("[{}] File is empty(?) {}", __FUNCTION__, ToUTF8String(fpath).c_str()));
         return result;
     }
 
@@ -160,7 +161,7 @@ std::string Core::GetGameVer() {
 
 std::string Core::GetTU() {
     std::string game_ver = GetGameVer();
-    logger.Write(LOG_INFO, "[%s] gameVersion %s", __FUNCTION__, game_ver.c_str());
+    LOG_INFO(std::format("[{}] gameVersion {}", __FUNCTION__, game_ver));
 
     if (GAME_VERSION_TU_MAP.contains(game_ver)) {
         return GAME_VERSION_TU_MAP.at(game_ver);
@@ -173,15 +174,6 @@ std::string Core::GetTU() {
 
     int minor = std::stoi(ver_splitted[ver_splitted.size() - 1]);
     int major = std::stoi(ver_splitted[ver_splitted.size() - 2]);
-
-    // No info about exact version for TU1, do compare with Vanilla and TU2
-    if (
-        (major == 83 && minor > 56686) ||
-        (major == 84 && minor < 7390)
-    ) {
-        // Is between Vanilla & TU2, so must be TU1
-        return "TU1";
-    }
 
     if (
         major > LATEST_MAJOR_GAME_VER ||
@@ -202,10 +194,11 @@ fs::path Core::GetGameInstallDir() {
     DWORD dwType = REG_SZ;
     HKEY hKey = 0;
     std::string subkey = std::string("SOFTWARE\\EA Sports\\EA SPORTS FC ") + std::to_string(FIFA_EDITION);
+    // LOG_INFO(std::format("{} RegOpenKey {}", __FUNCTION__, subkey));
 
     LSTATUS open_status = RegOpenKey(HKEY_LOCAL_MACHINE, subkey.c_str(), &hKey);
     if (open_status != ERROR_SUCCESS) {
-        logger.Write(LOG_ERROR, "[%s] RegOpenKey failed %d", __FUNCTION__, open_status);
+        LOG_ERROR(std::format("RegOpenKey failed. Status: {}", open_status));
     }
     
     const char* val_name = "Install Dir";
@@ -216,7 +209,7 @@ fs::path Core::GetGameInstallDir() {
     RegCloseKey(hKey);
 
     if (query_status != ERROR_SUCCESS) {
-        logger.Write(LOG_ERROR, "[%s] RegQueryValueEx failed %d", __FUNCTION__, query_status);
+        LOG_ERROR(std::format("RegQueryValueEx failed. Status: {}", query_status));
         return fs::path("");
     }
 
@@ -225,7 +218,7 @@ fs::path Core::GetGameInstallDir() {
 }
 
 void Core::RunGame() {
-    logger.Write(LOG_INFO, "[%s]", __FUNCTION__);
+    LOG_INFO(std::format("[{}]", __FUNCTION__));
 
     std::string proc_name = g_Config.launch_values.game_proc_name;
 
@@ -241,8 +234,7 @@ void Core::RunGame() {
 
     if (fs::exists(game_full_path)) {
         auto sFullPath = ToUTF8String(game_full_path);
-
-        logger.Write(LOG_INFO, "[%s] game_full_path: %s", __FUNCTION__, sFullPath.c_str());
+        LOG_INFO(std::format("game_full_path: {}", sFullPath));
 
         SHELLEXECUTEINFOW ShExecInfo;
         ShExecInfo.cbSize = sizeof(SHELLEXECUTEINFOW);
@@ -258,10 +250,10 @@ void Core::RunGame() {
         bool result = ShellExecuteExW(&ShExecInfo);
         if (!result) {
             DWORD err = GetLastError();
-            logger.Write(LOG_INFO, "[%s] Done %d, err %d %s", __FUNCTION__, result, err, std::system_category().message(err).c_str());
+            LOG_INFO(std::format("ShellExecuteExW Done {}. Error: {} {}", result, err, std::system_category().message(err).c_str()));
         }
         else {
-            logger.Write(LOG_INFO, "[%s] Done", __FUNCTION__);
+            LOG_INFO("ShellExecuteExW Done");
         }
     }
     else {
@@ -279,7 +271,7 @@ bool Core::SafeCreateDirectories(const std::filesystem::path d) {
         }
     }
     catch (fs::filesystem_error const& e) {
-        logger.Write(LOG_ERROR, "[%s] Create Directory failed %s (%s)", __FUNCTION__, e.what(), ToUTF8String(d).c_str());
+        LOG_ERROR(std::format("Create Directory failed {} ({})", e.what(), ToUTF8String(d)));
         return false;
     }
     return true;
@@ -315,7 +307,7 @@ void Core::SetupLogger() {
         std::setw(2) << std::setfill('0') << currTimeLog.wMonth << "-" <<
         std::setw(4) << std::setfill('0') << currTimeLog.wYear << ".txt";
     const std::filesystem::path logFile = logPath / ssLogFile.str();
-    logger.SetFile(logFile);
+    defaultLogger.SetFile(logFile);
 }
 
 fs::path Core::GetLEDataPathRegVal() {
@@ -324,10 +316,10 @@ fs::path Core::GetLEDataPathRegVal() {
     HKEY hKey;
     std::string key = std::string("SOFTWARE\\Live Editor\\FC ") + std::to_string(FIFA_EDITION) + "\\Data Dir";
 
-    logger.Write(LOG_INFO, "[%s] %s", __FUNCTION__, key.c_str());
+    LOG_INFO(std::format("[{}] {}", __FUNCTION__, key));
     LSTATUS lOpenStatus = RegOpenKeyEx(HKEY_LOCAL_MACHINE, key.c_str(), 0, KEY_READ, &hKey);
     if (lOpenStatus != ERROR_SUCCESS) {
-        logger.Write(LOG_WARN, "[%s] RegOpenKeyEx %s failed %d", __FUNCTION__, key.c_str(), lOpenStatus);
+        LOG_WARN(std::format("[{}] RegOpenKeyEx {} failed {}", __FUNCTION__, key, lOpenStatus));
         RegCloseKey(hKey);
         return result;
     }
@@ -338,7 +330,7 @@ fs::path Core::GetLEDataPathRegVal() {
     LSTATUS query_status = RegQueryValueExW(hKey, L"Data Dir", NULL, &dwType, reinterpret_cast<LPBYTE>(value_buf), &value_length);
     RegCloseKey(hKey);
     if (query_status != ERROR_SUCCESS) {
-        logger.Write(LOG_WARN, "[%s] RegQueryValueEx failed %d", __FUNCTION__, query_status);
+        LOG_WARN(std::format("[{}] RegQueryValueExW failed {}", __FUNCTION__, query_status));
         return fs::path("");
     }
 
@@ -349,7 +341,7 @@ bool Core::SetLEPathRegVal(std::wstring data) {
     HKEY hKey;
     std::string key = std::string("SOFTWARE\\Live Editor\\FC ") + std::to_string(FIFA_EDITION) + "\\Dir";
     if (RegCreateKeyExA(HKEY_LOCAL_MACHINE, key.c_str(), 0, NULL, REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &hKey, NULL) != ERROR_SUCCESS) {
-        logger.Write(LOG_WARN, "[%s] RegCreateKeyExA failed ", __FUNCTION__);
+        LOG_WARN(std::format("[{}] RegCreateKeyExA failed", __FUNCTION__));
         return false;
     }
     else {
@@ -359,7 +351,7 @@ bool Core::SetLEPathRegVal(std::wstring data) {
 
         if (lSetStatus != ERROR_SUCCESS)
         {
-            logger.Write(LOG_WARN, "[%s] RegSetValueExW failed %d", __FUNCTION__, lSetStatus);
+            LOG_WARN(std::format("[{}] RegSetValueExW failed {}", __FUNCTION__, lSetStatus));
             return false;
         }
     }
@@ -372,7 +364,7 @@ bool Core::SetLEDataPathRegVal(std::wstring data)
     HKEY hKey;
     std::string key = std::string("SOFTWARE\\Live Editor\\FC ") + std::to_string(FIFA_EDITION) + "\\Data Dir";
     if (RegCreateKeyExA(HKEY_LOCAL_MACHINE, key.c_str(), 0, NULL, REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &hKey, NULL) != ERROR_SUCCESS) {
-        logger.Write(LOG_WARN, "[%s] RegCreateKeyExA failed ", __FUNCTION__);
+        LOG_WARN(std::format("[{}] RegCreateKeyExA failed", __FUNCTION__));
         return false;
     }
     else {
@@ -382,7 +374,7 @@ bool Core::SetLEDataPathRegVal(std::wstring data)
 
         if (lSetStatus != ERROR_SUCCESS)
         {
-            logger.Write(LOG_WARN, "[%s] RegSetValueExW failed %d", __FUNCTION__, lSetStatus);
+            LOG_WARN(std::format("[{}] RegSetValueExW failed {}", __FUNCTION__, lSetStatus));
             return false;
         }
     }
@@ -391,12 +383,12 @@ bool Core::SetLEDataPathRegVal(std::wstring data)
 }
 
 fs::path Core::GetLEDataPath() {
-    logger.Write(LOG_INFO, "[%s]", __FUNCTION__);
+    LOG_INFO(std::format("[{}]", __FUNCTION__));
 
     std::filesystem::path result = GetLEDataPathRegVal();
 
     if (!result.empty()) {
-        logger.Write(LOG_INFO, "[%s] Found Reg Val: %s", __FUNCTION__, ToUTF8String(result).c_str());
+        LOG_INFO(std::format("[{}] Found Reg Val: {}", __FUNCTION__, ToUTF8String(result).c_str()));
         return result;
     }
     else {
@@ -404,10 +396,10 @@ fs::path Core::GetLEDataPath() {
         result /= "FC " + std::to_string(FIFA_EDITION) + " Live Editor";
 
         if (!SetLEDataPathRegVal(result.wstring())) {
-            logger.Write(LOG_WARN, "[%s] SetLEDataPathRegVal failed", __FUNCTION__);
+            LOG_WARN("SetLEDataPathRegVal failed");
         }
 
-        logger.Write(LOG_INFO, "[%s] Default: %s", __FUNCTION__, ToUTF8String(result).c_str());
+        LOG_INFO(std::format("[{}] Default: {}", __FUNCTION__, ToUTF8String(result)));
         return result;
     }
 }
@@ -429,7 +421,7 @@ fs::path Core::GetBAKPathFor(fs::path p) {
 }
 
 void Core::CopyFakeEAAC() {
-    logger.Write(LOG_INFO, "[%s]", __FUNCTION__);
+    LOG_INFO(std::format("[{}]", __FUNCTION__));
     const std::filesystem::path fake_eaac_path = GetFakeEAACPath();
 
     try {
@@ -442,37 +434,39 @@ void Core::CopyFakeEAAC() {
                 fs::copy(fake_eaac_path, eaac_path);
             }
             else {
-                logger.Write(LOG_ERROR, "[%s] Can't find eaac backup", __FUNCTION__);
+                LOG_ERROR("Can't find eaac backup");
             }
         }
     }
     catch (fs::filesystem_error const& e) {
-        logger.Write(LOG_ERROR, "[%s] Restore EAAC error %s", __FUNCTION__, e.what());
+        LOG_ERROR(std::format("Copy Fake EAAC error {}", e.what()));
     }
 
-    logger.Write(LOG_INFO, "[%s] Done", __FUNCTION__);
+    LOG_INFO(std::format("[{}] Done", __FUNCTION__));
 }
 
 void Core::BackupOrgGameFiles() {
-    logger.Write(LOG_INFO, "[%s]", __FUNCTION__);
+    LOG_INFO(std::format("[{}]", __FUNCTION__));
 
     try {
         std::filesystem::path eaac_path = GetEAACLauncherPath();
         if (!eaac_path.empty()) {
-            fs::path bak = GetBAKPathFor(eaac_path);
-            if (fs::exists(bak))    fs::remove(bak);
+            if (fs::file_size(eaac_path) > 0x1000000) {
+                fs::path bak = GetBAKPathFor(eaac_path);
+                if (fs::exists(bak))    fs::remove(bak);
 
-            fs::copy(eaac_path, bak);
+                fs::copy(eaac_path, bak);
+            }
         }
     }
     catch (fs::filesystem_error const& e) {
-        logger.Write(LOG_ERROR, "[%s] Backup EAAC error %s", __FUNCTION__, e.what());
+        LOG_ERROR(std::format("Backup EAAC error {}", e.what()));
     }
 
-    logger.Write(LOG_INFO, "[%s] Done", __FUNCTION__);
+    LOG_INFO(std::format("[{}] Done", __FUNCTION__));
 }
 void Core::RestoreOrgGameFiles() {
-    logger.Write(LOG_INFO, "[%s]", __FUNCTION__);
+    LOG_INFO(std::format("[{}]", __FUNCTION__));
 
     try {
         std::filesystem::path eaac_path = GetEAACLauncherPath();
@@ -487,52 +481,53 @@ void Core::RestoreOrgGameFiles() {
         }
     }
     catch (fs::filesystem_error const& e) {
-        logger.Write(LOG_ERROR, "[%s] Restore EAAC error %s", __FUNCTION__, e.what());
+        LOG_ERROR(std::format("RestoreOrgGameFiles error {}", e.what()));
     }
 
-    logger.Write(LOG_INFO, "[%s] Done", __FUNCTION__);
+    LOG_INFO(std::format("[{}] Done", __FUNCTION__));
 }
 
 
 void Core::SetupLocalize() {
-    logger.Write(LOG_INFO, "[%s]", __FUNCTION__);
+    LOG_INFO(std::format("[{}]", __FUNCTION__));
     localize.SetLangPath(ctx.GetFolder());
     localize.LoadLangTrans("EN");
 
-    logger.Write(LOG_INFO, "[%s] Done", __FUNCTION__);
+    LOG_INFO(std::format("[{}] Done", __FUNCTION__));
 }
 
 void Core::ReadGameBuildInfo() {
-    logger.Write(LOG_INFO, "[%s]", __FUNCTION__);
+    LOG_INFO(std::format("[{}]", __FUNCTION__));
     std::filesystem::path build_info_dll_path = GetGameInstallDir() / "Engine.BuildInfo.dll";
 
     if (fs::exists(build_info_dll_path)) {
-        logger.Write(LOG_INFO, "[%s] file path: %s", __FUNCTION__, ToUTF8String(build_info_dll_path).c_str());
+        LOG_INFO(std::format("Found {}", ToUTF8String(build_info_dll_path)));
+
         game_build_info = BuildInfo::GetInstance(build_info_dll_path);
 
         if (game_build_info) {
-            logger.Write(LOG_INFO, "----------------------[Frostbite BuildInfo]----------------------");
-            logger.Write(LOG_INFO, "BranchName:                         %s", game_build_info->getBranchName());
-            logger.Write(LOG_INFO, "LicenseeId:                         %s", game_build_info->getLicenseeId());
-            logger.Write(LOG_INFO, "StudioName:                         %s", game_build_info->getStudioName());
-            logger.Write(LOG_INFO, "Changelist:                         %d", game_build_info->getChangelist());
-            logger.Write(LOG_INFO, "SourceChangeList:                   %d", game_build_info->getSourceChangelist());
-            logger.Write(LOG_INFO, "FrostbiteChangelist:                %d", game_build_info->getFrostbiteChangelist());
-            logger.Write(LOG_INFO, "FrostbiteRelease:                   %s", game_build_info->getFrostbiteRelease());
-            logger.Write(LOG_INFO, "IsAutoBuild:                        %s", game_build_info->getIsAutoBuild() ? "true" : "false");
-            logger.Write(LOG_INFO, "Username:                           %s", game_build_info->getUsername());
-            logger.Write(LOG_INFO, "BuildTime:                          %s", game_build_info->getBuildTime());
-            logger.Write(LOG_INFO, "BuildDate:                          %s", game_build_info->getBuildDate());
-            logger.Write(LOG_INFO, "BuildIsoDate:                       %s", game_build_info->getBuildIsoDate());
-            logger.Write(LOG_INFO, "-----------------------------------------------------------------");
+            LOG_INFO("----------------------[Frostbite BuildInfo]----------------------");
+            LOG_INFO(std::format("BranchName:                         {}", game_build_info->getBranchName()));
+            LOG_INFO(std::format("LicenseeId:                         {}", game_build_info->getLicenseeId()));
+            LOG_INFO(std::format("StudioName:                         {}", game_build_info->getStudioName()));
+            LOG_INFO(std::format("Changelist:                         {}", game_build_info->getChangelist()));
+            LOG_INFO(std::format("SourceChangeList:                   {}", game_build_info->getSourceChangelist()));
+            LOG_INFO(std::format("FrostbiteChangelist:                {}", game_build_info->getFrostbiteChangelist()));
+            LOG_INFO(std::format("FrostbiteRelease:                   {}", game_build_info->getFrostbiteRelease()));
+            LOG_INFO(std::format("IsAutoBuild:                        {}", game_build_info->getIsAutoBuild() ? "true" : "false"));
+            LOG_INFO(std::format("Username:                           {}", game_build_info->getUsername()));
+            LOG_INFO(std::format("BuildTime:                          {}", game_build_info->getBuildTime()));
+            LOG_INFO(std::format("BuildDate:                          {}", game_build_info->getBuildDate()));
+            LOG_INFO(std::format("BuildIsoDate:                       {}", game_build_info->getBuildIsoDate()));
+            LOG_INFO("-----------------------------------------------------------------");
         }
     }
 
-    logger.Write(LOG_INFO, "[%s] Done", __FUNCTION__);
+    LOG_INFO(std::format("[{}] Done", __FUNCTION__));
 }
 
 bool Core::InitDirectories() {
-    logger.Write(LOG_INFO, "[%s]", __FUNCTION__);
+    LOG_INFO(std::format("[{}]", __FUNCTION__));
 
     bool config_save_required = false;
 
@@ -582,17 +577,17 @@ bool Core::InitDirectories() {
     const std::filesystem::path cur_data_path = ctx.GetFolder() / "data";
     if (std::filesystem::exists(cur_data_path)) {
         if (!std::filesystem::exists(dest_legacystructure)) {
-            logger.Write(LOG_INFO, "[%s] Copy legacy_structure.txt to %s", __FUNCTION__, ToUTF8String(dest_legacystructure).c_str());
+            LOG_INFO(std::format("[{}] Copy legacy_structure.txt to {}", __FUNCTION__, ToUTF8String(dest_legacystructure).c_str()));
             std::filesystem::copy_file(cur_data_path / "legacy_structure.txt", dest_legacystructure);
         }
 
         if (!std::filesystem::exists(dest_dbmeta)) {
-            logger.Write(LOG_INFO, "[%s] Copy db_meta.xml to %s", __FUNCTION__, ToUTF8String(dest_dbmeta).c_str());
+            LOG_INFO(std::format("[{}] Copy db_meta.xml to {}", __FUNCTION__, ToUTF8String(dest_dbmeta).c_str()));
             std::filesystem::copy_file(cur_data_path / "db_meta.xml", dest_dbmeta);
         }
 
         if (!std::filesystem::exists(dest_idmap)) {
-            logger.Write(LOG_INFO, "[%s] Copy id_map.json to %s", __FUNCTION__, ToUTF8String(dest_idmap).c_str());
+            LOG_INFO(std::format("[{}] Copy id_map.json to {}", __FUNCTION__, ToUTF8String(dest_idmap).c_str()));
             std::filesystem::copy_file(cur_data_path / "id_map.json", dest_idmap);
         }
     }
@@ -641,12 +636,12 @@ bool Core::InitDirectories() {
         g_Config.Save();
     }
 
-    logger.Write(LOG_INFO, "[%s] Done", __FUNCTION__);
+    LOG_INFO(std::format("[{}] Done", __FUNCTION__));
     return true;
 }
 
 void Core::CreateLegacyFilesStructure(std::filesystem::path folders_list, std::filesystem::path mods_dir) {
-    logger.Write(LOG_INFO, "[%s]", __FUNCTION__);
+    LOG_INFO(std::format("[{}]", __FUNCTION__));
     
     std::filesystem::path legacy_root = mods_dir / "root";
     SafeCreateDirectories(legacy_root);
@@ -660,7 +655,7 @@ void Core::CreateLegacyFilesStructure(std::filesystem::path folders_list, std::f
         SafeCreateDirectories(legacy_root / legacy_folder);
     }
 
-    logger.Write(LOG_INFO, "[%s] Done", __FUNCTION__);
+    LOG_INFO(std::format("[{}] Done", __FUNCTION__));
 }
 
 Core g_Core;

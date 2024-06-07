@@ -44,13 +44,16 @@ SET(EXTERNAL_SRC
 )
 
 SET(ALL_HEADERS
+    "headers/logger/logger.h"
+    "headers/logger/enum.h"
+    "headers/logger/const.h"
+
     "headers/core.h"
     "headers/localize.h"
     "headers/consts.h"
     "headers/options_id.h"
     "headers/config.h"
     "headers/context.h"
-    "headers/logger.h"
     "headers/injector.h"
     "headers/misc.h"
 
@@ -67,11 +70,12 @@ SET(ALL_HEADERS
 )
 
 SET(ALL_CPP
+    "source/logger/logger.cpp"
+
     "source/core.cpp"
     "source/localize.cpp"
     "source/options_id.cpp"
     "source/config.cpp"
-    "source/logger.cpp"
     "source/injector.cpp"
     "source/misc.cpp"
     "source/ui/gui.cpp"

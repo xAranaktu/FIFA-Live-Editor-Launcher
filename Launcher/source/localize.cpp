@@ -6,30 +6,28 @@ Localize::Localize() {
 
 void Localize::SetLangPath(const std::filesystem::path& dllFolder) {
     langPath = dllFolder / "Lang";
-    logger.Write(LOG_DEBUG, "SetLangPath: %s", ToUTF8String(langPath).c_str());
 }
 
 void Localize::LoadLangTrans(const std::string& lang) {
-    logger.Write(LOG_INFO, "[%s] %s", __FUNCTION__, ToUTF8String(langPath).c_str());
     loadedLang = lang;
     const std::filesystem::path langFile = langPath / lang / "translate.json";
+    LOG_INFO(std::format("Loading language: {}", ToUTF8String(langFile)));
 
     if (!fs::exists(langFile)) {
-        logger.Write(LOG_ERROR, "[%s] Can't Find %s", __FUNCTION__, ToUTF8String(langFile).c_str());
+        LOG_ERROR(std::format("Can't Find {}", ToUTF8String(langFile)));
         return;
     }
 
     std::ifstream transtream(langFile);
 
     transtream >> j;
-    logger.Write(LOG_INFO, "Language loaded");
+    LOG_INFO("Language loaded");
 }
 
 std::string Localize::Translate(const char* text, const std::map<std::string, std::string> data) {
     std::string to_format;
 
     if (j.count(text) == 0) {
-        // logger.Write(LOG_WARN, "Missing translation, lang: %s, text: %s", loadedLang.c_str(), text);
         return std::string(text);
     }
 

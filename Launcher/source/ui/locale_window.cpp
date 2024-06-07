@@ -16,7 +16,7 @@ namespace UIWindows {
         org_locale_path = g_Core.GetGameInstallDir() / "Data" / "locale.ini";
         if (!fs::exists(locale_backup)) {
             if (!fs::exists(org_locale_path)) {
-                logger.Write(LOG_WARN, "[%s] Can't find %s", __FUNCTION__, ToUTF8String(org_locale_path).c_str());
+                LOG_WARN(std::format("Can't find {}", ToUTF8String(org_locale_path).c_str()));
             }
 
             fs::copy_file(org_locale_path, locale_backup);
@@ -100,24 +100,24 @@ namespace UIWindows {
 
 
     void UILocaleIni::WriteEncryptedFileContent(std::filesystem::path f, std::vector<uint8_t> data) {
-        logger.Write(LOG_INFO, "[%s] %s", __FUNCTION__, ToUTF8String(f).c_str());
+        LOG_INFO(std::format("[{}] {}", __FUNCTION__, ToUTF8String(f)));
 
         std::ofstream _stream(f, std::ios::out | std::ios::binary);
         if (!_stream) {
-            logger.Write(LOG_INFO, "[%s] Can't open %s", __FUNCTION__, ToUTF8String(locale_file).c_str());
+            LOG_WARN(std::format("[{}] Can't open {}", __FUNCTION__, ToUTF8String(locale_file).c_str()));
             return;
         }
         std::copy(data.cbegin(), data.cend(), std::ostream_iterator<unsigned char>(_stream));
 
         _stream.close();
 
-        logger.Write(LOG_INFO, "[%s] Done", __FUNCTION__);
+        LOG_INFO(std::format("[{}] Done", __FUNCTION__));
     }
 
     void UILocaleIni::SaveFileContent() {
         if (!IsKeyLoaded()) return;
 
-        logger.Write(LOG_INFO, "[%s]", __FUNCTION__);
+        LOG_INFO(std::format("[{}]", __FUNCTION__));
 
         std::vector<uint8_t> buf;
 
@@ -157,13 +157,13 @@ namespace UIWindows {
         WriteEncryptedFileContent(org_locale_path, encrypted);
 
         has_unsaved_changes = false;
-        logger.Write(LOG_INFO, "[%s] Done", __FUNCTION__);
+        LOG_INFO(std::format("[{}] Done", __FUNCTION__));
     }
 
     void UILocaleIni::LoadLocale() {
-        logger.Write(LOG_INFO, "[%s]", __FUNCTION__);
+        LOG_INFO(std::format("[{}]", __FUNCTION__));
         if (fs::exists(locale_file) && IsKeyLoaded()) {
-            logger.Write(LOG_INFO, "[%s] Load Encrypted %s", __FUNCTION__, ToUTF8String(locale_file).c_str());
+            LOG_INFO(std::format("[{}] Load Encrypted {}", __FUNCTION__, ToUTF8String(locale_file).c_str()));
 
             std::ifstream encstream(locale_file, std::ios::in | std::ios::binary);
             std::vector<uint8_t> enc_buffer((std::istreambuf_iterator<char>(encstream)), std::istreambuf_iterator<char>());
@@ -173,7 +173,7 @@ namespace UIWindows {
 
             encstream.close();
         }
-        logger.Write(LOG_INFO, "[%s] Done", __FUNCTION__);
+        LOG_INFO(std::format("[{}] Done", __FUNCTION__));
     }
 
     void UILocaleIni::LoadFileContent(std::vector<unsigned char> data) {
@@ -182,7 +182,7 @@ namespace UIWindows {
     }
 
     std::vector<unsigned char> UILocaleIni::DecryptLocaleFile(std::vector<uint8_t>* buff) {
-        logger.Write(LOG_INFO, "[%s]", __FUNCTION__);
+        LOG_INFO(std::format("[{}]", __FUNCTION__));
         std::vector<unsigned char> result;
         
         try
@@ -192,14 +192,14 @@ namespace UIWindows {
         }
         catch (const std::exception& e)
         {
-            logger.Write(LOG_INFO, "[%s] err %s", __FUNCTION__, e.what());
+            LOG_ERROR(std::format("DecryptLocaleFile err {}", e.what()));
         }
-        logger.Write(LOG_INFO, "[%s] Done", __FUNCTION__);
+        LOG_INFO(std::format("[{}] Done", __FUNCTION__));
         return result;
     }
 
     std::vector<unsigned char> UILocaleIni::EncryptLocaleFile(std::vector<uint8_t>* buff) {
-        logger.Write(LOG_INFO, "[%s]", __FUNCTION__);
+        LOG_INFO(std::format("[{}]", __FUNCTION__));
         std::vector<unsigned char> result;
 
         // nullbyte fill
@@ -219,45 +219,44 @@ namespace UIWindows {
         }
         catch (const std::exception& e)
         {
-            logger.Write(LOG_INFO, "[%s] err %s", __FUNCTION__, e.what());
+            LOG_ERROR(std::format("EncryptLocaleFile err {}", e.what()));
         }
         
-
-        logger.Write(LOG_INFO, "[%s] %d", __FUNCTION__, result.size());
+        LOG_INFO(std::format("[{}] Done - {}", __FUNCTION__, result.size()));
 
         return result;
     }
 
     void UILocaleIni::RestoreOrgLocale() {
-        logger.Write(LOG_INFO, "[%s]", __FUNCTION__);
+        LOG_INFO(std::format("[{}]", __FUNCTION__));
         try {
             if (fs::exists(org_locale_path)) {
-                logger.Write(LOG_INFO, "[%s] remove %s", __FUNCTION__, ToUTF8String(org_locale_path).c_str());
+                LOG_INFO(std::format("[{}] remove {}", __FUNCTION__, ToUTF8String(org_locale_path).c_str()));
                 fs::remove(org_locale_path);
             }
 
             if (!fs::exists(org_locale_path)) {
-                logger.Write(LOG_INFO, "[%s] copy %s -> %s", __FUNCTION__, ToUTF8String(locale_backup).c_str(), ToUTF8String(org_locale_path).c_str());
+                LOG_INFO(std::format("[{}] copy {} -> {}", __FUNCTION__, ToUTF8String(locale_backup).c_str(), ToUTF8String(org_locale_path).c_str()));
                 fs::copy_file(locale_backup, org_locale_path);
             }
 
             if (fs::exists(locale_file)) {
-                logger.Write(LOG_INFO, "[%s] remove %s", __FUNCTION__, ToUTF8String(locale_file).c_str());
+                LOG_INFO(std::format("[{}] remove {}", __FUNCTION__, ToUTF8String(locale_file).c_str()));
                 fs::remove(locale_file);
             }
 
             if (!fs::exists(locale_file)) {
-                logger.Write(LOG_INFO, "[%s] copy %s -> %s", __FUNCTION__, ToUTF8String(locale_backup).c_str(), ToUTF8String(locale_file).c_str());
+                LOG_INFO(std::format("[{}] copy {} -> {}", __FUNCTION__, ToUTF8String(locale_backup).c_str(), ToUTF8String(locale_file).c_str()));
                 fs::copy_file(locale_backup, locale_file);
             }
         } 
         catch (const std::exception& e)
         {
-            logger.Write(LOG_INFO, "[%s] err %s", __FUNCTION__, e.what());
+            LOG_ERROR(std::format("[{}] err {}", __FUNCTION__, e.what()));
         }
 
         LoadLocale();
-        logger.Write(LOG_INFO, "[%s] Done", __FUNCTION__);
+        LOG_INFO(std::format("[{}] Done", __FUNCTION__));
     }
 
     bool UILocaleIni::IsKeyLoaded() {
@@ -267,13 +266,13 @@ namespace UIWindows {
     void UILocaleIni::LoadKey() {
         std::filesystem::path keyfile_path = g_Core.GetLEDataPath() / "data" / "localeini.key";
         if (!fs::exists(keyfile_path)) {
-            logger.Write(LOG_INFO, "[%s] File not found %s", __FUNCTION__, ToUTF8String(keyfile_path).c_str());
+            LOG_WARN(std::format("[{}] File not found {}", __FUNCTION__, ToUTF8String(keyfile_path).c_str()));
             return;
         }
 
         auto fsize = std::filesystem::file_size(keyfile_path);
         if (fsize != 48) {
-            logger.Write(LOG_ERROR, "[%s] Invalid key file size %d != 48", __FUNCTION__, fsize);
+            LOG_ERROR(std::format("[{}] Invalid key file size {} != 48", __FUNCTION__, fsize));
             return;
         }
 
@@ -282,7 +281,7 @@ namespace UIWindows {
 
         std::ifstream keystream(keyfile_path, std::ios::in | std::ios::binary);
         if (!keystream) {
-            logger.Write(LOG_INFO, "[%s] Can't open %s", __FUNCTION__, ToUTF8String(keyfile_path).c_str());
+            LOG_ERROR(std::format("[{}] Can't open {}", __FUNCTION__, ToUTF8String(keyfile_path).c_str()));
             return;
         }
 

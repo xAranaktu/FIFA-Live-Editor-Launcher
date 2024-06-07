@@ -4,7 +4,7 @@
 #include <filesystem>
 #include <fstream>
 #include "localize.h"
-#include "logger.h"
+#include <logger/logger.h>
 #include "misc.h"
 #include "../external/nlohmann/json.hpp"
 #include "../external/nlohmann/fifo_map.hpp"

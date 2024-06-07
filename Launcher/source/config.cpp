@@ -266,7 +266,7 @@ namespace core {
     }
 
     void Config::Setup(std::filesystem::path folder) {
-        logger.Write(LOG_INFO, "[%s]", __FUNCTION__);
+        LOG_INFO(std::format("[{}]", __FUNCTION__));
 
         fpath = folder / fname;
 
@@ -276,10 +276,10 @@ namespace core {
     }
 
     void Config::Load() {
-        logger.Write(LOG_INFO, "[%s] From %s", __FUNCTION__, ToUTF8String(fpath).c_str());
+        LOG_INFO(std::format("Load config from {}", ToUTF8String(fpath)));
 
         if (!fs::exists(fpath)) {
-            logger.Write(LOG_WARN, "[%s] File not found", __FUNCTION__);
+            LOG_WARN("Config File not found");
             return;
         }
         o.clear();
@@ -289,22 +289,22 @@ namespace core {
             from_json(o);
         }
         catch (nlohmann::json::exception& e) {
-            logger.Write(LOG_ERROR, "[%s] error: %s", __FUNCTION__, e.what());
+            LOG_ERROR(std::format("Load Config Error {}", e.what()));
         }
 
         _stream.close();
 
-        logger.Write(LOG_INFO, "[%s] Done", __FUNCTION__);
+        LOG_INFO(std::format("[{}] Done", __FUNCTION__));
     }
 
     void Config::Save() {
-        logger.Write(LOG_INFO, "[%s]", __FUNCTION__);
+        LOG_INFO(std::format("[{}]", __FUNCTION__));
 
         try {
             to_json(o);
         }
         catch (nlohmann::json::exception& e) {
-            logger.Write(LOG_ERROR, "[%s] error: %s", __FUNCTION__, e.what());
+            LOG_ERROR(std::format("Save Config Error {}", e.what()));
             return;
         }
         
@@ -312,7 +312,7 @@ namespace core {
         std::ofstream x(fpath);
 
         if (!x) {
-            logger.Write(LOG_ERROR, "[%s] Can't write to: %s", __FUNCTION__, ToUTF8String(fpath).c_str());
+            LOG_ERROR(std::format("Can't Write To {}", ToUTF8String(fpath)));
             return;
         }
 
@@ -321,7 +321,7 @@ namespace core {
     }
 
     void Config::Create() {
-        logger.Write(LOG_INFO, "[%s] %s", __FUNCTION__, ToUTF8String(fpath).c_str());
+        LOG_INFO(std::format("[{}] {}", __FUNCTION__, ToUTF8String(fpath)));
         Save();
     }
 

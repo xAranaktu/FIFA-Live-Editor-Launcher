@@ -11,7 +11,7 @@
 #include <aclapi.h>
 #include <sddl.h>
 
-#include <logger.h>
+#include <logger/logger.h>
 #include <core.h>
 
 namespace fs = std::filesystem;

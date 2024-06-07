@@ -46,7 +46,7 @@ int WinMain(
 
         if (MessageBox(NULL, msg.c_str(), "Disclaimer", MB_ICONWARNING | MB_OKCANCEL) != IDOK) {
             // Early exit
-            logger.Write(LOG_INFO, "Disclaimer Early Exit");
+            LOG_INFO("Disclaimer Early Exit");
 
             return 1;
         }
@@ -56,7 +56,7 @@ int WinMain(
         MessageBox(NULL, "Game is Open\nRun the Live Editor before the game.", "Game is Open", MB_ICONERROR);
 
         // Early exit
-        logger.Write(LOG_INFO, "Game is Open Early Exit");
+        LOG_INFO("Game is Open Early Exit");
 
         return 1;
     }
@@ -122,9 +122,9 @@ int WinMain(
     bool done = false;
     while (!done)
     {
-        ImGui_ImplWin32_WaitForEvent();
+        // ImGui_ImplWin32_WaitForEvent();
         if (g_Injector.CanShutdown()) {
-            logger.Write(LOG_INFO, "Injection done - shutdown");
+            LOG_INFO("Injection done - shutdown");
             g_Core.onExit();
             break;
         }

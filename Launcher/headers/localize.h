@@ -2,7 +2,7 @@
 #include <string>
 #include <map>
 #include <filesystem>
-#include "logger.h"
+#include <logger/logger.h>
 #include "misc.h"
 #include "../external/nlohmann/json.hpp"
 

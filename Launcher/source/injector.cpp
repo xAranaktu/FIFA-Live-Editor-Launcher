@@ -143,7 +143,6 @@ std::vector<int> Injector::GetGamePIDs() {
             strcmp(szProcessName, g_Config.launch_values.game_proc_name_trial.c_str()) == 0
         ) {
             result.push_back(processID);
-            // logger.Write(LOG_INFO, "Found %s (PID: %d)", szProcessName, processID);
         }
 
         CloseHandle(hProcess);
@@ -225,30 +224,30 @@ bool Injector::DoInjectDLL(int pid) {
 }
 
 void Injector::Inject() {
-    logger.Write(LOG_INFO, "[%s]", __FUNCTION__);
+    LOG_INFO(std::format("[{}]", __FUNCTION__));
 
     std::stringstream ssError;
 
     fulldll_dirs.clear();
     for (std::string dll : g_Config.launch_values.dlls) {
         fs::path fulldll_dir = g_Core.ctx.GetFolder() / dll;
-        logger.Write(LOG_INFO, "[%s] DLL dir: %s", __FUNCTION__, ToUTF8String(fulldll_dir).c_str());
+        LOG_INFO(std::format("[{}] DLL dir: {}", __FUNCTION__, ToUTF8String(fulldll_dir).c_str()));
         if (!fs::exists(fulldll_dir)) {
-            logger.Write(LOG_ERROR, "[%s] Can't find DLL at %s", __FUNCTION__, ToUTF8String(fulldll_dir).c_str());
+            LOG_ERROR(std::format("[{}] Can't find DLL at {}", __FUNCTION__, ToUTF8String(fulldll_dir).c_str()));
             SetStatus(STATUS_ERROR);
             return;
         }
         fulldll_dirs.push_back(fulldll_dir);
     }
 
-    logger.Write(LOG_INFO, "[%s] Trying to inject into %s or %s", 
+    LOG_INFO(std::format("[{}] Trying to inject into {} or {}", 
         __FUNCTION__,
         g_Config.launch_values.game_proc_name.c_str(),
         g_Config.launch_values.game_proc_name_trial.c_str()
-    );
+    ));
 
     SetStatus(STATUS_WAITING_FOR_GAME);
-    logger.Write(LOG_INFO, "[%s] STATUS_WAITING_FOR_GAME", __FUNCTION__);
+    LOG_INFO("STATUS_WAITING_FOR_GAME");
     while (GetGamePIDs().empty())
     {
         if (Interupt()) return;
@@ -257,7 +256,7 @@ void Injector::Inject() {
     }
 
     SetStatus(STATUS_INJECTING);
-    logger.Write(LOG_INFO, "[%s] STATUS_INJECTING, delay %d ms", __FUNCTION__, delay);
+    LOG_INFO(std::format("STATUS_INJECTING, delay {} ms", delay));
     Sleep(delay);
 
     bool success = true;
@@ -274,7 +273,7 @@ void Injector::Inject() {
         if (proc_ids.empty())   attempts++;
 
         if (attempts >= max_attempts) {
-            logger.Write(LOG_ERROR, "[%s] No game processes", __FUNCTION__);
+            LOG_ERROR("No game processes");
             ssError << "After several tries Live Editor wasn't able to find stable game process.\n";
             ssError << "Make sure that:\n";
 
@@ -307,14 +306,14 @@ void Injector::Inject() {
         Sleep(30);
     }
     if (hWindow) {
-        logger.Write(LOG_INFO, "[%s] Game Window Found", __FUNCTION__);
+        LOG_INFO("Game Window Found");
     }
 
     if (success) {
         SetStatus(STATUS_DONE);
     }
     else {
-        logger.Write(LOG_ERROR, "[%s] Injection failed...", __FUNCTION__);
+        LOG_ERROR("Injection failed...");
 
         SetStatus(STATUS_ERROR);
 
@@ -332,14 +331,14 @@ void Injector::Inject() {
             }
         }
 
-        logger.Write(LOG_ERROR, "[%s] %s", __FUNCTION__, ssError.str().c_str());
+        LOG_ERROR(ssError.str());
         MessageBox(NULL, ssError.str().c_str(), "Failed", MB_ICONERROR);
     }
 }
 
 bool Injector::Interupt() {
     if (GetInterupt()) {
-        logger.Write(LOG_INFO, "[%s] Interupting injection...", __FUNCTION__);
+        LOG_INFO("Interupting injection..");
         SetStatus(STATUS_IDLE);
         SetInterupt(false);
         return true;

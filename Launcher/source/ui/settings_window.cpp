@@ -6,9 +6,11 @@ namespace UIWindows {
     UISettings::~UISettings() {}
 
     void UISettings::Init() {
-        for (auto s : logger.levelStrings) {
-            avail_log_levels.push_back(localize.Translate(s.c_str()));
-        };
+        current_log_level = defaultLogger.GetLogLevel();
+        avail_log_levels.clear();
+        for (const auto l : logger_level_strings) {
+            avail_log_levels.push_back(l);
+        }
 
         has_keys_options = !g_options_ids.GetOptions("keys", true).empty();
         le_data_root = ToUTF8String(g_Core.GetLEDataPath());
@@ -57,8 +59,8 @@ namespace UIWindows {
         }
 
         if (ImGui::CollapsingHeader(localize.Translate("Logger").c_str())) {
-            if (ImGui::Combo(localize.Translate("log_level").c_str(), &g_Config.logger_values.log_level, avail_log_levels)) {
-                logger.SetMinLevel((LogLevel)g_Config.logger_values.log_level);
+            if (ImGui::Combo("Log Level", &current_log_level, avail_log_levels)) {
+                defaultLogger.SetMinLevel(current_log_level);
                 save_required |= true;
             }
 
@@ -200,7 +202,7 @@ namespace UIWindows {
                 ImGui::BeginChild(combo_id.c_str(), ImVec2(hotkey_item_width, font_sz + (style.ItemInnerSpacing.y * 6)), false, ImGuiWindowFlags_NoScrollbar);
 
                 if (available_keys_to_assign.count(for_hotkey.keys_combination[i]) != 1) {
-                    logger.Write(LOG_ERROR, "[%s] [LCOMBO] Unknown key: %d", __FUNCTION__, for_hotkey.keys_combination[i]);
+                    LOG_ERROR(std::format("[{}] [LCOMBO] Unknown key: {}", __FUNCTION__, for_hotkey.keys_combination[i]));
                 }
 
                 if (ImGui::LCombo("", &for_hotkey.keys_combination[i], available_keys_to_assign, translate, combo_id)) {

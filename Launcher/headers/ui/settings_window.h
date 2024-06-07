@@ -8,7 +8,7 @@
 #include "../external/nlohmann/fifo_map.hpp"
 
 #include "localize.h"
-#include "logger.h"
+#include <logger/logger.h>
 #include "config.h"
 
 namespace UIWindows {
@@ -26,6 +26,7 @@ namespace UIWindows {
         const char* GetWindowName();
 
     private:
+        int current_log_level = 0;
         std::vector<std::string> avail_log_levels;
         std::vector<std::string> avail_scale_factors = {
             "auto", "x1.0", "x1.25", "x1.5", "x1.75", "x2.0", "x2.25"

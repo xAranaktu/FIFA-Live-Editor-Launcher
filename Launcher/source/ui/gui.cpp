@@ -155,7 +155,7 @@ void GUI::DrawMainMenuBar() {
 
         if (ImGui::BeginMenu("Help")) {
             if (ImGui::MenuItem("Logs")) {
-                ShellExecuteW(NULL, L"open", logger.GetFolder().wstring().c_str(), NULL, NULL, SW_SHOWDEFAULT);
+                ShellExecuteW(NULL, L"open", defaultLogger.GetFolder().wstring().c_str(), NULL, NULL, SW_SHOWDEFAULT);
             }
 
             if (ImGui::IsItemHovered()) {
