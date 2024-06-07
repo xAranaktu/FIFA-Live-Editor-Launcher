@@ -15,7 +15,6 @@
 namespace ImGui {
     inline bool LCombo(std::string lbl, int* currIndex, nlohmann::fifo_map<int, std::string>& values, bool translate_items, std::string id = "", float lbl_width = 222.0f) {
         if (values.empty()) {
-            logger.Write(LOG_ERROR, "[GUI] [LCOMBO] Empty Values %s", lbl.c_str());
             return false;
         }
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(6.0f, 0.0f));
@@ -51,7 +50,8 @@ namespace ImGui {
 
             // Display items
             // FIXME-OPT: Use clipper (but we need to disable it on the appearing frame to make sure our call to SetItemDefaultFocus() is processed)
-            ImGuiListClipper clipper((__int32)values.size());
+            ImGuiListClipper clipper;
+            clipper.Begin((__int32)values.size());
 
             while (clipper.Step()) {
                 for (int i = clipper.DisplayStart; i < clipper.DisplayEnd; i++) {
