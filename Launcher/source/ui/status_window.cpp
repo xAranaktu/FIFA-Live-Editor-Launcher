@@ -72,7 +72,7 @@ namespace UIWindows {
             run_game_disabled_reason = std::format("Can't find game in {}\n\nYou can still try to run the game manually from EAApp/Steam/Epic and it should work fine!", ToUTF8String(game_full_path));
         }
 
-        first_draw = true;
+        first_draw = false;
     }
 
     void UIStatus::InjectDll() {
