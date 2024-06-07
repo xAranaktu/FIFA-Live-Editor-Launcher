@@ -80,7 +80,7 @@ namespace UIWindows {
             ImGui::PushID("##GameLocFDBTN");
             if (ImGui::Button("...")) {
                 g_GUI.CloseCurrentFileDialog();
-                ImGuiFileDialog::Instance()->OpenDialog("GameLocFD", "Choose a Directory", nullptr, ".");
+                //ImGuiFileDialog::Instance()->OpenDialog("GameLocFD", "Choose a Directory", nullptr, ".");
             }
             ImGui::PopID();
             ImGui::SameLine();
@@ -100,7 +100,7 @@ namespace UIWindows {
             ImGui::PushID("##LEDataRootFDBTN");
             if (ImGui::Button("...")) {
                 g_GUI.CloseCurrentFileDialog();
-                ImGuiFileDialog::Instance()->OpenDialog("LEDataRootFD", "Choose a Directory", nullptr, ".");
+                //ImGuiFileDialog::Instance()->OpenDialog("LEDataRootFD", "Choose a Directory", nullptr, ".");
             }
             ImGui::PopID();
             ImGui::SameLine();
@@ -111,7 +111,7 @@ namespace UIWindows {
             ImGui::PushID("##ModsRootFDBTN");
             if (ImGui::Button("...")) {
                 g_GUI.CloseCurrentFileDialog();
-                ImGuiFileDialog::Instance()->OpenDialog("ModsRootFD", "Choose a Directory", nullptr, ".");
+                //ImGuiFileDialog::Instance()->OpenDialog("ModsRootFD", "Choose a Directory", nullptr, ".");
             }
             ImGui::PopID();
             ImGui::SameLine();
