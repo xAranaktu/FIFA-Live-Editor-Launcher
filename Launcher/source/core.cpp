@@ -190,11 +190,11 @@ fs::path Core::GetGameInstallDir() {
         return g_Config.directories_values.game_loc;
     }
 
-    // Computer\HKEY_LOCAL_MACHINE\SOFTWARE\EA Sports\EA SPORTS FC 24
+    // Computer\HKEY_LOCAL_MACHINE\SOFTWARE\EA Sports\EA SPORTS FC 25 BETA
     DWORD dwType = REG_SZ;
     HKEY hKey = 0;
     std::string subkey = std::string("SOFTWARE\\EA Sports\\EA SPORTS FC ") + std::to_string(FIFA_EDITION);
-    // LOG_INFO(std::format("{} RegOpenKey {}", __FUNCTION__, subkey));
+    subkey += " BETA";
 
     LSTATUS open_status = RegOpenKey(HKEY_LOCAL_MACHINE, subkey.c_str(), &hKey);
     if (open_status != ERROR_SUCCESS) {
