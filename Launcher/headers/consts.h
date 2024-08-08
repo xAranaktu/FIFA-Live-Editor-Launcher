@@ -35,7 +35,7 @@ inline const std::map<std::string, std::string> GAME_VERSION_TU_MAP = {
     { "1.0.89.16451",   "TU16"},
     { "1.0.89.28334",   "TU17"},
     { "1.0.90.3389",    "TU18"},
-    { "1.0.90.31158",   "TU18.2"},
+    { "1.0.90.31158",   "TU18.2"}
 };
 
 inline const std::vector<std::string> COMPATIBLE_TITLE_UPDATES = {
