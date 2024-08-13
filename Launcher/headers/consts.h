@@ -2,7 +2,7 @@
 #include <map>
 #include <vector>
 
-inline const int FIFA_EDITION = 24;
+inline const int EAFC_EDITION = 24;
 inline const char* TOOL_NAME = "Live Editor";
 inline const char* TOOL_VERSION = "v24.1.2.0";
 inline const char DisclaimerContent[] = {

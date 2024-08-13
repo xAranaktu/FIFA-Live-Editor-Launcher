@@ -197,20 +197,6 @@ void GUI::DrawInfoWindow(bool* p_open) {
         ImGui::SetTooltip(game_tu_desc.c_str());
     }
 
-    if (g_Core.game_build_info) {
-        ImGui::NewLine();
-        ImGui::Text("Frostbite BuildInfo:");
-        ImGui::Text("BuildTime          %s", g_Core.game_build_info->getBuildTime());
-        ImGui::Text("BuildDate          %s", g_Core.game_build_info->getBuildDate());
-        ImGui::Text("BranchName         %s", g_Core.game_build_info->getBranchName());
-        ImGui::Text("LicenseeId         %s", g_Core.game_build_info->getLicenseeId());
-        ImGui::Text("StudioName         %s", g_Core.game_build_info->getStudioName());
-        ImGui::Text("Changelist         %d", g_Core.game_build_info->getChangelist());
-        ImGui::Text("SourceChangeList   %d", g_Core.game_build_info->getSourceChangelist());
-        ImGui::Text("FBChangelist       %d", g_Core.game_build_info->getFrostbiteChangelist());
-        ImGui::Text("FBRelease          %s", g_Core.game_build_info->getFrostbiteRelease());
-    }
-
     ImGui::End();
 }
 

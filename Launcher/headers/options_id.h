@@ -16,7 +16,6 @@ class OptionsIds {
 public:
     std::map<std::string, nlohmann::fifo_map<int, std::string>> options;
 
-    void SetFile(std::filesystem::path folder);
     void Clear();
     void LoadJson();
 

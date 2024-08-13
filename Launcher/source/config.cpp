@@ -265,16 +265,6 @@ namespace core {
     {
     }
 
-    void Config::Setup(std::filesystem::path folder) {
-        LOG_INFO(std::format("[{}]", __FUNCTION__));
-
-        fpath = folder / fname;
-
-        if (!fs::exists(fpath)) {
-            Create();
-        }
-    }
-
     void Config::Load() {
         LOG_INFO(std::format("Load config from {}", ToUTF8String(fpath)));
 

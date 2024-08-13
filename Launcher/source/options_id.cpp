@@ -2,6 +2,7 @@
 #include "options_id.h"
 
 
+/*
 void OptionsIds::SetFile(std::filesystem::path folder) {
     std::filesystem::path fpath = folder / "data" / "id_map.json";
     LOG_INFO(std::format("Set Dropdown Options File: {}", ToUTF8String(fpath).c_str()));
@@ -12,6 +13,8 @@ void OptionsIds::SetFile(std::filesystem::path folder) {
 
     file_path = fpath;
 }
+*/
+
 void OptionsIds::Clear() {
 
 }

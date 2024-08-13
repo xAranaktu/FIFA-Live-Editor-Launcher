@@ -146,8 +146,6 @@ namespace core {
         Config();
         ~Config();
 
-        void Setup(std::filesystem::path folder);
-
         void Load();
         void Save();
     private:
