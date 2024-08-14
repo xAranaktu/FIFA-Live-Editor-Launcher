@@ -61,8 +61,7 @@ namespace UIWindows {
     void UIStatus::FirstDraw() {
         if (!first_draw)    return;
 
-        std::string proc_name = g_Config.launch_values.game_proc_name;
-        std::filesystem::path game_full_path = g_Core.GetGameInstallDir() / proc_name;
+        std::filesystem::path game_full_path = LE::FilesManager::GetInstance()->GetGameProcessFullPath();
 
         if (fs::exists(game_full_path)) {
             run_game_disabled = false;
@@ -76,7 +75,6 @@ namespace UIWindows {
     }
 
     void UIStatus::InjectDll() {
-        g_Injector.SetDelay(g_Config.launch_values.injection_delay);
         std::thread t1(&Injector::Inject, &g_Injector);
         t1.detach();
     }

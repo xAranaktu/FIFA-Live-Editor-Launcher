@@ -87,12 +87,19 @@ void GUI::MainDockspace() {
 }
 
 void GUI::SetupImGUI() {
+    LOG_FUNC_START();
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); (void)io;
 
-    io.IniFilename = g_Config.imgui_ini.c_str();
+    {
+        // Place the imgui.ini in the same directory where DLL is.
+        auto imgui_ini_fp = LE::FilesManager::GetInstance()->GetImGuiIni();
+        char* new_filename = new char[strlen(imgui_ini_fp) + 1];    // If we ever add ejecting dll... FIX MEMORY_LEAK
+        strncpy(new_filename, imgui_ini_fp, strlen(imgui_ini_fp) + 1);
+        io.IniFilename = new_filename;
+    }
 
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;       // Enable Keyboard Controls
     //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
@@ -134,6 +141,8 @@ void GUI::SetupImGUI() {
     //io.Fonts->AddFontFromFileTTF("../../misc/fonts/ProggyTiny.ttf", 10.0f);
     //ImFont* font = io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf", 18.0f, NULL, io.Fonts->GetGlyphRangesJapanese());
     //IM_ASSERT(font != NULL);
+
+    LOG_FUNC_END();
 }
 
 void GUI::DrawMainMenuBar() {
@@ -301,12 +310,13 @@ void GUI::ChangeModsRootDialog() {
     {
         // action if OK
         if (ImGuiFileDialog::Instance()->IsOk()) {
-            std::string filePath = ImGuiFileDialog::Instance()->GetCurrentPath();
-            if (filePath != g_Config.directories_values.mods_root) {
-                g_Config.directories_values.mods_root = filePath;
-                g_Config.Save();
-                restart_required = true;
+            std::filesystem::path fpath(ImGuiFileDialog::Instance()->GetCurrentPath());
+
+            if (fs::exists(fpath) && fs::is_directory(fpath)) {
+                LE::FilesManager::GetInstance()->SetLEModsDir(fpath);
             }
+
+            restart_required = true;
         }
 
         // close
@@ -319,11 +329,13 @@ void GUI::ChangeGameLoc() {
     {
         // action if OK
         if (ImGuiFileDialog::Instance()->IsOk()) {
-            std::string filePath = ImGuiFileDialog::Instance()->GetCurrentPath();
-            if (filePath != g_Config.directories_values.game_loc) {
-                g_Config.directories_values.game_loc = filePath;
-                g_Config.Save();
+            std::filesystem::path fpath(ImGuiFileDialog::Instance()->GetCurrentPath());
+
+            if (fs::exists(fpath) && fs::is_directory(fpath)) {
+                LE::FilesManager::GetInstance()->SetCustomGameDir(fpath);
             }
+
+            restart_required = true;
         }
 
         // close
@@ -338,7 +350,11 @@ void GUI::ChangeLEDataRootDialog() {
         // action if OK
         if (ImGuiFileDialog::Instance()->IsOk()) {
             std::filesystem::path fpath(ImGuiFileDialog::Instance()->GetCurrentPath());
-            g_Core.SetLEDataPathRegVal(fpath.wstring());
+
+            if (fs::exists(fpath) && fs::is_directory(fpath)) {
+                LE::FilesManager::GetInstance()->SetLEDataDir(fpath);
+            }
+
             restart_required = true;
         }
 

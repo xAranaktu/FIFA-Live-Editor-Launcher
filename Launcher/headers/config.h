@@ -4,17 +4,17 @@
 #include <filesystem>
 #include <logger/logger.h>
 #include <misc.h>
+#include <consts.h>
+
 #include <../external/nlohmann/json.hpp>
 
 namespace fs = std::filesystem;
 using json = nlohmann::json;
 
-namespace core {
+namespace LE {
     class DirectoriesValues {
     public:
         // Default Values
-        fs::path game_loc = "";
-        fs::path mods_root = "";
         fs::path filters_storage = "";
         fs::path import_miniface = "";
         fs::path legacyfolder_export = "";
@@ -53,22 +53,14 @@ namespace core {
         bool is_trial = false;
         int injection_delay = 100;
 
-        std::string game_proc_name = "FC24.exe";
-        std::string game_proc_name_trial = "FC24_Trial.exe";
-        std::string params = "";
+        // Default values in Config::Init
+        std::string game_proc_name;
+        std::string game_proc_name_trial;
+        std::string params;
 
         std::vector<std::string> dlls = {
             "FCLiveEditor.DLL"
         };
-
-        void to_json(json& j);
-        void from_json(const json& j);
-    };
-
-    class MatchFixingValues {
-    public:
-        int goals_scored = 3;
-        int goals_conceded = 0;
 
         void to_json(json& j);
         void from_json(const json& j);
@@ -130,33 +122,55 @@ namespace core {
     class Config
     {
     public:
-        std::string fname = "config.json";
-        std::string imgui_ini = "launcher_imgui.ini";
+        Config(Config& other) = delete;
+        void operator=(const Config&) = delete;
+        static Config* GetInstance();
+
+        void to_json(json& j);
+        void from_json(const json& j);
+
+        void Init(fs::path path);
+
+        void Load();
+        void Save();
+
+        LauncherValues* GetLauncherValues() { return &launch_values; }
+        UIValues* GetUIValues() { return &ui_values; }
+        OverlayValues* GetOverlayValues() { return &overlay_values; }
+        OtherValues* GetOtherValues() { return &other_values; }
+        LoggerValues* GetLoggerValues() { return &logger_values; }
+
+        bool IsTrial() { return launch_values.is_trial; }
+        bool ShowDisclaimer() { return launch_values.show_disclaimer_msg; }
+        bool AutoInject() { return launch_values.auto_inject; }
+        bool CloseAfterInjection() { return launch_values.close_after_injection; }
+        int GetInjectionDelay() { return launch_values.injection_delay; }
+
+        std::vector<std::string> GetDlls() { return launch_values.dlls; }
+
+        std::string GetParams() { return launch_values.params; }
+        std::string GetProcName() { return launch_values.game_proc_name; }
+        std::string GetProcNameTrial() { return launch_values.game_proc_name_trial; }
+
+    private:
+        static Config* pinstance_;
+        static std::mutex mutex_;
 
         DirectoriesValues directories_values;
         OverlayValues overlay_values;
         UIValues ui_values;
         LauncherValues launch_values;
-        MatchFixingValues matchfixing_values;
         HotkeysValues hotkeys_values;
         LoggerValues logger_values;
         OtherValues other_values;
         DEBUGValues debug_values;
 
+        const std::string imgui_filename = "le_launcher_imgui.ini";
+       
+        fs::path cfg_path;
+
+    protected:
         Config();
         ~Config();
-
-        void Load();
-        void Save();
-    private:
-        std::filesystem::path fpath;
-        json o = json::object();
-
-        void Create();
-
-        void to_json(json& j);
-        void from_json(const json& j);
     };
 }
-
-extern core::Config g_Config;

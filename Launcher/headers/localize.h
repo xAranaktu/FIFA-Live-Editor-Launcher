@@ -3,6 +3,7 @@
 #include <map>
 #include <filesystem>
 #include <logger/logger.h>
+#include <files_manager/files_manager.h>
 #include "misc.h"
 #include "../external/nlohmann/json.hpp"
 
@@ -11,15 +12,16 @@ using json = nlohmann::json;
 class Localize {
 public:
     Localize();
-    void SetLangPath(const std::filesystem::path& dllFolder);
-    void LoadLangTrans(const std::string& lang);
+    ~Localize();
+
+    void from_json(const json& j);
+
+    void Load();
+
     std::string Translate(const char* text, const std::map<std::string, std::string> data = {});
     std::string Translate(std::string text, const std::map<std::string, std::string> data = {});
-
 private:
-    std::string loadedLang = "";
-    std::filesystem::path langPath = "";
-    json j;
+    std::map<std::string, std::string> translated_strings;
 };
 
 extern Localize localize;

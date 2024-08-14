@@ -1,10 +1,8 @@
 #include <config.h>
 
-namespace core {
+namespace LE {
     void DirectoriesValues::to_json(json& j) {
         j = json{
-            {"mods_root",               ToUTF8String(mods_root).c_str()},
-            {"game_loc",                ToUTF8String(game_loc).c_str()},
             {"filters_storage",         ToUTF8String(filters_storage).c_str()},
             {"import_miniface",         ToUTF8String(import_miniface).c_str()},
             {"legacyfolder_export",     ToUTF8String(legacyfolder_export).c_str()},
@@ -14,14 +12,6 @@ namespace core {
     }
 
     void DirectoriesValues::from_json(const json& j) {
-        if (j.contains("mods_root")) {
-            j.at("mods_root").get_to(mods_root);
-        }
-
-        if (j.contains("game_loc")) {
-            j.at("game_loc").get_to(game_loc);
-        }
-
         if (j.contains("filters_storage")) {
             j.at("filters_storage").get_to(filters_storage);
         }
@@ -265,127 +255,141 @@ namespace core {
     {
     }
 
-    void Config::Load() {
-        LOG_INFO(std::format("Load config from {}", ToUTF8String(fpath)));
+    void Config::Init(fs::path path) {
+        launch_values.game_proc_name = std::format("FC{}.exe", EAFC_EDITION);
+        launch_values.game_proc_name_trial = std::format("FC{}_Trial.exe", EAFC_EDITION);
+        launch_values.params.clear();   // No params by default
 
-        if (!fs::exists(fpath)) {
-            LOG_WARN("Config File not found");
+        cfg_path = path;
+
+        // Create Config File on First Run
+        if (!fs::exists(cfg_path)) {
+            Save();
+        }
+        else
+        {
+            Load();
+        }
+    }
+
+    void Config::Load() {
+        LOG_INFO(std::format("Load Config From {}", ToUTF8String(cfg_path).c_str()));
+
+        if (!fs::exists(cfg_path)) {
+            LOG_WARN("Config file not found");
             return;
         }
-        o.clear();
-        std::ifstream _stream(fpath);
+
+        json cfg = json::object();
+        std::ifstream _stream(cfg_path);
         try {
-            o = json::parse(_stream);
-            from_json(o);
+            cfg = json::parse(_stream);
+            from_json(cfg);
         }
         catch (nlohmann::json::exception& e) {
             LOG_ERROR(std::format("Load Config Error {}", e.what()));
         }
-
         _stream.close();
 
-        LOG_INFO(std::format("[{}] Done", __FUNCTION__));
+        LOG_INFO("Config Load Done");
     }
 
     void Config::Save() {
-        LOG_INFO(std::format("[{}]", __FUNCTION__));
+        LOG_INFO(std::format("Save Config To {}", ToUTF8String(cfg_path).c_str()));
 
+        json cfg = json::object();
         try {
-            to_json(o);
+            to_json(cfg);
         }
         catch (nlohmann::json::exception& e) {
             LOG_ERROR(std::format("Save Config Error {}", e.what()));
             return;
         }
-        
 
-        std::ofstream x(fpath);
+        std::ofstream _stream(cfg_path);
 
-        if (!x) {
-            LOG_ERROR(std::format("Can't Write To {}", ToUTF8String(fpath)));
+        if (!_stream) {
+            LOG_ERROR(std::format("Can't Write To {}", ToUTF8String(cfg_path).c_str()));
             return;
         }
 
-        x << std::setw(4) << o << std::endl;
-        x.close();
-    }
+        _stream << std::setw(4) << cfg << std::endl;
+        _stream.close();
 
-    void Config::Create() {
-        LOG_INFO(std::format("[{}] {}", __FUNCTION__, ToUTF8String(fpath)));
-        Save();
+        LOG_INFO("Config Save Done");
     }
 
     void Config::to_json(json& j) {
         json tmp = json::object();
 
         directories_values.to_json(tmp);
-        o["Dirs"] = tmp;
+        j["directories"] = tmp;
         tmp.clear();
 
         overlay_values.to_json(tmp);
-        o["Overlay"] = tmp;
-        tmp.clear();
-
-        ui_values.to_json(tmp);
-        o["UI"] = tmp;
+        j["overlay"] = tmp;
         tmp.clear();
 
         launch_values.to_json(tmp);
-        o["Launcher"] = tmp;
+        j["launcher"] = tmp;
+        tmp.clear();
+
+        ui_values.to_json(tmp);
+        j["ui"] = tmp;
         tmp.clear();
 
         matchfixing_values.to_json(tmp);
-        o["Match-Fixing"] = tmp;
+        j["match_fixing"] = tmp;
         tmp.clear();
 
         hotkeys_values.to_json(tmp);
-        o["Hotkeys"] = tmp;
+        j["hotkeys"] = tmp;
         tmp.clear();
 
         logger_values.to_json(tmp);
-        o["Logger"] = tmp; 
+        j["logger"] = tmp;
         tmp.clear();
 
         other_values.to_json(tmp);
-        o["Other"] = tmp;
+        j["other"] = tmp;
         tmp.clear();
 
         debug_values.to_json(tmp);
-        o["DEBUG"] = tmp;
+        j["DEBUG"] = tmp;
         tmp.clear();
     }
 
     void Config::from_json(const json& j) {
-        if (j.contains("Dirs")) {
-            directories_values.from_json(j.at("Dirs"));
+        if (j.contains("directories")) {
+            directories_values.from_json(j.at("directories"));
         }
 
-        if (j.contains("Overlay")) {
-            overlay_values.from_json(j.at("Overlay"));
+        if (j.contains("overlay")) {
+            overlay_values.from_json(j.at("overlay"));
         }
 
-        if (j.contains("UI")) {
-            ui_values.from_json(j.at("UI"));
+        if (j.contains("ui")) {
+            ui_values.from_json(j.at("ui"));
         }
 
-        if (j.contains("Launcher")) {
-            launch_values.from_json(j.at("Launcher"));
+        if (j.contains("launcher")) {
+            launch_values.from_json(j.at("launcher"));
         }
 
-        if (j.contains("Match-Fixing")) {
-            matchfixing_values.from_json(j.at("Match-Fixing"));
+        if (j.contains("match_fixing")) {
+            matchfixing_values.from_json(j.at("match_fixing"));
         }
 
-        if (j.contains("Hotkeys")) {
-            hotkeys_values.from_json(j.at("Hotkeys"));
+        if (j.contains("hotkeys")) {
+            hotkeys_values.from_json(j.at("hotkeys"));
         }
 
-        if (j.contains("Logger")) {
-            logger_values.from_json(j.at("Logger"));
+        if (j.contains("logger")) {
+            logger_values.from_json(j.at("logger"));
         }
 
-        if (j.contains("Other")) {
-            other_values.from_json(j.at("Other"));
+        if (j.contains("other")) {
+            other_values.from_json(j.at("other"));
         }
 
         if (j.contains("DEBUG")) {
@@ -393,7 +397,16 @@ namespace core {
         }
 
     }
+
+    Config* Config::GetInstance()
+    {
+        std::lock_guard<std::mutex> lock(mutex_);
+        if (pinstance_ == nullptr)
+            pinstance_ = new Config();
+
+        return pinstance_;
+    }
 }
 
-
-core::Config g_Config;
+LE::Config* LE::Config::pinstance_{ nullptr };
+std::mutex LE::Config::mutex_;

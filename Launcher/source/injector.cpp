@@ -8,10 +8,6 @@ Injector::~Injector()
 {
 }
 
-void Injector::SetDelay(int d) {
-    delay = d;
-}
-
 void Injector::SetStatus(STATUS _status) {
     std::lock_guard<std::mutex> lk(m_status);
 
@@ -35,7 +31,7 @@ bool Injector::GetInterupt() {
 }
 
 bool Injector::CanShutdown() {
-    if (g_Config.launch_values.close_after_injection) 
+    if (LE::Config::GetInstance()->CloseAfterInjection())
         return GetStatus() == STATUS::STATUS_DONE;
 
     return false;
@@ -87,31 +83,9 @@ bool Injector::SetAccessControl(const wchar_t* file, const wchar_t* access)
 }
 
 std::vector<int> Injector::GetGamePIDs() {
+    std::string target_proc = LE::Config::GetInstance()->GetProcName();
+
     std::vector<int> result;
-
-    /*
-    DWORD pid = 0;
-    std::wstring wsTmp1(g_Config.launch_values.game_proc_name.begin(), g_Config.launch_values.game_proc_name.end());
-    std::wstring wsTmp2(g_Config.launch_values.game_proc_name_trial.begin(), g_Config.launch_values.game_proc_name_trial.end());
-
-    const wchar_t* procname1 = wsTmp1.c_str();
-    const wchar_t* procname2 = wsTmp2.c_str();
-    HANDLE snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
-    PROCESSENTRY32W process = { sizeof(process) };
-    for (BOOL next = Process32FirstW(snapshot, &process); next; next = Process32NextW(snapshot, &process))
-    {
-        if (
-            wcscmp(process.szExeFile, procname1) == 0 || 
-            wcscmp(process.szExeFile, procname2) == 0
-        ) {
-            pid = process.th32ProcessID;
-            result.push_back(pid);
-            break;
-        }
-    }
-
-    if (snapshot != NULL && snapshot != INVALID_HANDLE_VALUE) CloseHandle(snapshot);
-    */
 
     TCHAR szProcessName[MAX_PATH] = TEXT("<unknown>");
     DWORD aProcesses[2048], cbNeeded, cbNeededMod, cProcesses;
@@ -139,8 +113,7 @@ std::vector<int> Injector::GetGamePIDs() {
         }
 
         if (
-            strcmp(szProcessName, g_Config.launch_values.game_proc_name.c_str()) == 0 ||
-            strcmp(szProcessName, g_Config.launch_values.game_proc_name_trial.c_str()) == 0
+            strcmp(szProcessName, target_proc.c_str()) == 0
         ) {
             result.push_back(processID);
         }
@@ -226,10 +199,12 @@ bool Injector::DoInjectDLL(int pid) {
 void Injector::Inject() {
     LOG_INFO(std::format("[{}]", __FUNCTION__));
 
+    LE::Config* le_config = LE::Config::GetInstance();
+
     std::stringstream ssError;
 
     fulldll_dirs.clear();
-    for (std::string dll : g_Config.launch_values.dlls) {
+    for (std::string dll : le_config->GetDlls()) {
         fs::path fulldll_dir = g_Core.ctx.GetFolder() / dll;
         LOG_INFO(std::format("[{}] DLL dir: {}", __FUNCTION__, ToUTF8String(fulldll_dir).c_str()));
         if (!fs::exists(fulldll_dir)) {
@@ -240,11 +215,8 @@ void Injector::Inject() {
         fulldll_dirs.push_back(fulldll_dir);
     }
 
-    LOG_INFO(std::format("[{}] Trying to inject into {} or {}", 
-        __FUNCTION__,
-        g_Config.launch_values.game_proc_name.c_str(),
-        g_Config.launch_values.game_proc_name_trial.c_str()
-    ));
+    std::string proc_name = le_config->IsTrial() ? le_config->GetProcNameTrial() : le_config->GetProcName();
+    LOG_INFO(std::format("[{}] Trying to inject into {}",  __FUNCTION__, proc_name.c_str()));
 
     SetStatus(STATUS_WAITING_FOR_GAME);
     LOG_INFO("STATUS_WAITING_FOR_GAME");
@@ -256,6 +228,7 @@ void Injector::Inject() {
     }
 
     SetStatus(STATUS_INJECTING);
+    int delay = le_config->GetInjectionDelay();
     LOG_INFO(std::format("STATUS_INJECTING, delay {} ms", delay));
     Sleep(delay);
 
@@ -302,7 +275,7 @@ void Injector::Inject() {
             }
         }
 
-        hWindow = FindWindow("FC 24", 0);
+        hWindow = FindWindow(GAME_WINDOW_CLS, 0);
         Sleep(30);
     }
     if (hWindow) {

@@ -13,23 +13,25 @@ namespace UIWindows {
         }
 
         has_keys_options = !g_options_ids.GetOptions("keys", true).empty();
-        le_data_root = ToUTF8String(g_Core.GetLEDataPath());
     }
 
     void UISettings::Draw(bool* p_open) {
         bool save_required = false;
+        LE::Config* le_config = LE::Config::GetInstance();
+        LE::FilesManager* files_manager = LE::FilesManager::GetInstance();
+
+        LE::LauncherValues* launch_values = le_config->GetLauncherValues();
 
         ImGui::Begin(GetWindowName(), p_open);
 
         if (ImGui::CollapsingHeader(localize.Translate("Advanced Launch Options").c_str())) {
-            if (ImGui::InputText("##advlaunchoptions", &g_Config.launch_values.params)) {
+            if (ImGui::InputText("##advlaunchoptions", &launch_values->params)) {
                 save_required |= true;
             }
         }
 
         if (ImGui::CollapsingHeader(localize.Translate("DLL Injector").c_str())) {
-            if (ImGui::InputInt("Delay (ms)", &g_Config.launch_values.injection_delay)) {
-                g_Injector.SetDelay(g_Config.launch_values.injection_delay);
+            if (ImGui::InputInt("Delay (ms)", &launch_values->injection_delay)) {
                 save_required |= true;
             }
 
@@ -37,7 +39,7 @@ namespace UIWindows {
                 ImGui::SetTooltip("The delay between game process found and the injection of Live Editor core dll\nToo short may cause problems/crashes\nToo long may result in some mods not being loaded properly");
             }
 
-            if (ImGui::Checkbox("Auto Close Launcher", &g_Config.launch_values.close_after_injection)) {
+            if (ImGui::Checkbox("Auto Close Launcher", &launch_values->close_after_injection)) {
                 save_required |= true;
             }
 
@@ -47,7 +49,7 @@ namespace UIWindows {
                 ImGui::SetTooltip("Live Editor will shutdown itself after successfull DLL injection. (recommended)");
             }
 
-            if (ImGui::Checkbox("Is Trial Game", &g_Config.launch_values.is_trial)) {
+            if (ImGui::Checkbox("Is Trial Game", &launch_values->is_trial)) {
                 save_required |= true;
             }
 
@@ -64,12 +66,14 @@ namespace UIWindows {
                 save_required |= true;
             }
 
-            save_required |= ImGui::Checkbox(localize.Translate("log_try_find_chunk_file").c_str(), &g_Config.logger_values.log_try_find_chunk_file);
-            save_required |= ImGui::Checkbox(localize.Translate("log_load_chunk_file").c_str(), &g_Config.logger_values.log_load_chunk_file);
-            save_required |= ImGui::Checkbox(localize.Translate("log_iniread").c_str(), &g_Config.logger_values.log_iniread);
-            save_required |= ImGui::Checkbox(localize.Translate("log_game_logs").c_str(), &g_Config.logger_values.log_game_logs);
+            LE::LoggerValues* logger_values = le_config->GetLoggerValues();
 
-            if (ImGui::Checkbox(localize.Translate("log_luaL_tolstring").c_str(), &g_Config.logger_values.luaL_tolstring)) {
+            save_required |= ImGui::Checkbox(localize.Translate("log_try_find_chunk_file").c_str(), &logger_values->log_try_find_chunk_file);
+            save_required |= ImGui::Checkbox(localize.Translate("log_load_chunk_file").c_str(), &logger_values->log_load_chunk_file);
+            save_required |= ImGui::Checkbox(localize.Translate("log_iniread").c_str(), &logger_values->log_iniread);
+            save_required |= ImGui::Checkbox(localize.Translate("log_game_logs").c_str(), &logger_values->log_game_logs);
+
+            if (ImGui::Checkbox(localize.Translate("log_luaL_tolstring").c_str(), &logger_values->luaL_tolstring)) {
                 save_required |= true;
             }
         }
@@ -88,15 +92,7 @@ namespace UIWindows {
             ImGui::PopID();
             ImGui::SameLine();
 
-            if (!g_Config.directories_values.game_loc.empty()) {
-                ImGui::Text(ToUTF8String(g_Config.directories_values.game_loc).c_str());
-            }
-            else {
-                if (game_loc.empty()) {
-                    game_loc = ToUTF8String(g_Core.GetGameInstallDir());
-                }
-                ImGui::Text(game_loc.c_str());
-            }
+            ImGui::Text(files_manager->GetGameDirectoryU8().c_str());
 
             ImGui::Text("LE Data Root:      ");
             ImGui::SameLine();
@@ -110,7 +106,7 @@ namespace UIWindows {
             }
             ImGui::PopID();
             ImGui::SameLine();
-            ImGui::Text(le_data_root.c_str());
+            ImGui::Text(files_manager->GetLEDataDirectoryU8().c_str());
 
             ImGui::Text("Mods Root:         ");
             ImGui::SameLine();
@@ -124,57 +120,44 @@ namespace UIWindows {
             }
             ImGui::PopID();
             ImGui::SameLine();
-            ImGui::Text(ToUTF8String(g_Config.directories_values.mods_root).c_str());
+
+            ImGui::Text(files_manager->GetLEModsDirectoryU8().c_str());
         }
 
         if (ImGui::CollapsingHeader(localize.Translate("UI").c_str())) {
-            if (ImGui::Combo(localize.Translate("Scale").c_str(), &g_Config.ui_values.scale, avail_scale_factors)) {
+            LE::UIValues* ui_values = le_config->GetUIValues();
+
+            if (ImGui::Combo(localize.Translate("Scale").c_str(), &ui_values->scale, avail_scale_factors)) {
                 g_GUI.scale_changed = true;
                 save_required |= true;
             }
         }
 
         if (ImGui::CollapsingHeader(localize.Translate("Overlay").c_str())) {
-            save_required |= ImGui::Checkbox(localize.Translate("stop_draw_at_startup").c_str(), &g_Config.overlay_values.stop_draw_at_startup);
-            save_required |= ImGui::Checkbox(localize.Translate("hide_all_windows_at_startup").c_str(), &g_Config.overlay_values.hide_all_windows_at_startup);
-        }
-
-        ImGui::PushID("hotkeys_collapsing");
-        if (ImGui::CollapsingHeader(localize.Translate("Hotkeys").c_str()) && has_keys_options) {
-            HotkeyMultiCombo("Show Menu: ", "multi_show_menu_key", g_Config.hotkeys_values.show_menu_keys);
-            HotkeyMultiCombo("Hide UI: ", "multi_hide_ui_key", g_Config.hotkeys_values.hide_ui_keys);
-        }
-        ImGui::PopID();
-
-        if (ImGui::CollapsingHeader(localize.Translate("Match-Fixing").c_str())) {
-            save_required |= ImGui::InputInt("Goals Scored", &g_Config.matchfixing_values.goals_scored);
-            save_required |= ImGui::InputInt("Goals Conceded", &g_Config.matchfixing_values.goals_conceded);
+            LE::OverlayValues* overlay_values = le_config->GetOverlayValues();
+            save_required |= ImGui::Checkbox(localize.Translate("stop_draw_at_startup").c_str(), &overlay_values->stop_draw_at_startup);
+            save_required |= ImGui::Checkbox(localize.Translate("hide_all_windows_at_startup").c_str(), &overlay_values->hide_all_windows_at_startup);
         }
 
         if (ImGui::CollapsingHeader(localize.Translate("Launcher").c_str())) {
-            save_required |= ImGui::Checkbox("Show Warning at startup", &g_Config.launch_values.show_disclaimer_msg);
-
+            save_required |= ImGui::Checkbox("Show Warning at startup", &launch_values->show_disclaimer_msg);
+            
             if (ImGui::IsItemHovered())
                 ImGui::SetTooltip("Shows the Disclaimer Warning at Live Editor Launcher start.");
         }
 
         if (ImGui::CollapsingHeader(localize.Translate("Other").c_str())) {
-            //if (ImGui::Checkbox(localize.Translate("disable_chants_short").c_str(), &g_Config.other_values.disable_chants)) {
-            //    save_required |= true;
-            //}
+            LE::OtherValues* other_values = le_config->GetOtherValues();
 
-            //if (ImGui::IsItemHovered())
-            //    ImGui::SetTooltip(localize.Translate("disable_chants").c_str());
-
-            save_required |= ImGui::Checkbox(localize.Translate("show_player_potential").c_str(), &g_Config.other_values.show_player_potential);
-            save_required |= ImGui::Checkbox(localize.Translate("load_images_short").c_str(), &g_Config.other_values.load_images);
+            save_required |= ImGui::Checkbox(localize.Translate("show_player_potential").c_str(), &other_values->show_player_potential);
+            save_required |= ImGui::Checkbox(localize.Translate("load_images_short").c_str(), &other_values->load_images);
             if (ImGui::IsItemHovered())
                 ImGui::SetTooltip(localize.Translate("load_images").c_str());
 
         }
 
         if (save_required) {
-            g_Config.Save();
+            le_config->Save();
         }
 
         ImGui::End();
@@ -187,7 +170,7 @@ namespace UIWindows {
         return window_name.c_str();
     }
 
-    void UISettings::HotkeyMultiCombo(const char* label, std::string id, core::HotkeysValues::Hotkey& for_hotkey) {
+    void UISettings::HotkeyMultiCombo(const char* label, std::string id, LE::HotkeysValues::Hotkey& for_hotkey) {
         float font_sz = ImGui::GetFontSize();
         auto& style = ImGui::GetStyle();
 
@@ -196,7 +179,7 @@ namespace UIWindows {
         auto avail_space = ImGui::GetContentRegionAvail();
 
         if (ImGui::Checkbox(label, &for_hotkey.enabled)) {
-            g_Config.Save();
+            // LE::Config::GetInstance()->Save();
         }
         ImGui::SameLine();
         if (for_hotkey.enabled) {
@@ -211,11 +194,11 @@ namespace UIWindows {
                 ImGui::BeginChild(combo_id.c_str(), ImVec2(hotkey_item_width, font_sz + (style.ItemInnerSpacing.y * 6)), false, ImGuiWindowFlags_NoScrollbar);
 
                 if (available_keys_to_assign.count(for_hotkey.keys_combination[i]) != 1) {
-                    LOG_ERROR(std::format("[{}] [LCOMBO] Unknown key: {}", __FUNCTION__, for_hotkey.keys_combination[i]));
+                    // LOG_ERROR(std::format("[{}] [LCOMBO] Unknown key: {}", __FUNCTION__, for_hotkey.keys_combination[i]));
                 }
 
                 if (ImGui::LCombo("", &for_hotkey.keys_combination[i], available_keys_to_assign, translate, combo_id)) {
-                    g_Config.Save();
+                    // LE::Config::GetInstance()->Save();
                 }
                 ImGui::EndChild();
                 ImGui::EndGroup();

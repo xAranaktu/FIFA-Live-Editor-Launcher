@@ -1,37 +1,46 @@
+#pragma once
 #include "localize.h"
 
-Localize::Localize() {
+Localize::Localize() {}
+Localize::~Localize() {}
+
+void Localize::from_json(const json& j) {
+    if (j.contains("translations")) {
+        j.at("translations").get_to(translated_strings);
+    }
 }
 
-
-void Localize::SetLangPath(const std::filesystem::path& dllFolder) {
-    langPath = dllFolder / "Lang";
-}
-
-void Localize::LoadLangTrans(const std::string& lang) {
-    loadedLang = lang;
-    const std::filesystem::path langFile = langPath / lang / "translate.json";
-    LOG_INFO(std::format("Loading language: {}", ToUTF8String(langFile)));
+void Localize::Load() {
+    const std::filesystem::path langFile = LE::FilesManager::GetInstance()->GetLangPath();
+    LOG_INFO(std::format("Load Language - {}", "eng_us"));
 
     if (!fs::exists(langFile)) {
-        LOG_ERROR(std::format("Can't Find {}", ToUTF8String(langFile)));
+        LOG_ERROR(std::format("Can't Find {}", ToUTF8String(langFile).c_str()));
         return;
     }
 
-    std::ifstream transtream(langFile);
+    json j = json::object();
+    std::ifstream _stream(langFile);
+    try {
+        j = json::parse(_stream);
+        from_json(j);
+    }
+    catch (nlohmann::json::exception& e) {
+        LOG_ERROR(std::format("Language Load Error {}", e.what()));
+    }
+    _stream.close();
 
-    transtream >> j;
-    LOG_INFO("Language loaded");
+    LOG_INFO("Language Loaded");
 }
 
 std::string Localize::Translate(const char* text, const std::map<std::string, std::string> data) {
     std::string to_format;
 
-    if (j.count(text) == 0) {
-        return std::string(text);
+    if (translated_strings.count(text) == 0) {
+        translated_strings[text] = text;
     }
 
-    to_format = j.at(text);
+    to_format = translated_strings.at(text);
 
     for (auto item : data) {
         std::string to_find = "{" + item.first + "}";

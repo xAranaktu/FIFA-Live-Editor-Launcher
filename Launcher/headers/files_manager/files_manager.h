@@ -7,6 +7,7 @@
 
 #include <consts.h>
 #include <logger/logger.h>
+#include <config.h>
 
 namespace fs = std::filesystem;
 
@@ -25,14 +26,25 @@ namespace LE {
 
         void CreateDirectories();
 
-        fs::path GetRoot();
+        std::string GetGameDirectoryU8();
+        std::string GetLEDataDirectoryU8();
+        std::string GetLEModsDirectoryU8();
 
-        fs::path GetGamePath();
-        fs::path GetLEDataPath();
-        fs::path GetLEModsPath();
+        fs::path GetRoot();
+        fs::path GetGameDirectory();
+        fs::path GetLEDataDirectory();
+        fs::path GetLEModsDirectory();
+        fs::path GetKeysDirectory();
 
         fs::path GetAnticheatLauncherPath();
         fs::path GetFakeAnticheatLauncherPath();
+
+        fs::path GetLangPath();
+        fs::path GetConfigPath();
+        fs::path GetLocaleKeyPath();
+
+        fs::path GetGameProcessFullPath();
+        const char* GetImGuiIni();
 
         // Detect 3rd Party Mods
         void DetectFIFAModManager();
@@ -41,20 +53,28 @@ namespace LE {
         // Logger
         void SetupLogger();
 
+        // Config
+        void SetupConfig();
+
+        bool SetCustomGameDir(fs::path _dir);
+        bool SetLEDataDir(fs::path _dir);
+        bool SetLEModsDir(fs::path _dir);
+
     private:
         static FilesManager* pinstance_;
         static std::mutex mutex_;
 
         fs::path tool_root;
+        fs::path game_root;
+        fs::path data_root;
+        fs::path mods_root;
 
         std::string ToUTF8String(const std::filesystem::path& value);
 
         fs::path GetGameInstallDirFromReg();
+        fs::path GetCustomGameInstallDirFromReg();
         fs::path GetLEDataDirFromReg();
         fs::path GetLEModsDirFromReg();
-
-        bool SetLEDataDir(fs::path _dir);
-        bool SetLEModsDir(fs::path _dir);
 
         fs::path GetLERegPathKey(const char* value_name);
         bool SetLERegPathKey(const wchar_t* value_name, fs::path _dir);

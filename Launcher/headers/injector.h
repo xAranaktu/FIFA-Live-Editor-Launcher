@@ -51,7 +51,6 @@ public:
     Injector();
     ~Injector();
 
-    void SetDelay(int d);
     void SetStatus(STATUS _status);
     STATUS GetStatus();
     std::string GetStatusName();
@@ -79,7 +78,6 @@ private:
     // Errors
     std::map<int, std::string> m_game_ids_errors;
 
-    int delay = 100;
     bool should_interupt = false;
 
     bool SetAccessControl(const wchar_t* file, const wchar_t* access);

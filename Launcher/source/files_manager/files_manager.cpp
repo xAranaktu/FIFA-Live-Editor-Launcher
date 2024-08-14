@@ -3,6 +3,9 @@
 namespace LE {
     FilesManager::FilesManager() {
         tool_root.clear();
+        game_root.clear();
+        data_root.clear();
+        mods_root.clear();
 
         char fullModPath[MAX_PATH];
         if (GetModuleFileNameA(GetModuleHandle(NULL), fullModPath, MAX_PATH))
@@ -25,12 +28,10 @@ namespace LE {
                 LOG_ERROR(std::format("Anticheat Launcher not found ({})", ToUTF8String(anticheat_path).c_str()));
                 return;
             }
-            LOG_INFO(std::format("Anticheat Launcher found at {}", ToUTF8String(anticheat_path).c_str()));
 
             // Check if Anticheat Launcher is bigger than 1MB to enusre it's not a fake one
             if (fs::file_size(anticheat_path) > 0x100000) {
                 fs::path anticheat_path_bak = anticheat_path.parent_path() / (anticheat_path.filename().string() + ".backup");
-                LOG_INFO(std::format("Backing up Anticheat Launcher to {}", ToUTF8String(anticheat_path_bak).c_str()));
                 if (fs::exists(anticheat_path_bak))    fs::remove(anticheat_path_bak);
                 fs::copy(anticheat_path, anticheat_path_bak);
             }
@@ -67,11 +68,7 @@ namespace LE {
     }
 
     void FilesManager::InstallFakeAnticheat() {
-        // TODO Check if game install dir is valid
-
-        fs::path game_loc = GetGamePath();
-        if (game_loc.empty() || !fs::exists(game_loc)) return;
-        game_loc /= std::format("FC{}.exe", EAFC_EDITION);
+        fs::path game_loc = GetGameProcessFullPath();
         if (!fs::exists(game_loc)) return;
 
         RestoreAnticheat();
@@ -120,7 +117,7 @@ namespace LE {
 
     void FilesManager::CreateDirectories() {
         // Creates C:\FC <YEAR> Live Editor
-        auto data_path = GetLEDataPath();
+        auto data_path = GetLEDataDirectory();
         SafeCreateDirectories(data_path);
         SafeCreateDirectories(data_path / "extensions");
         SafeCreateDirectories(data_path / "keys");
@@ -128,25 +125,55 @@ namespace LE {
         SafeCreateDirectories(data_path / "lua" / "autorun");
 
         // Creates C:\FC <YEAR> Live Editor\mods
-        auto mods_path = GetLEModsPath();
+        auto mods_path = GetLEModsDirectory();
         SafeCreateDirectories(mods_path);
         SafeCreateDirectories(mods_path / "legacy");
+    }
+
+    std::string FilesManager::GetGameDirectoryU8() {
+        return ToUTF8String(GetGameDirectory());
+    }
+
+    std::string FilesManager::GetLEDataDirectoryU8() {
+        return ToUTF8String(GetLEDataDirectory());
+    }
+
+    std::string FilesManager::GetLEModsDirectoryU8() {
+        return ToUTF8String(GetLEModsDirectory());
     }
 
     fs::path FilesManager::GetRoot() {
         return tool_root;
     }
 
-    fs::path FilesManager::GetGamePath() {
-        fs::path result = GetGameInstallDirFromReg();
-        if (result.empty()) {
+    fs::path FilesManager::GetGameDirectory() {
+        if (!game_root.empty()) return game_root;
 
+        fs::path result = GetCustomGameInstallDirFromReg();
+        if (
+            result.empty() ||
+            !fs::exists(result) ||
+            !fs::is_directory(result)
+        ) {
+            result = GetGameInstallDirFromReg();
         }
+
+        if (result.empty()) {
+            LOG_WARN("Can't find game directory in registry");
+        }
+
+        if (fs::exists(result))
+            game_root = result;
+
         return result;
     }
 
-    fs::path FilesManager::GetLEDataPath() {
+    fs::path FilesManager::GetLEDataDirectory() {
+        if (!data_root.empty())   return data_root;
+
         fs::path result = GetLEDataDirFromReg();
+        if (!fs::exists(result) || !fs::is_directory(result))    result.clear();
+
         if (result.empty()) {
             char* system_drive{ nullptr };
             size_t count{ 0 };
@@ -162,20 +189,35 @@ namespace LE {
             SetLEDataDir(result);
         }
 
+        if (fs::exists(result))
+            data_root = result;
+
         return result;
     }
 
-    fs::path FilesManager::GetLEModsPath() {
+    fs::path FilesManager::GetLEModsDirectory() {
+        if (!mods_root.empty()) return mods_root;
+
         fs::path result = GetLEModsDirFromReg();
+        if (!fs::exists(result) || !fs::is_directory(result))    result.clear();
+
         if (result.empty()) {
-            result = GetLEDataPath() / "mods";
+            result = GetLEDataDirectory() / "mods";
             SetLEModsDir(result);
         }
+
+        if (fs::exists(result))
+            mods_root = result;
+
         return result;
+    }
+
+    fs::path FilesManager::GetKeysDirectory() {
+        return GetLEDataDirectory() / "keys";
     }
 
     fs::path FilesManager::GetAnticheatLauncherPath() {
-        fs::path result = GetGamePath();
+        fs::path result = GetGameDirectory();
         if (result.empty()) return result;
 
         return result / "EAAntiCheat.GameServiceLauncher.exe";
@@ -183,6 +225,18 @@ namespace LE {
 
     fs::path FilesManager::GetFakeAnticheatLauncherPath() {
         return  tool_root / "FakeEAACLauncher" / "EAAntiCheat.GameServiceLauncher.exe";
+    }
+
+    fs::path FilesManager::GetLangPath() {
+        return tool_root / "loc" / "eng_us" / "localize.json";
+    }
+
+    fs::path FilesManager::GetConfigPath() {
+        return GetLEDataDirectory() / "le_config.json";
+    }
+
+    fs::path FilesManager::GetLocaleKeyPath() {
+        return GetKeysDirectory() / "localeini.key";
     }
 
     // HKEY_LOCAL_MACHINE\SOFTWARE\EA Sports\EA SPORTS FC <YEAR>\Install Dir
@@ -216,6 +270,11 @@ namespace LE {
         return result;
     }
 
+    // HKEY_LOCAL_MACHINE\SOFTWARE\Live Editor\FC <YEAR>\Game Dir
+    fs::path FilesManager::GetCustomGameInstallDirFromReg() {
+        return GetLERegPathKey("Game Dir");
+    }
+
     // HKEY_LOCAL_MACHINE\SOFTWARE\Live Editor\FC <YEAR>\Data Dir
     fs::path FilesManager::GetLEDataDirFromReg() {
         return GetLERegPathKey("Data Dir");
@@ -226,16 +285,34 @@ namespace LE {
         return GetLERegPathKey("Mods Dir");
     }
 
+    bool FilesManager::SetCustomGameDir(fs::path _dir) {
+        game_root = _dir;
+        return SetLERegPathKey(L"Game Dir", _dir);
+    }
+
     bool FilesManager::SetLEDataDir(fs::path _dir) {
+        data_root = _dir;
         return SetLERegPathKey(L"Data Dir", _dir);
     }
 
     bool FilesManager::SetLEModsDir(fs::path _dir) {
+        mods_root = _dir;
         return SetLERegPathKey(L"Mods Dir", _dir);
     }
 
+    fs::path FilesManager::GetGameProcessFullPath() {
+        LE::Config* le_config = LE::Config::GetInstance();
+        std::string proc_name = le_config->IsTrial() ? le_config->GetProcNameTrial() : le_config->GetProcName();
+
+        return GetGameDirectory() / proc_name;
+    }
+
+    const char* FilesManager::GetImGuiIni() {
+        return ToUTF8String(GetLEDataDirectory() / "le_launcher_imgui.ini").c_str();
+    }
+
     void FilesManager::DetectFIFAModManager() {
-        fs::path game_loc = GetGamePath();
+        fs::path game_loc = GetGameDirectory();
         if (game_loc.empty() || !fs::exists(game_loc)) return;
 
         std::filesystem::path FIFAModDataDir = tool_root / "FIFAModData";
@@ -261,8 +338,12 @@ namespace LE {
         defaultLogger.SetFile(logFile);
     }
 
+    void FilesManager::SetupConfig() {
+        LE::Config::GetInstance()->Init(GetConfigPath());
+    }
+
     void FilesManager::DetectAnadius() {
-        fs::path game_loc = GetGamePath();
+        fs::path game_loc = GetGameDirectory();
         if (game_loc.empty() || !fs::exists(game_loc)) return;
 
         std::filesystem::path Anadiuscfg = game_loc / "anadius.cfg";

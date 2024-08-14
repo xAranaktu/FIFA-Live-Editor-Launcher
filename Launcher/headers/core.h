@@ -41,13 +41,10 @@ public:
     std::string GetGameVer();
     std::string GetTU();
 
-    // Create Live Editor Folders and Files in C:/ (or other drive, depending on result of std::getenv("SystemDrive"))
-    bool InitDirectories();
-
     void RunGame();
 
 private:
-    void SetupLocalize();
+
 };
 
 extern Core g_Core;

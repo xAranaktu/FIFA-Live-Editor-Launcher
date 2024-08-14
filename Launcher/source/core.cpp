@@ -29,28 +29,28 @@ bool Core::Init()
         return false;
     }
 
+    LE::Config* le_config = LE::Config::GetInstance();
+
     LE::FilesManager* files_manager = LE::FilesManager::GetInstance();
     files_manager->SetupLogger();
     files_manager->CreateDirectories();
+    files_manager->SetupConfig();
 
-    std::filesystem::path game_install_dir = files_manager->GetGamePath();
+    std::filesystem::path game_install_dir = files_manager->GetGameDirectory();
 
     LOG_INFO(std::format("{} {}", TOOL_NAME, TOOL_VERSION));
     LOG_INFO(std::format("Game Install Dir: {}", ToUTF8String(game_install_dir).c_str()));
     LOG_INFO(std::format("Live Editor Dir: {}", ToUTF8String(le_dir).c_str()));
 
-    std::string procname = std::format("FC{}.exe", EAFC_EDITION);
-    std::filesystem::path proc_full_path = game_install_dir / procname;
+    std::filesystem::path proc_full_path = files_manager->GetGameProcessFullPath();
     if (!std::filesystem::exists(proc_full_path)) {
-        std::string msg = std::format("Can't find {} in :\n{}", procname, ToUTF8String(game_install_dir));
-        LOG_FATAL(msg);
+        LOG_FATAL(std::format("Can't find file\n{}", ToUTF8String(proc_full_path).c_str()));
     }
 
     files_manager->InstallFakeAnticheat();
 
-    SetupLocalize();
-
-    g_options_ids.LoadJson();
+    localize.Load();
+    // g_options_ids.LoadJson();
 
     LOG_INFO(std::format("[{}] Done", __FUNCTION__));
 
@@ -70,7 +70,7 @@ std::string Core::GetGameVer() {
     LOG_INFO(std::format("[{}]", __FUNCTION__));
     std::string result = "0.0.0.0";
 
-    auto game_loc = LE::FilesManager::GetInstance()->GetGamePath();
+    auto game_loc = LE::FilesManager::GetInstance()->GetGameDirectory();
     if (game_loc.empty() || !fs::exists(game_loc)) {
         return result;
     }
@@ -146,26 +146,20 @@ std::string Core::GetTU() {
 void Core::RunGame() {
     LOG_INFO(std::format("[{}]", __FUNCTION__));
 
-    std::string proc_name = g_Config.launch_values.game_proc_name;
+    LE::Config* le_config = LE::Config::GetInstance();
 
     std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
-    std::wstring params = converter.from_bytes(g_Config.launch_values.params);
+    std::wstring params = converter.from_bytes(le_config->GetParams());
 
-    if (g_Config.launch_values.is_trial) {
-        proc_name = g_Config.launch_values.game_proc_name_trial;
+    if (le_config->IsTrial()) {
         params += L" -trial";
     }
 
-    auto game_loc = LE::FilesManager::GetInstance()->GetGamePath();
-    if (game_loc.empty() || !fs::exists(game_loc)) {
-        return;
-    }
-
-    std::filesystem::path game_full_path = game_loc / proc_name;
-
+    LE::FilesManager* files_manager = LE::FilesManager::GetInstance();
+    fs::path game_full_path = files_manager->GetGameProcessFullPath();
     if (fs::exists(game_full_path)) {
-        auto sFullPath = ToUTF8String(game_full_path);
-        LOG_INFO(std::format("game_full_path: {}", sFullPath));
+        LOG_INFO(std::format("Game Location: {}", ToUTF8String(game_full_path).c_str()));
+        LOG_INFO(std::format("Launch Options: {}", ToUTF8String(params).c_str()));
 
         SHELLEXECUTEINFOW ShExecInfo;
         ShExecInfo.cbSize = sizeof(SHELLEXECUTEINFOW);
@@ -192,22 +186,5 @@ void Core::RunGame() {
 
         MessageBoxW(NULL, msg.c_str(), L"ERROR", MB_ICONERROR);
     }
-}
-
-void Core::SetupLocalize() {
-    LOG_INFO(std::format("[{}]", __FUNCTION__));
-    localize.SetLangPath(ctx.GetFolder());
-    localize.LoadLangTrans("EN");
-
-    LOG_INFO(std::format("[{}] Done", __FUNCTION__));
-}
-
-bool Core::InitDirectories() {
-    LOG_INFO(std::format("[{}]", __FUNCTION__));
-
-    // g_Config.Load();
-
-    LOG_INFO(std::format("[{}] Done", __FUNCTION__));
-    return true;
 }
 Core g_Core;

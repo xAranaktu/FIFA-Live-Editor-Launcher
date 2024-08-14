@@ -8,6 +8,7 @@
 #include "imgui_stdlib.h"
 #include "AES.h"
 
+#include <files_manager/files_manager.h>
 #include "core.h"
 
 namespace UIWindows {

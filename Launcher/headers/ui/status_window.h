@@ -10,6 +10,7 @@
 #include "imgui_stdlib.h"
 
 #include "injector.h"
+#include "files_manager/files_manager.h"
 
 namespace UIWindows {
     class UIStatus

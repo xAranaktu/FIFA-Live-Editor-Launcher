@@ -10,21 +10,20 @@ namespace UIWindows {
         file_content = "Key file not found. Run the game at least once to extract the key from game.";
 
         LoadKey();
-        
-        locale_file = g_Config.directories_values.mods_root / "locale.ini";
-        locale_backup = g_Config.directories_values.mods_root / "locale_backup.ini";
-        org_locale_path = g_Core.GetGameInstallDir() / "Data" / "locale.ini";
-        if (!fs::exists(locale_backup)) {
-            if (!fs::exists(org_locale_path)) {
-                LOG_WARN(std::format("Can't find {}", ToUTF8String(org_locale_path).c_str()));
-            }
 
+        LE::FilesManager* files_manager = LE::FilesManager::GetInstance();
+        org_locale_path = files_manager->GetGameDirectory() / "Data" / "locale.ini";
+        if (!fs::exists(org_locale_path)) return;
+
+        locale_file = files_manager->GetLEModsDirectory() / "locale.ini";
+        locale_backup = files_manager->GetLEModsDirectory() / "locale_backup.ini";
+
+        if (!fs::exists(locale_backup)) {
             fs::copy_file(org_locale_path, locale_backup);
-            fs::copy_file(locale_backup, locale_file);
         }
 
         if (!fs::exists(locale_file)) {
-            fs::copy_file(locale_backup, locale_file);
+            fs::copy_file(org_locale_path, locale_file);
         }
 
         LoadLocale();
@@ -60,24 +59,6 @@ namespace UIWindows {
                 if (ImGui::MenuItem("Save")) {
                     SaveFileContent();
                 }
-
-                /*
-                if (ImGui::MenuItem("Open Encrypted")) {
-
-                }
-                if (ImGui::IsItemHovered()) {
-                    ImGui::SetTooltip("Open locale.ini file and decrypt it");
-                }
-                */
-
-                /*
-                if (ImGui::MenuItem("Open Decrypted")) {
-
-                }
-                if (ImGui::IsItemHovered()) {
-                    ImGui::SetTooltip("Open locale.ini file that doesn't require data decryption");
-                }
-                */
 
                 if (ImGui::MenuItem("Restore Original")) {
                     RestoreOrgLocale();
@@ -264,9 +245,8 @@ namespace UIWindows {
     }
 
     void UILocaleIni::LoadKey() {
-        std::filesystem::path keyfile_path = g_Core.GetLEDataPath() / "data" / "localeini.key";
+        std::filesystem::path keyfile_path = LE::FilesManager::GetInstance()->GetLocaleKeyPath();
         if (!fs::exists(keyfile_path)) {
-            LOG_WARN(std::format("[{}] File not found {}", __FUNCTION__, ToUTF8String(keyfile_path).c_str()));
             return;
         }
 
