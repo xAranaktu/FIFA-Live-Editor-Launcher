@@ -26,6 +26,7 @@ namespace LE {
 
         void CreateDirectories();
 
+        // Directories
         std::string GetGameDirectoryU8();
         std::string GetLEDataDirectoryU8();
         std::string GetLEModsDirectoryU8();
@@ -36,13 +37,12 @@ namespace LE {
         fs::path GetLEModsDirectory();
         fs::path GetKeysDirectory();
 
+        // Full file paths
         fs::path GetAnticheatLauncherPath();
         fs::path GetFakeAnticheatLauncherPath();
-
         fs::path GetLangPath();
         fs::path GetConfigPath();
         fs::path GetLocaleKeyPath();
-
         fs::path GetGameProcessFullPath();
         const char* GetImGuiIni();
 

@@ -48,6 +48,8 @@ bool Core::Init()
     }
 
     files_manager->InstallFakeAnticheat();
+    files_manager->DetectFIFAModManager();
+    files_manager->DetectAnadius();
 
     localize.Load();
     // g_options_ids.LoadJson();
@@ -155,11 +157,14 @@ void Core::RunGame() {
         params += L" -trial";
     }
 
+    if (!params.empty()) {
+        LOG_INFO(std::format("Launch Options: {}", ToUTF8String(params).c_str()));
+    }
+
     LE::FilesManager* files_manager = LE::FilesManager::GetInstance();
     fs::path game_full_path = files_manager->GetGameProcessFullPath();
     if (fs::exists(game_full_path)) {
         LOG_INFO(std::format("Game Location: {}", ToUTF8String(game_full_path).c_str()));
-        LOG_INFO(std::format("Launch Options: {}", ToUTF8String(params).c_str()));
 
         SHELLEXECUTEINFOW ShExecInfo;
         ShExecInfo.cbSize = sizeof(SHELLEXECUTEINFOW);

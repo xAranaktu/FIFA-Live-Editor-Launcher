@@ -114,23 +114,6 @@ namespace LE {
         }
     }
 
-    void MatchFixingValues::to_json(json& j) {
-        j = json{
-            {"goals_scored",     goals_scored},
-            {"goals_conceded",   goals_conceded}
-        };
-    }
-
-    void MatchFixingValues::from_json(const json& j) {
-        if (j.contains("goals_scored")) {
-            j.at("goals_scored").get_to(goals_scored);
-        }
-
-        if (j.contains("goals_conceded")) {
-            j.at("goals_conceded").get_to(goals_conceded);
-        }
-    }
-
     void HotkeysValues::Hotkey::to_json(json& j) {
         j = json{
             {"enabled",     enabled},
@@ -338,10 +321,6 @@ namespace LE {
         j["ui"] = tmp;
         tmp.clear();
 
-        matchfixing_values.to_json(tmp);
-        j["match_fixing"] = tmp;
-        tmp.clear();
-
         hotkeys_values.to_json(tmp);
         j["hotkeys"] = tmp;
         tmp.clear();
@@ -374,10 +353,6 @@ namespace LE {
 
         if (j.contains("launcher")) {
             launch_values.from_json(j.at("launcher"));
-        }
-
-        if (j.contains("match_fixing")) {
-            matchfixing_values.from_json(j.at("match_fixing"));
         }
 
         if (j.contains("hotkeys")) {
