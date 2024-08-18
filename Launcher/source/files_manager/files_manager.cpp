@@ -17,6 +17,7 @@ namespace LE {
     
     }
 
+#pragma region EAAC
     void FilesManager::BackupAnticheat() {
         LOG_FUNC_START();
 
@@ -115,6 +116,8 @@ namespace LE {
         LOG_FUNC_END();
     }
 
+#pragma endregion EAAC
+
     void FilesManager::CreateDirectories() {
         // Creates C:\FC <YEAR> Live Editor
         auto data_path = GetLEDataDirectory();
@@ -128,18 +131,6 @@ namespace LE {
         auto mods_path = GetLEModsDirectory();
         SafeCreateDirectories(mods_path);
         SafeCreateDirectories(mods_path / "legacy");
-    }
-
-    std::string FilesManager::GetGameDirectoryU8() {
-        return ToUTF8String(GetGameDirectory());
-    }
-
-    std::string FilesManager::GetLEDataDirectoryU8() {
-        return ToUTF8String(GetLEDataDirectory());
-    }
-
-    std::string FilesManager::GetLEModsDirectoryU8() {
-        return ToUTF8String(GetLEModsDirectory());
     }
 
     fs::path FilesManager::GetRoot() {
@@ -427,6 +418,20 @@ namespace LE {
             LOG_ERROR(std::format("Create Directory failed ({})", ToUTF8String(_dir).c_str()));
         }
     }
+
+#pragma region UTF8Directories
+    std::string FilesManager::GetGameDirectoryU8() {
+        return ToUTF8String(GetGameDirectory());
+    }
+
+    std::string FilesManager::GetLEDataDirectoryU8() {
+        return ToUTF8String(GetLEDataDirectory());
+    }
+
+    std::string FilesManager::GetLEModsDirectoryU8() {
+        return ToUTF8String(GetLEModsDirectory());
+    }
+#pragma endregion UTF8Directories
 
     FilesManager* FilesManager::GetInstance()
     {

@@ -19,17 +19,14 @@ namespace LE {
         void operator=(const FilesManager&) = delete;
         static FilesManager* GetInstance();
 
+#pragma region EAAC
         void BackupAnticheat();
         void RestoreAnticheat();
         void InstallFakeAnticheat();
         void UnInstallFakeAnticheat();
+#pragma endregion EAAC
 
         void CreateDirectories();
-
-        // Directories
-        std::string GetGameDirectoryU8();
-        std::string GetLEDataDirectoryU8();
-        std::string GetLEModsDirectoryU8();
 
         fs::path GetRoot();
         fs::path GetGameDirectory();
@@ -59,6 +56,13 @@ namespace LE {
         bool SetCustomGameDir(fs::path _dir);
         bool SetLEDataDir(fs::path _dir);
         bool SetLEModsDir(fs::path _dir);
+
+#pragma region UTF8Directories
+        // Directories
+        std::string GetGameDirectoryU8();
+        std::string GetLEDataDirectoryU8();
+        std::string GetLEModsDirectoryU8();
+#pragma endregion UTF8Directories
 
     private:
         static FilesManager* pinstance_;
