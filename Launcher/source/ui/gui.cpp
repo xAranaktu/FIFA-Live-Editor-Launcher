@@ -171,8 +171,8 @@ void GUI::DrawMainMenuBar() {
                 ImGui::SetTooltip("Open folder with Logs in Windows File Explorer");
             }
 
-            ImGui::MenuItemURL("Wiki", "https://github.com/xAranaktu/FC-24-Live-Editor/wiki");
-            ImGui::MenuItemURL("Getting Started", "https://github.com/xAranaktu/FC-24-Live-Editor/wiki/Getting-Started");
+            ImGui::MenuItemURL("Wiki", "https://github.com/xAranaktu/FC-25-Live-Editor/wiki");
+            ImGui::MenuItemURL("Getting Started", "https://github.com/xAranaktu/FC-25-Live-Editor/wiki/Getting-Started");
             ImGui::MenuItemURL("Discord", "https://discord.gg/yxAbpmNaFX");
             ImGui::MenuItem("About", NULL, &show_about);
             ImGui::EndMenu();
