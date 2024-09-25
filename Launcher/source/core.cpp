@@ -50,6 +50,7 @@ bool Core::Init()
     files_manager->InstallFakeAnticheat();
     files_manager->DetectFIFAModManager();
     files_manager->DetectAnadius();
+    files_manager->SetInstallDir(le_dir);
 
     localize.Load();
     // g_options_ids.LoadJson();

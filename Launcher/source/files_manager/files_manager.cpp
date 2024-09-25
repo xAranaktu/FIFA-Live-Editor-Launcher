@@ -291,6 +291,10 @@ namespace LE {
         return SetLERegPathKey(L"Mods Dir", _dir);
     }
 
+    bool FilesManager::SetInstallDir(fs::path _dir) {
+        return SetLERegPathKey(L"Install Dir", _dir);
+    }
+
     fs::path FilesManager::GetGameProcessFullPath() {
         LE::Config* le_config = LE::Config::GetInstance();
         std::string proc_name = le_config->IsTrial() ? le_config->GetProcNameTrial() : le_config->GetProcName();

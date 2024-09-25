@@ -56,6 +56,7 @@ namespace LE {
         bool SetCustomGameDir(fs::path _dir);
         bool SetLEDataDir(fs::path _dir);
         bool SetLEModsDir(fs::path _dir);
+        bool SetInstallDir(fs::path _dir);
 
 #pragma region UTF8Directories
         // Directories
