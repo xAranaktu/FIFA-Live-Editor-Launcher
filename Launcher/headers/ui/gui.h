@@ -4,6 +4,7 @@
 #define IMGUI_DEFINE_MATH_OPERATORS
 #endif  // IMGUI_DEFINE_MATH_OPERATORS
 
+#include "fonts.h"
 #include "imgui.h"
 #include "imgui_internal.h"
 #include "imgui_helper.h"
@@ -13,6 +14,7 @@
 #include "status_window.h"
 #include "settings_window.h"
 #include "locale_window.h"
+#include "edit_hotkey_window.h"
 
 // Main User Interface
 class GUI

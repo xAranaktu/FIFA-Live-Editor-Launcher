@@ -11,6 +11,8 @@
 #include "../external/ImGuiFileDialog/ImGuiFileDialog.h"
 #include "../external/nlohmann/fifo_map.hpp"
 
+#include <hotkey_manager.h>
+#include <edit_hotkey_window.h>
 #include "localize.h"
 #include <logger/logger.h>
 #include "config.h"
@@ -35,6 +37,8 @@ namespace UIWindows {
         std::vector<std::string> avail_scale_factors = {
             "auto", "x1.0", "x1.25", "x1.5", "x1.75", "x2.0", "x2.25"
         };
+
+        void HotkeyEntry(LE::HotkeyAction* action);
 
         bool has_keys_options = false;
         void HotkeyMultiCombo(const char* label, std::string id, LE::HotkeysValues::Hotkey& for_hotkey);

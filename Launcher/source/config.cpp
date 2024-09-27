@@ -132,25 +132,18 @@ namespace LE {
     }
 
     void HotkeysValues::to_json(json& j) {
-        json obj_show_menu_keys = json::object();
-        json obj_hide_ui_keys = json::object();
+        json obj_show_ui_keys = json::object();
 
-        show_menu_keys.to_json(obj_show_menu_keys);
-        hide_ui_keys.to_json(obj_hide_ui_keys);
+        show_ui_keys.to_json(obj_show_ui_keys);
 
         j = json{
-            {"show_menu_keys",  obj_show_menu_keys},
-            {"hide_ui_keys",    obj_hide_ui_keys}
+            {"show_ui_keys",    obj_show_ui_keys}
         };
     }
 
     void HotkeysValues::from_json(const json& j) {
-        if (j.contains("show_menu_keys")) {
-            show_menu_keys.from_json(j.at("show_menu_keys"));
-        }
-
-        if (j.contains("hide_ui_keys")) {
-            hide_ui_keys.from_json(j.at("hide_ui_keys"));
+        if (j.contains("show_ui_keys")) {
+            show_ui_keys.from_json(j.at("show_ui_keys"));
         }
     }
 

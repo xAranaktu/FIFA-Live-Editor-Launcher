@@ -73,15 +73,25 @@ namespace LE {
             std::vector<int> keys_combination;
 
             Hotkey(std::vector<int> combination_arr) {
+                SetCombination(combination_arr);
+            }
+
+            void SetCombination(std::vector<int> combination_arr) {
                 keys_combination = combination_arr;
+            }
+
+            void SetCombination(std::vector<uint8_t> combination_arr) {
+                keys_combination.clear();
+                for (auto key : combination_arr) {
+                    keys_combination.push_back(key);
+                }
             }
 
             void to_json(json& j);
             void from_json(const json& j);
         };
 
-        Hotkey show_menu_keys = Hotkey({ 122,0,0 });    // F11
-        Hotkey hide_ui_keys =   Hotkey({ 120,0,0 });    // F9
+        Hotkey show_ui_keys =   Hotkey({ 120 });    // F9
 
         void to_json(json& j);
         void from_json(const json& j);
@@ -135,6 +145,7 @@ namespace LE {
         void Save();
 
         LauncherValues* GetLauncherValues() { return &launch_values; }
+        HotkeysValues* GetHotkeyValues() { return &hotkeys_values; }
         UIValues* GetUIValues() { return &ui_values; }
         OverlayValues* GetOverlayValues() { return &overlay_values; }
         OtherValues* GetOtherValues() { return &other_values; }

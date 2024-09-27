@@ -138,6 +138,12 @@ namespace UIWindows {
             save_required |= ImGui::Checkbox(localize.Translate("stop_draw_at_startup").c_str(), &overlay_values->stop_draw_at_startup);
             save_required |= ImGui::Checkbox(localize.Translate("hide_all_windows_at_startup").c_str(), &overlay_values->hide_all_windows_at_startup);
         }
+        ImGui::PushID("hotkeys_collapsing");
+        if (ImGui::CollapsingHeader(localize.Translate("Hotkeys").c_str())) {
+            LE::HotkeyManager* hotkey_manager = LE::HotkeyManager::GetInstance();
+            HotkeyEntry(hotkey_manager->GetHotkeyAction(LE::HotkeyActionID::ACTION_SHOW_UI));
+        }
+        ImGui::PopID();
 
         if (ImGui::CollapsingHeader(localize.Translate("Launcher").c_str())) {
             save_required |= ImGui::Checkbox("Show Warning at startup", &launch_values->show_disclaimer_msg);
@@ -168,6 +174,32 @@ namespace UIWindows {
     }
     const char* UISettings::GetWindowName() {
         return window_name.c_str();
+    }
+
+    void UISettings::HotkeyEntry(LE::HotkeyAction* action) {
+        std::string hotkey_name = action->GetName();
+
+        ImGui::PushID(hotkey_name.c_str());
+        if (ImGui::Button(ICON_FA_PEN_TO_SQUARE)) {
+            LE::EditHotkeyWindow::GetInstance()->Open(action);
+        }
+        if (ImGui::IsItemHovered())
+        {
+            ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(8.0f, 8.0f));
+            ImGui::SetTooltip("Click to edit hotkey");
+            ImGui::PopStyleVar();
+        }
+
+        ImGui::SameLine();
+
+        ImGui::Text(std::format("{} [{}]", hotkey_name.c_str(), action->GetCombination().c_str()).c_str());
+        if (ImGui::IsItemHovered()) {
+            ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(8.0f, 8.0f));
+            ImGui::SetTooltip(action->GetDescription().c_str());
+            ImGui::PopStyleVar();
+        }
+
+        ImGui::PopID();
     }
 
     void UISettings::HotkeyMultiCombo(const char* label, std::string id, LE::HotkeysValues::Hotkey& for_hotkey) {
