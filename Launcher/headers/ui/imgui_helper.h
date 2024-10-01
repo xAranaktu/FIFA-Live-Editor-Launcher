@@ -11,7 +11,7 @@
 #endif  // IMGUI_DEFINE_MATH_OPERATORS
 #include <imgui.h>
 #include <imgui_stdlib.h>
-#include "config.h"
+#include <config/config.h>
 #include "localize.h"
 #include "../external/nlohmann/fifo_map.hpp"
 

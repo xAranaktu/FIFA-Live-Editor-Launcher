@@ -15,7 +15,7 @@
 #include <edit_hotkey_window.h>
 #include "localize.h"
 #include <logger/logger.h>
-#include "config.h"
+#include <config/config.h>
 
 namespace UIWindows {
     class UISettings {
@@ -41,7 +41,6 @@ namespace UIWindows {
         void HotkeyEntry(LE::HotkeyAction* action);
 
         bool has_keys_options = false;
-        void HotkeyMultiCombo(const char* label, std::string id, LE::HotkeysValues::Hotkey& for_hotkey);
 
     };
 }

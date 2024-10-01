@@ -62,7 +62,7 @@ public:
     bool CanShutdown();
 
     // Get ALL game process IDs
-    std::vector<int> GetGamePIDs();
+    std::vector<int> GetGamePIDs(const char* target_proc);
     void Inject();
 
 private:

@@ -31,7 +31,7 @@ bool Injector::GetInterupt() {
 }
 
 bool Injector::CanShutdown() {
-    if (LE::Config::GetInstance()->CloseAfterInjection())
+    if (LE::Config::GetInstance()->GetLauncherValues()->close_after_injection)
         return GetStatus() == STATUS::STATUS_DONE;
 
     return false;
@@ -82,9 +82,7 @@ bool Injector::SetAccessControl(const wchar_t* file, const wchar_t* access)
     return result;
 }
 
-std::vector<int> Injector::GetGamePIDs() {
-    std::string target_proc = LE::Config::GetInstance()->GetProcName();
-
+std::vector<int> Injector::GetGamePIDs(const char* target_proc) {
     std::vector<int> result;
 
     TCHAR szProcessName[MAX_PATH] = TEXT("<unknown>");
@@ -113,7 +111,7 @@ std::vector<int> Injector::GetGamePIDs() {
         }
 
         if (
-            strcmp(szProcessName, target_proc.c_str()) == 0
+            strcmp(szProcessName, target_proc) == 0
         ) {
             result.push_back(processID);
         }
@@ -200,11 +198,12 @@ void Injector::Inject() {
     LOG_INFO(std::format("[{}]", __FUNCTION__));
 
     LE::Config* le_config = LE::Config::GetInstance();
+    LE::LauncherValues* launcher_values = le_config->GetLauncherValues();
 
     std::stringstream ssError;
 
     fulldll_dirs.clear();
-    for (std::string dll : le_config->GetDlls()) {
+    for (std::string dll : launcher_values->dlls) {
         fs::path fulldll_dir = g_Core.ctx.GetFolder() / dll;
         LOG_INFO(std::format("[{}] DLL dir: {}", __FUNCTION__, ToUTF8String(fulldll_dir).c_str()));
         if (!fs::exists(fulldll_dir)) {
@@ -215,12 +214,12 @@ void Injector::Inject() {
         fulldll_dirs.push_back(fulldll_dir);
     }
 
-    std::string proc_name = le_config->IsTrial() ? le_config->GetProcNameTrial() : le_config->GetProcName();
+    std::string proc_name = launcher_values->is_trial ? launcher_values->game_proc_name_trial : launcher_values->game_proc_name;
     LOG_INFO(std::format("[{}] Trying to inject into {}",  __FUNCTION__, proc_name.c_str()));
 
     SetStatus(STATUS_WAITING_FOR_GAME);
     LOG_INFO("STATUS_WAITING_FOR_GAME");
-    while (GetGamePIDs().empty())
+    while (GetGamePIDs(proc_name.c_str()).empty())
     {
         if (Interupt()) return;
 
@@ -228,7 +227,7 @@ void Injector::Inject() {
     }
 
     SetStatus(STATUS_INJECTING);
-    int delay = le_config->GetInjectionDelay();
+    int delay = le_config->GetLauncherValues()->injection_delay;
     LOG_INFO(std::format("STATUS_INJECTING, delay {} ms", delay));
     Sleep(delay);
 
@@ -241,7 +240,7 @@ void Injector::Inject() {
     {
         if (Interupt()) return;
 
-        std::vector<int> proc_ids = GetGamePIDs();
+        std::vector<int> proc_ids = GetGamePIDs(proc_name.c_str());
 
         if (proc_ids.empty())   attempts++;
 

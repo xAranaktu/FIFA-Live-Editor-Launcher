@@ -7,7 +7,7 @@
 
 #include <consts.h>
 #include <logger/logger.h>
-#include <config.h>
+#include <config/config.h>
 
 namespace fs = std::filesystem;
 

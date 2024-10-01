@@ -48,6 +48,11 @@ SET(ALL_HEADERS
     "headers/logger/enum.h"
     "headers/logger/const.h"
 
+    "headers/config/config.h"
+    "headers/config/settings.h"
+    "headers/config/values.h"
+    "headers/config/ui_styles.h"
+
     "headers/files_manager/files_manager.h"
 
     "headers/fonts.h"
@@ -55,7 +60,7 @@ SET(ALL_HEADERS
     "headers/localize.h"
     "headers/consts.h"
     "headers/options_id.h"
-    "headers/config.h"
+
     "headers/context.h"
     "headers/hotkey_manager.h"
     "headers/injector.h"
@@ -74,12 +79,16 @@ SET(ALL_HEADERS
 
 SET(ALL_CPP
     "source/logger/logger.cpp"
+    "source/config/config.cpp"
+    "source/config/settings.cpp"
+    "source/config/values.cpp"
+
     "source/files_manager/files_manager.cpp"
+
 
     "source/core.cpp"
     "source/localize.cpp"
     "source/options_id.cpp"
-    "source/config.cpp"
     "source/hotkey_manager.cpp"
     "source/injector.cpp"
     "source/misc.cpp"

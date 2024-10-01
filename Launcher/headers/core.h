@@ -9,7 +9,7 @@
 #include <misc.h>
 #include <logger/logger.h>
 #include <consts.h>
-#include <config.h>
+#include <config/config.h>
 #include <context.h>
 #include <Psapi.h>
 #include <TlHelp32.h>

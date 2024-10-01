@@ -46,7 +46,7 @@ int WinMain(
     }
 
     LE::Config* le_config = LE::Config::GetInstance();
-    if (le_config->ShowDisclaimer()) {
+    if (le_config->GetLauncherValues()->show_disclaimer_msg) {
         std::string msg = std::string(DisclaimerContent) + "\n\nDo you want to continue?";
 
         if (MessageBox(NULL, msg.c_str(), "Disclaimer", MB_ICONWARNING | MB_OKCANCEL) != IDOK) {
@@ -114,7 +114,7 @@ int WinMain(
     ImGui_ImplWin32_Init(hwnd);
     ImGui_ImplDX11_Init(g_pd3dDevice, g_pd3dDeviceContext);
 
-    if (le_config->AutoInject()) {
+    if (le_config->GetLauncherValues()->auto_inject) {
         std::thread t1(&Injector::Inject, &g_Injector);
         t1.detach();
     }

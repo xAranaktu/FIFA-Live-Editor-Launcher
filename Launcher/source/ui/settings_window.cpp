@@ -68,14 +68,8 @@ namespace UIWindows {
 
             LE::LoggerValues* logger_values = le_config->GetLoggerValues();
 
-            save_required |= ImGui::Checkbox(localize.Translate("log_try_find_chunk_file").c_str(), &logger_values->log_try_find_chunk_file);
-            save_required |= ImGui::Checkbox(localize.Translate("log_load_chunk_file").c_str(), &logger_values->log_load_chunk_file);
-            save_required |= ImGui::Checkbox(localize.Translate("log_iniread").c_str(), &logger_values->log_iniread);
-            save_required |= ImGui::Checkbox(localize.Translate("log_game_logs").c_str(), &logger_values->log_game_logs);
-
-            if (ImGui::Checkbox(localize.Translate("log_luaL_tolstring").c_str(), &logger_values->luaL_tolstring)) {
-                save_required |= true;
-            }
+            save_required |= ImGui::Checkbox(localize.Translate("log_try_find_legacy_file").c_str(), &logger_values->log_try_find_legacy_file);
+            save_required |= ImGui::Checkbox(localize.Translate("log_load_legacy_file").c_str(), &logger_values->log_load_legacy_file);
         }
 
         if (ImGui::CollapsingHeader(localize.Translate("Directories").c_str())) {
@@ -133,11 +127,6 @@ namespace UIWindows {
             }
         }
 
-        if (ImGui::CollapsingHeader(localize.Translate("Overlay").c_str())) {
-            LE::OverlayValues* overlay_values = le_config->GetOverlayValues();
-            save_required |= ImGui::Checkbox(localize.Translate("stop_draw_at_startup").c_str(), &overlay_values->stop_draw_at_startup);
-            save_required |= ImGui::Checkbox(localize.Translate("hide_all_windows_at_startup").c_str(), &overlay_values->hide_all_windows_at_startup);
-        }
         ImGui::PushID("hotkeys_collapsing");
         if (ImGui::CollapsingHeader(localize.Translate("Hotkeys").c_str())) {
             LE::HotkeyManager* hotkey_manager = LE::HotkeyManager::GetInstance();
@@ -156,9 +145,9 @@ namespace UIWindows {
             LE::OtherValues* other_values = le_config->GetOtherValues();
 
             save_required |= ImGui::Checkbox(localize.Translate("show_player_potential").c_str(), &other_values->show_player_potential);
-            save_required |= ImGui::Checkbox(localize.Translate("load_images_short").c_str(), &other_values->load_images);
-            if (ImGui::IsItemHovered())
-                ImGui::SetTooltip(localize.Translate("load_images").c_str());
+            // save_required |= ImGui::Checkbox(localize.Translate("auto_reload_images").c_str(), &other_values->load_images);
+            // if (ImGui::IsItemHovered())
+            //     ImGui::SetTooltip(localize.Translate("auto_reload_images_tooltip").c_str());
 
         }
 
@@ -200,63 +189,6 @@ namespace UIWindows {
         }
 
         ImGui::PopID();
-    }
-
-    void UISettings::HotkeyMultiCombo(const char* label, std::string id, LE::HotkeysValues::Hotkey& for_hotkey) {
-        float font_sz = ImGui::GetFontSize();
-        auto& style = ImGui::GetStyle();
-
-        ImGui::BeginGroup();
-        ImGui::BeginChild(id.c_str(), ImVec2(0, font_sz + (style.ItemInnerSpacing.y * 6)), true, ImGuiWindowFlags_NoScrollbar);
-        auto avail_space = ImGui::GetContentRegionAvail();
-
-        if (ImGui::Checkbox(label, &for_hotkey.enabled)) {
-            // LE::Config::GetInstance()->Save();
-        }
-        ImGui::SameLine();
-        if (for_hotkey.enabled) {
-            float hotkey_item_width = 65.0f;
-            //float item_cposx = avail_space.x - hotkey_item_width;
-            bool translate = false;
-            auto available_keys_to_assign = g_options_ids.GetOptions("keys", false);
-            for (int i = 0; i < 3; i++) {
-                std::string combo_id = id + std::to_string(i);
-                //ImGui::SetCursorPos(ImVec2(item_cposx, style.ItemInnerSpacing.y * 2));
-                ImGui::BeginGroup();
-                ImGui::BeginChild(combo_id.c_str(), ImVec2(hotkey_item_width, font_sz + (style.ItemInnerSpacing.y * 6)), false, ImGuiWindowFlags_NoScrollbar);
-
-                if (available_keys_to_assign.count(for_hotkey.keys_combination[i]) != 1) {
-                    // LOG_ERROR(std::format("[{}] [LCOMBO] Unknown key: {}", __FUNCTION__, for_hotkey.keys_combination[i]));
-                }
-
-                if (ImGui::LCombo("", &for_hotkey.keys_combination[i], available_keys_to_assign, translate, combo_id)) {
-                    // LE::Config::GetInstance()->Save();
-                }
-                ImGui::EndChild();
-                ImGui::EndGroup();
-                if (i < 2) {
-                    ImGui::SameLine();
-                    ImGui::Text("+");
-                    ImGui::SameLine();
-                    //if (ImGui::IsItemHovered()) {
-                    //    ImGui::SetTooltip("X: %0.2f, Y: %0.2f", plus_ico_sz.x, plus_ico_sz.y);
-                    //}
-
-                    //item_cposx -= font_sz;
-                }
-                //item_cposx -= hotkey_item_width;
-            }
-        }
-        else {
-            std::string disabled_txt = "<DISABLED>";
-            float disabled_width = ImGui::CalcTextSize(disabled_txt.c_str()).x;
-            ImGui::SameLine();
-            ImGui::SetCursorPosX(avail_space.x - disabled_width - font_sz * 2 - style.ItemInnerSpacing.x);
-            ImGui::Text(disabled_txt.c_str());
-        }
-
-        ImGui::EndChild();
-        ImGui::EndGroup();
     }
 }
 

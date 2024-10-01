@@ -6,7 +6,7 @@
 #include "imgui_stdlib.h"
 #include <format>
 
-#include "config.h"
+#include <config/config.h>
 #include "hotkey_manager.h"
 
 namespace LE {
