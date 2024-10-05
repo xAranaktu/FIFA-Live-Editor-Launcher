@@ -44,6 +44,8 @@ SET(EXTERNAL_SRC
 )
 
 SET(ALL_HEADERS
+    "headers/legacy_file_structure.h"
+
     "headers/logger/logger.h"
     "headers/logger/enum.h"
     "headers/logger/const.h"

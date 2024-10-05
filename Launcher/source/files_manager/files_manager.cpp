@@ -130,7 +130,18 @@ namespace LE {
         // Creates C:\FC <YEAR> Live Editor\mods
         auto mods_path = GetLEModsDirectory();
         SafeCreateDirectories(mods_path);
-        SafeCreateDirectories(mods_path / "legacy");
+
+        auto legacy_root = mods_path / "legacy";
+        SafeCreateDirectories(legacy_root);
+
+        if (!fs::exists(legacy_root / LEGACY_DIRECTORIES[0])) {
+            LOG_INFO("Creating legacy directories");
+            for (size_t i = 0; i < sizeof(LEGACY_DIRECTORIES) / sizeof(LEGACY_DIRECTORIES[0]); i++)
+            {
+                SafeCreateDirectories(legacy_root / LEGACY_DIRECTORIES[i]);
+            }
+            LOG_INFO("Creating legacy directories Done");
+        }
     }
 
     fs::path FilesManager::GetRoot() {

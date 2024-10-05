@@ -5,6 +5,8 @@
 #include <format>
 #include <Psapi.h>
 
+#include <legacy_file_structure.h>
+
 #include <consts.h>
 #include <logger/logger.h>
 #include <config/config.h>
