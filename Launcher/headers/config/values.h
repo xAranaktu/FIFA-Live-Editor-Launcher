@@ -43,6 +43,14 @@ namespace LE {
         void from_json(const json& j);
     };
 
+    class OverlayValues {
+    public:
+        bool show_overlay_at_startup = true;
+
+        void to_json(json& j);
+        void from_json(const json& j);
+    };
+
     class LauncherValues {
     public:
         // Default Values

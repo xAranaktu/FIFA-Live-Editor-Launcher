@@ -38,9 +38,22 @@ namespace LE {
             {"scale",     scale},
         };
     }
+
     void UIValues::from_json(const json& j) {
         if (j.contains("scale")) {
             j.at("scale").get_to(scale);
+        }
+    }
+
+    void OverlayValues::to_json(json& j) {
+        j = json{
+            {"show_overlay_at_startup",     show_overlay_at_startup},
+        };
+    }
+
+    void OverlayValues::from_json(const json& j) {
+        if (j.contains("show_overlay_at_startup")) {
+            j.at("show_overlay_at_startup").get_to(show_overlay_at_startup);
         }
     }
 

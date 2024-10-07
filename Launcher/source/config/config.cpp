@@ -69,6 +69,10 @@ namespace LE {
         j["ui"] = tmp;
         tmp.clear();
 
+        overlay_values.to_json(tmp);
+        j["overlay"] = tmp;
+        tmp.clear();
+
         launch_values.to_json(tmp);
         j["launcher"] = tmp;
         tmp.clear();
@@ -105,6 +109,10 @@ namespace LE {
     void Config::from_json(const json& j) {
         if (j.contains("ui")) {
             ui_values.from_json(j.at("ui"));
+        }
+
+        if (j.contains("overlay")) {
+            overlay_values.from_json(j.at("overlay"));
         }
 
         if (j.contains("launcher")) {

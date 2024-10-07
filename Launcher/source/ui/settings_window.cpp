@@ -127,6 +127,15 @@ namespace UIWindows {
             }
         }
 
+        if (ImGui::CollapsingHeader(localize.Translate("overlay").c_str())) {
+            LE::OverlayValues* overlay_values = le_config->GetOverlayValues();
+
+            save_required |= ImGui::Checkbox(localize.Translate("show_overlay_at_startup").c_str(), &overlay_values->show_overlay_at_startup);
+            if (ImGui::IsItemHovered()) {
+                ImGui::SetTooltip(localize.Translate("show_overlay_at_startup_tooltip").c_str());
+            }
+        }
+
         ImGui::PushID("hotkeys_collapsing");
         if (ImGui::CollapsingHeader(localize.Translate("Hotkeys").c_str())) {
             LE::HotkeyManager* hotkey_manager = LE::HotkeyManager::GetInstance();

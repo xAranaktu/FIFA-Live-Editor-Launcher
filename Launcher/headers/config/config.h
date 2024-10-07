@@ -30,6 +30,7 @@ namespace LE {
         void Save();
 
         UIValues* GetUIValues() { return &ui_values; }
+        OverlayValues* GetOverlayValues() { return &overlay_values; }
         LauncherValues* GetLauncherValues() { return &launch_values; }
         HotkeysValues* GetHotkeyValues() { return &hotkeys_values; }
         LoggerValues* GetLoggerValues() { return &logger_values; }
@@ -45,6 +46,7 @@ namespace LE {
         static std::mutex mutex_;
 
         UIValues ui_values;
+        OverlayValues overlay_values;
         LauncherValues launch_values;
         HotkeysValues hotkeys_values;
         LoggerValues logger_values;
