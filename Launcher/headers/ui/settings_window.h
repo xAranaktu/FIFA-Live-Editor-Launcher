@@ -11,6 +11,7 @@
 #include "../external/ImGuiFileDialog/ImGuiFileDialog.h"
 #include "../external/nlohmann/fifo_map.hpp"
 
+#include "ui/imgui_localize.h"
 #include <hotkey_manager.h>
 #include <edit_hotkey_window.h>
 #include "localize.h"
@@ -42,5 +43,6 @@ namespace UIWindows {
 
         bool has_keys_options = false;
 
+        bool AttrColor(const char* name, LESetting::Attribute* attr);
     };
 }

@@ -111,7 +111,7 @@ namespace LE {
     public:
         bool first_run = true;
         bool show_player_potential = true;
-        bool auto_reload_images = false;
+        bool auto_reload_images = true;
 
         void to_json(json& j);
         void from_json(const json& j);

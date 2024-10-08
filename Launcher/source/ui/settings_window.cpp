@@ -24,14 +24,15 @@ namespace UIWindows {
 
         ImGui::Begin(GetWindowName(), p_open);
 
-        if (ImGui::CollapsingHeader(localize.Translate("Advanced Launch Options").c_str())) {
+        if (ImGuiLoc::CollapsingHeader("advanced_launch_options")) {
             if (ImGui::InputText("##advlaunchoptions", &launch_values->params)) {
                 save_required |= true;
             }
         }
 
-        if (ImGui::CollapsingHeader(localize.Translate("DLL Injector").c_str())) {
-            if (ImGui::InputInt("Delay (ms)", &launch_values->injection_delay)) {
+
+        if (ImGuiLoc::CollapsingHeader("dll_injector")) {
+            if (ImGuiLoc::InputInt("inject_delay", &launch_values->injection_delay)) {
                 save_required |= true;
             }
 
@@ -39,7 +40,7 @@ namespace UIWindows {
                 ImGui::SetTooltip("The delay between game process found and the injection of Live Editor core dll\nToo short may cause problems/crashes\nToo long may result in some mods not being loaded properly");
             }
 
-            if (ImGui::Checkbox("Auto Close Launcher", &launch_values->close_after_injection)) {
+            if (ImGuiLoc::Checkbox("auto_close_launcher", &launch_values->close_after_injection)) {
                 save_required |= true;
             }
 
@@ -49,7 +50,7 @@ namespace UIWindows {
                 ImGui::SetTooltip("Live Editor will shutdown itself after successfull DLL injection. (recommended)");
             }
 
-            if (ImGui::Checkbox("Is Trial Game", &launch_values->is_trial)) {
+            if (ImGuiLoc::Checkbox("is_trial", &launch_values->is_trial)) {
                 save_required |= true;
             }
 
@@ -60,8 +61,8 @@ namespace UIWindows {
             }
         }
 
-        if (ImGui::CollapsingHeader(localize.Translate("Logger").c_str())) {
-            if (ImGui::Combo("Log Level", &current_log_level, avail_log_levels)) {
+        if (ImGuiLoc::CollapsingHeader("logger")) {
+            if (ImGuiLoc::Combo("log_level", &current_log_level, avail_log_levels)) {
                 defaultLogger.SetMinLevel(current_log_level);
                 save_required |= true;
             }
@@ -72,7 +73,7 @@ namespace UIWindows {
             save_required |= ImGui::Checkbox(localize.Translate("log_load_legacy_file").c_str(), &logger_values->log_load_legacy_file);
         }
 
-        if (ImGui::CollapsingHeader(localize.Translate("Directories").c_str())) {
+        if (ImGuiLoc::CollapsingHeader("directories")) {
             ImGui::Text("Game Location:     ");
             ImGui::SameLine();
             ImGui::PushID("##GameLocFDBTN");
@@ -118,46 +119,52 @@ namespace UIWindows {
             ImGui::Text(files_manager->GetLEModsDirectoryU8().c_str());
         }
 
-        if (ImGui::CollapsingHeader(localize.Translate("UI").c_str())) {
+        if (ImGuiLoc::CollapsingHeader("ui")) {
             LE::UIValues* ui_values = le_config->GetUIValues();
 
-            if (ImGui::Combo(localize.Translate("Scale").c_str(), &ui_values->scale, avail_scale_factors)) {
+            if (ImGuiLoc::CollapsingHeader("attr_colors")) {
+                LE::UIValues* ui_values = le_config->GetUIValues();
+
+                save_required |= AttrColor("elite", &ui_values->attr_elite);
+                save_required |= AttrColor("excellent", &ui_values->attr_excellent);
+                save_required |= AttrColor("good", &ui_values->attr_good);
+                save_required |= AttrColor("average", &ui_values->attr_average);
+                save_required |= AttrColor("poor", &ui_values->attr_poor);
+            }
+
+            if (ImGuiLoc::Combo("scale", &ui_values->scale, avail_scale_factors)) {
                 g_GUI.scale_changed = true;
                 save_required |= true;
             }
         }
 
-        if (ImGui::CollapsingHeader(localize.Translate("overlay").c_str())) {
+        if (ImGuiLoc::CollapsingHeader("overlay")) {
             LE::OverlayValues* overlay_values = le_config->GetOverlayValues();
 
-            save_required |= ImGui::Checkbox(localize.Translate("show_overlay_at_startup").c_str(), &overlay_values->show_overlay_at_startup);
-            if (ImGui::IsItemHovered()) {
-                ImGui::SetTooltip(localize.Translate("show_overlay_at_startup_tooltip").c_str());
-            }
+            save_required |= ImGuiLoc::Checkbox("show_overlay_at_startup", &overlay_values->show_overlay_at_startup);
+            ImGui::BasicTooltip("show_overlay_at_startup_tooltip");
         }
 
         ImGui::PushID("hotkeys_collapsing");
-        if (ImGui::CollapsingHeader(localize.Translate("Hotkeys").c_str())) {
+        if (ImGuiLoc::CollapsingHeader("hotkeys")) {
             LE::HotkeyManager* hotkey_manager = LE::HotkeyManager::GetInstance();
             HotkeyEntry(hotkey_manager->GetHotkeyAction(LE::HotkeyActionID::ACTION_SHOW_UI));
         }
         ImGui::PopID();
 
-        if (ImGui::CollapsingHeader(localize.Translate("Launcher").c_str())) {
-            save_required |= ImGui::Checkbox("Show Warning at startup", &launch_values->show_disclaimer_msg);
-            
-            if (ImGui::IsItemHovered())
-                ImGui::SetTooltip("Shows the Disclaimer Warning at Live Editor Launcher start.");
+        if (ImGuiLoc::CollapsingHeader("launcher")) {
+            save_required |= ImGuiLoc::Checkbox("show_warning_at_startup", &launch_values->show_disclaimer_msg);
+            ImGui::BasicTooltip("show_warning_at_startup_tooltip");
         }
 
-        if (ImGui::CollapsingHeader(localize.Translate("Other").c_str())) {
+        if (ImGuiLoc::CollapsingHeader("other")) {
             LE::OtherValues* other_values = le_config->GetOtherValues();
 
-            save_required |= ImGui::Checkbox(localize.Translate("show_player_potential").c_str(), &other_values->show_player_potential);
-            // save_required |= ImGui::Checkbox(localize.Translate("auto_reload_images").c_str(), &other_values->load_images);
-            // if (ImGui::IsItemHovered())
-            //     ImGui::SetTooltip(localize.Translate("auto_reload_images_tooltip").c_str());
+            save_required |= ImGuiLoc::Checkbox("show_player_potential", &other_values->show_player_potential);
+            ImGui::BasicTooltip("show_player_potential_tooltip");
 
+            save_required |= ImGuiLoc::Checkbox("auto_reload_images", &other_values->auto_reload_images);
+            ImGui::BasicTooltip("auto_reload_images_tooltip");
         }
 
         if (save_required) {
@@ -198,6 +205,28 @@ namespace UIWindows {
         }
 
         ImGui::PopID();
+    }
+
+    bool UISettings::AttrColor(const char* name, LESetting::Attribute* attr) {
+        bool save_required = false;
+
+        std::string bgid = std::format("attr_colors_{}_bg", name);
+        std::string txtid = std::format("attr_colors_{}_txt", name);
+        std::string thresholdid = std::format("attr_colors_{}_threshold", name);
+
+        ImGui::PushID(bgid.c_str());
+        save_required |= ImGuiLoc::ColorEdit3(bgid.c_str(), reinterpret_cast<float*>(&attr->bg_color));
+        ImGui::PopID();
+
+        ImGui::PushID(txtid.c_str());
+        save_required |= ImGuiLoc::ColorEdit3(txtid.c_str(), reinterpret_cast<float*>(&attr->txt_color));
+        ImGui::PopID();
+
+        ImGui::PushID(thresholdid.c_str());
+        save_required |= ImGuiLoc::InputInt(thresholdid.c_str(), &attr->threshold);
+        ImGui::PopID();
+
+        return save_required;
     }
 }
 

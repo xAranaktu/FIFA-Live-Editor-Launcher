@@ -69,6 +69,7 @@ SET(ALL_HEADERS
     "headers/misc.h"
 
     "headers/ui/gui.h"
+    "headers/ui/imgui_localize.h"
     "headers/ui/edit_hotkey_window.h"
     "headers/ui/settings_window.h"
     "headers/ui/locale_window.h"
@@ -95,6 +96,7 @@ SET(ALL_CPP
     "source/injector.cpp"
     "source/misc.cpp"
     "source/ui/gui.cpp"
+    "source/ui/imgui_localize.cpp"
     "source/ui/edit_hotkey_window.cpp"
     "source/ui/settings_window.cpp"
     "source/ui/locale_window.cpp"

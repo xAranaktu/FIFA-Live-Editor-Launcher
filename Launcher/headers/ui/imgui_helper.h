@@ -155,5 +155,13 @@ namespace ImGui {
             ImGui::SetTooltip("Open in browser\n%s", URL_);
         }
     }
+
+    inline void BasicTooltip(const char* key) {
+        if (ImGui::IsItemHovered()) {
+            ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(8.0f, 8.0f));
+            ImGui::SetTooltip(localize.Translate(key).c_str());
+            ImGui::PopStyleVar();
+        }
+    }
 }
 
