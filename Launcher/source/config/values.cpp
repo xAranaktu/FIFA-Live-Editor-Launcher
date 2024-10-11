@@ -161,12 +161,17 @@ namespace LE {
     void TransfersValues::to_json(json& j) {
         j = json{
             {"auto_delete_presigned_contracts", auto_delete_presigned_contracts},
+            {"auto_terminate_loans", auto_terminate_loans},
         };
     }
 
     void TransfersValues::from_json(const json& j) {
         if (j.contains("auto_delete_presigned_contracts")) {
             j.at("auto_delete_presigned_contracts").get_to(auto_delete_presigned_contracts);
+        }
+
+        if (j.contains("auto_terminate_loans")) {
+            j.at("auto_terminate_loans").get_to(auto_terminate_loans);
         }
     }
 

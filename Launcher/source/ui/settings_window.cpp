@@ -157,6 +157,16 @@ namespace UIWindows {
             ImGui::BasicTooltip("show_warning_at_startup_tooltip");
         }
 
+        if (ImGuiLoc::CollapsingHeader("transfers")) {
+            LE::TransfersValues* transfer_values = le_config->GetTransfersValues();
+
+            save_required |= ImGuiLoc::Checkbox("auto_delete_presigned_contracts", &transfer_values->auto_delete_presigned_contracts);
+            ImGui::BasicTooltip("auto_delete_presigned_contracts_tooltip");
+
+            save_required |= ImGuiLoc::Checkbox("auto_terminate_loans", &transfer_values->auto_terminate_loans);
+            ImGui::BasicTooltip("auto_terminate_loans_tooltip");
+        }
+
         if (ImGuiLoc::CollapsingHeader("other")) {
             LE::OtherValues* other_values = le_config->GetOtherValues();
 
