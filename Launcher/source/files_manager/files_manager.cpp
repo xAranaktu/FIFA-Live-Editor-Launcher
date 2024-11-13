@@ -123,6 +123,8 @@ namespace LE {
         auto data_path = GetLEDataDirectory();
         SafeCreateDirectories(data_path);
         SafeCreateDirectories(data_path / "extensions");
+        SafeCreateDirectories(data_path / "extensions" / "careers");
+        SafeCreateDirectories(data_path / "extensions" / "global");
         SafeCreateDirectories(data_path / "keys");
         SafeCreateDirectories(data_path / "lua");
         SafeCreateDirectories(data_path / "lua" / "autorun");
