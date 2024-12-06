@@ -94,6 +94,8 @@ namespace LE {
         int log_level = 1;
         bool log_try_find_legacy_file = false;
         bool log_load_legacy_file = false;
+        bool log_career_mode_fcei = false;
+        bool log_events = false;
 
         void to_json(json& j);
         void from_json(const json& j);

@@ -141,6 +141,8 @@ namespace LE {
             {"log_level",                   log_level},
             {"log_try_find_legacy_file",     log_try_find_legacy_file},
             {"log_load_legacy_file",         log_load_legacy_file},
+            {"log_career_mode_fcei",         log_career_mode_fcei},
+            {"log_events",         log_events},
         };
     }
 
@@ -155,6 +157,14 @@ namespace LE {
 
         if (j.contains("log_load_legacy_file")) {
             j.at("log_load_legacy_file").get_to(log_load_legacy_file);
+        }
+
+        if (j.contains("log_career_mode_fcei")) {
+            j.at("log_career_mode_fcei").get_to(log_career_mode_fcei);
+        }
+
+        if (j.contains("log_events")) {
+            j.at("log_events").get_to(log_events);
         }
     }
 
