@@ -189,6 +189,7 @@ namespace LE {
         j = json{
             {"first_run",               first_run},
             {"show_player_potential",   show_player_potential},
+            {"show_del_row_warning",    show_del_row_warning},
             {"auto_reload_images",      auto_reload_images}
         };
     }
@@ -200,6 +201,10 @@ namespace LE {
 
         if (j.contains("show_player_potential")) {
             j.at("show_player_potential").get_to(show_player_potential);
+        }       
+
+        if (j.contains("show_del_row_warning")) {
+            j.at("show_del_row_warning").get_to(show_del_row_warning);
         }
 
         if (j.contains("auto_reload_images")) {
