@@ -15,6 +15,7 @@ inline const char DisclaimerContent[] = {
 // Game version - Title Update
 // Game version from <GameInstallDir>/__Installer/installerdata.xml
 inline const std::map<std::string, std::string> GAME_VERSION_TU_MAP = {
+    { "1.0.118.64604",      "TU9"},
     { "1.0.118.36628",      "TU8"},
     { "1.0.117.63822",      "TU7"},
     { "1.0.117.47204",      "TU6.1"},
@@ -28,10 +29,10 @@ inline const std::map<std::string, std::string> GAME_VERSION_TU_MAP = {
 };
 
 inline const std::vector<std::string> COMPATIBLE_TITLE_UPDATES = {
-    "TU7", "TU8"
+    "TU9"
 };
 
-inline const int LATEST_TU = 8;
+inline const int LATEST_TU = 9;
 inline const int LATEST_MAJOR_GAME_VER = 118;
-inline const int LATEST_MINOR_GAME_VER = 36628;
+inline const int LATEST_MINOR_GAME_VER = 64604;
 
