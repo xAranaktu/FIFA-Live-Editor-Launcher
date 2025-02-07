@@ -14,6 +14,13 @@
 
 #pragma warning( disable : 6387 )
 
+#pragma comment(lib, "Normaliz.lib")
+#pragma comment(lib, "Ws2_32.lib")
+#pragma comment(lib, "Wldap32.lib")
+#pragma comment(lib, "advapi32.lib")
+#pragma comment(lib, "Crypt32.lib")
+#pragma comment(lib, "user32.lib")
+
 #pragma comment(lib, "d3dcompiler.lib")
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "DXGI.lib")

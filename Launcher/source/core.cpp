@@ -36,9 +36,12 @@ bool Core::Init()
     files_manager->CreateDirectories();
     files_manager->SetupConfig();
 
+    LE::VersionManager* version_manager = LE::VersionManager::GetInstance();
+    version_manager->Init();
+
     std::filesystem::path game_install_dir = files_manager->GetGameDirectory();
 
-    LOG_INFO(std::format("{} {}", TOOL_NAME, TOOL_VERSION));
+    LOG_INFO(std::format("{} {}", TOOL_NAME, version_manager->GetToolVersion()));
     LOG_INFO(std::format("Game Install Dir: {}", ToUTF8String(game_install_dir).c_str()));
     LOG_INFO(std::format("Live Editor Dir: {}", ToUTF8String(le_dir).c_str()));
 
@@ -63,87 +66,6 @@ bool Core::Init()
 void Core::onExit() {
     LE::FilesManager::GetInstance()->UnInstallFakeAnticheat();
     ReleaseMutex(hMutex);
-}
-
-const char* Core::GetToolVer() {
-    return TOOL_VERSION;
-}
-
-std::string Core::GetGameVer() {
-    LOG_INFO(std::format("[{}]", __FUNCTION__));
-    std::string result = "0.0.0.0";
-
-    auto game_loc = LE::FilesManager::GetInstance()->GetGameDirectory();
-    if (game_loc.empty() || !fs::exists(game_loc)) {
-        return result;
-    }
-
-    fs::path fpath = game_loc / "__Installer" / "installerdata.xml";
-    if (!fs::exists(fpath)) {
-        LOG_ERROR(std::format("[{}] Can't find {}", __FUNCTION__, ToUTF8String(fpath).c_str()));
-        return result;
-    }
-
-    FILE* f = _wfopen(fpath.wstring().c_str(), L"rb");
-    if (!f) {
-        LOG_ERROR(std::format("[{}] Can't open {}", __FUNCTION__, ToUTF8String(fpath).c_str()));
-        return result;
-    }
-
-    fseek(f, 0, SEEK_END);
-    __int64 fsize = ftell(f);
-    fseek(f, 0, SEEK_SET);
-
-    if (fsize <= 0) {
-        LOG_ERROR(std::format("[{}] File is empty(?) {}", __FUNCTION__, ToUTF8String(fpath).c_str()));
-        return result;
-    }
-
-    char* fbuf = new char[fsize];
-    fread(fbuf, fsize, 1, f);
-    fclose(f);
-
-    tinyxml2::XMLDocument xmlDoc;
-    xmlDoc.Parse(fbuf, fsize);
-    tinyxml2::XMLElement* DiPManifest = xmlDoc.FirstChildElement("DiPManifest");
-    if (DiPManifest) {
-        tinyxml2::XMLElement* buildMetaData = DiPManifest->FirstChildElement("buildMetaData");
-        if (buildMetaData) {
-            tinyxml2::XMLElement* gameVersion = buildMetaData->FirstChildElement("gameVersion");
-            if (gameVersion) {
-                result = std::string(gameVersion->Attribute("version"));
-            }
-        }
-    }
-
-    delete[] fbuf;
-    return result;
-}
-
-std::string Core::GetTU() {
-    std::string game_ver = GetGameVer();
-    LOG_INFO(std::format("[{}] gameVersion {}", __FUNCTION__, game_ver));
-
-    if (GAME_VERSION_TU_MAP.contains(game_ver)) {
-        return GAME_VERSION_TU_MAP.at(game_ver);
-    }
-
-    // auto ver_splitted = splitStr(game_ver, ".");
-    // if (ver_splitted.size() != 4) {
-    //     return "Invalid";
-    // }
-    // 
-    // int minor = std::stoi(ver_splitted[ver_splitted.size() - 1]);
-    // int major = std::stoi(ver_splitted[ver_splitted.size() - 2]);
-    // 
-    // if (
-    //     major > LATEST_MAJOR_GAME_VER ||
-    //     (major >= LATEST_MAJOR_GAME_VER && minor >= LATEST_MINOR_GAME_VER)
-    // ) {
-    //     return "TU" + std::to_string(LATEST_TU + 1) + " or newer";
-    // }
-
-    return game_ver;
 }
 
 void Core::RunGame() {

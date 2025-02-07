@@ -14,13 +14,12 @@
 #include <Psapi.h>
 #include <TlHelp32.h>
 
-#include "tinyxml2.h"
-
 #include "misc.h"
 #include "options_id.h"
 #include "localize.h"
 
 #include <files_manager/files_manager.h>
+#include <version_manager/version_manager.h>
 
 namespace fs = std::filesystem;
 
@@ -36,10 +35,6 @@ public:
 
     bool Init();
     void onExit();
-
-    const char* GetToolVer();
-    std::string GetGameVer();
-    std::string GetTU();
 
     void RunGame();
 

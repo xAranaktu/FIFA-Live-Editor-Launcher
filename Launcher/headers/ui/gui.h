@@ -16,6 +16,8 @@
 #include "locale_window.h"
 #include "edit_hotkey_window.h"
 
+#include <version_manager/version_manager.h>
+
 // Main User Interface
 class GUI
 {
@@ -83,6 +85,7 @@ private:
         "ImGuiNotify            https://github.com/TyomaVader/ImGuiNotify \n"
         "Font Awesome 6         https://github.com/juliettef/IconFontCppHeaders \n"
         "DDSTextureLoader       https://github.com/Microsoft/DirectXTK/wiki/DDSTextureLoader \n"
+        "C++ Requests           https://github.com/libcpr/cpr \n"
         "Launcher               https://github.com/xAranaktu/FIFA-Live-Editor-Launcher \n"
         "Font - Fira Mono       https://fonts.google.com/specimen/Fira+Mono \n"
         "\n";
@@ -112,12 +115,8 @@ private:
         { "ImportFilterList",       GUI::FILE_DIALOGS::FILE_DIALOG_IMPORT_FILTER_LIST }
     };
 
-    std::string game_tu = "";
     std::string game_tu_desc = "";
-    ImU32 compatibility_color = IM_COL32(0, 0, 0, 255);
 
-    bool GameVerIsCompatibleWithLE(std::string TU);
-    std::string GetGameTU();
     void ChangeModsRootDialog();
     void ChangeLEDataRootDialog();
     void ChangeGameLoc();

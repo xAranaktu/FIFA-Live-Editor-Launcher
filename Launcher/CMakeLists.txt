@@ -27,6 +27,74 @@ SET(ImGUI_SRC
     "external/imgui/imgui_stdlib.cpp"
 )
 
+SET(CPR_H
+    "external/cpr/accept_encoding.h"
+    "external/cpr/api.h"
+    "external/cpr/async.h"
+    "external/cpr/auth.h"
+    "external/cpr/bearer.h"
+    "external/cpr/body.h"
+    "external/cpr/buffer.h"
+    "external/cpr/callback.h"
+    "external/cpr/cert_info.h"
+    "external/cpr/connect_timeout.h"
+    "external/cpr/cookies.h"
+    "external/cpr/cpr.h"
+    "external/cpr/cprtypes.h"
+    "external/cpr/cprver.h"
+    "external/cpr/curlholder.h"
+    "external/cpr/curl_container.h"
+    "external/cpr/error.h"
+    "external/cpr/file.h"
+    "external/cpr/http_version.h"
+    "external/cpr/interceptor.h"
+    "external/cpr/interface.h"
+    "external/cpr/limit_rate.h"
+    "external/cpr/local_port.h"
+    "external/cpr/local_port_range.h"
+    "external/cpr/low_speed.h"
+    "external/cpr/multipart.h"
+    "external/cpr/parameters.h"
+    "external/cpr/payload.h"
+    "external/cpr/proxies.h"
+    "external/cpr/proxyauth.h"
+    "external/cpr/range.h"
+    "external/cpr/redirect.h"
+    "external/cpr/reserve_size.h"
+    "external/cpr/response.h"
+    "external/cpr/session.h"
+    "external/cpr/singleton.h"
+    "external/cpr/ssl_ctx.h"
+    "external/cpr/ssl_options.h"
+    "external/cpr/status_codes.h"
+    "external/cpr/threadpool.h"
+    "external/cpr/timeout.h"
+    "external/cpr/unix_socket.h"
+    "external/cpr/user_agent.h"
+    "external/cpr/util.h"
+    "external/cpr/verbose.h"
+)
+
+SET (ZLIB_H
+    "external/zlib/zlib.h"
+    "external/zlib/zconf.h"
+)
+
+SET (CURL_H
+    "external/curl/curl.h"
+    "external/curl/curlver.h"
+    "external/curl/easy.h"
+    "external/curl/header.h"
+    "external/curl/mprintf.h"
+    "external/curl/multi.h"
+    "external/curl/options.h"
+    "external/curl/stdcheaders.h"
+    "external/curl/system.h"
+    "external/curl/typecheck-gcc.h"
+    "external/curl/urlapi.h"
+    "external/curl/websockets.h"
+)
+
 SET(EXTERNAL_H
     "external/IconsFontAwesome6.h"
     "external/tinyxml2.h"
@@ -55,6 +123,7 @@ SET(ALL_HEADERS
     "headers/config/values.h"
     "headers/config/ui_styles.h"
 
+    "headers/version_manager/version_manager.h"
     "headers/files_manager/files_manager.h"
 
     "headers/fonts.h"
@@ -77,6 +146,9 @@ SET(ALL_HEADERS
     "headers/ui/imgui_helper.h"
     
     ${EXTERNAL_H}
+    ${ZLIB_H}
+    ${CURL_H}
+    ${CPR_H}
     ${ImGUI_H}
 )
 
@@ -86,8 +158,8 @@ SET(ALL_CPP
     "source/config/settings.cpp"
     "source/config/values.cpp"
 
+    "source/version_manager/version_manager.cpp"
     "source/files_manager/files_manager.cpp"
-
 
     "source/core.cpp"
     "source/localize.cpp"
@@ -120,6 +192,26 @@ target_include_directories(${PROJECT_NAME} PRIVATE "external/imgui/")
 target_include_directories(${PROJECT_NAME} PRIVATE "headers/")
 target_include_directories(${PROJECT_NAME} PRIVATE "headers/ui/")
 target_include_directories(${PROJECT_NAME} PRIVATE ${WinSDK})
+
+# add WALL + PDB flags
+if(MSVC)
+  # force static lib
+  set(CompilerFlags
+        CMAKE_CXX_FLAGS
+        CMAKE_CXX_FLAGS_DEBUG
+        CMAKE_CXX_FLAGS_RELEASE
+        CMAKE_C_FLAGS
+        CMAKE_C_FLAGS_DEBUG
+        CMAKE_C_FLAGS_RELEASE
+        )
+    foreach(CompilerFlag ${CompilerFlags})
+        string(REPLACE "/MD" "/MT" ${CompilerFlag} "${${CompilerFlag}}")
+    endforeach()
+endif()
+get_filename_component(EXTERNAL_LIB_RELEASE "external/lib/Release" ABSOLUTE)
+target_link_libraries(${PROJECT_NAME} optimized ${EXTERNAL_LIB_RELEASE}/zlib.lib)
+target_link_libraries(${PROJECT_NAME} optimized ${EXTERNAL_LIB_RELEASE}/cpr.lib)
+target_link_libraries(${PROJECT_NAME} optimized ${EXTERNAL_LIB_RELEASE}/libcurl.lib)
 
 
 set(JSON_BuildTests OFF CACHE INTERNAL "")

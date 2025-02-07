@@ -10,7 +10,7 @@ GUI::~GUI() {
 
 void GUI::Init() {
     if (initialized) return;
-    sprintf(about_txt, "%s - %s", TOOL_NAME, TOOL_VERSION);
+    sprintf(about_txt, "%s - %s", TOOL_NAME, LE::VersionManager::GetInstance()->GetToolVersion());
 
     about_window_size = ImVec2(
         1280.0f * 0.8f,
@@ -172,27 +172,65 @@ void GUI::DrawMainMenuBar() {
             ImGui::MenuItem("About", NULL, &show_about);
             ImGui::EndMenu();
         }
-
-        //if (ImGui::BeginMenu("Edit"))
-        //{
-        //    if (ImGui::MenuItem("Undo", "CTRL+Z")) {}
-        //    if (ImGui::MenuItem("Redo", "CTRL+Y", false, false)) {}  // Disabled item
-        //    ImGui::Separator();
-        //    if (ImGui::MenuItem("Cut", "CTRL+X")) {}
-        //    if (ImGui::MenuItem("Copy", "CTRL+C")) {}
-        //    if (ImGui::MenuItem("Paste", "CTRL+V")) {}
-        //    ImGui::EndMenu();
-        //}
         ImGui::EndMainMenuBar();
     }
 }
 
 void GUI::DrawInfoWindow(bool* p_open) {
-    ImGui::Begin("Info", p_open);
-    ImGui::Text("LE Version             %s", g_Core.GetToolVer());
+    LE::VersionManager* version_manager = LE::VersionManager::GetInstance();
 
-    ImGui::PushStyleColor(ImGuiCol_Text, compatibility_color);
-    ImGui::Text("Game TU                %s", GetGameTU());
+    bool is_latest = version_manager->IsUsingLatestVersion();
+
+    ImGui::Begin("Info", p_open);
+
+    if (is_latest) {
+        ImGui::Text("LE Version             %s", version_manager->GetToolVersion());
+    }
+    else {
+        const char* latest_ver_url = version_manager->GetLatestVersionURL();
+
+        // Grey
+        ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(128, 128, 128, 255));
+        ImGui::Text("LE Version             %s", version_manager->GetToolVersion());
+        ImGui::PopStyleColor();
+
+        // Lime
+        ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0, 255, 0, 255));
+        ImGui::Text("Latest LE Version      %s", version_manager->GetLatestVersion());
+        bool is_latest_hovered = ImGui::IsItemHovered();
+        bool is_clicked = ImGui::IsItemClicked();
+        ImGui::PopStyleColor();
+
+        if (is_clicked)
+        {
+            ShellExecute(NULL, "open", latest_ver_url, NULL, NULL, SW_SHOWNORMAL);
+        }
+        if (is_latest_hovered)
+        {
+            ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
+            ImGui::SetTooltip("Click to open in browser\n%s", latest_ver_url);
+        }
+    }
+
+    if (version_manager->IsCompatibilityKnown()) {
+        if (version_manager->IsCompatible()) {
+            // Lime
+            ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0, 255, 0, 255));
+            game_tu_desc = "Game Title Update is compatible with the Live Editor";
+        }
+        else {
+            // Red
+            ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255, 0, 0, 255));
+            game_tu_desc = "Your game version is not compatible with the Live Editor your are using";
+        }
+    }
+    else {
+        // Orange
+        ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255, 165, 0, 255));
+        game_tu_desc = "Game just got updated. Live Editor may be not compatible with it.\nCheck Discord for more information";
+    }
+
+    ImGui::Text("Game TU                %s", version_manager->GetGameVersion());
     ImGui::PopStyleColor();
 
     ImGui::SameLine();
@@ -257,47 +295,6 @@ void GUI::Draw() {
 
     FileDialogs();
     LE::EditHotkeyWindow::GetInstance()->Draw();
-}
-
-bool GUI::GameVerIsCompatibleWithLE(std::string TU) {
-    for (const auto compatible_tu : COMPATIBLE_TITLE_UPDATES) {
-        if (TU == compatible_tu)    return true;
-    }
-
-    return false;
-}
-
-std::string GUI::GetGameTU() {
-    if (!game_tu.empty())
-        return game_tu;
-
-    game_tu = g_Core.GetTU();
-    if (game_tu == "Invalid") {
-        game_tu_desc = "Live Editor wasn't able to determine game version\nThis tool may not work properly with your game version";
-
-        // Orange
-        compatibility_color = IM_COL32(255, 165, 0, 255);
-    }
-    else if (game_tu.size() >= 10) {
-        // game_tu_desc = "Your game version is newer than latest known TU by the Live Editor\nThis tool may not work properly with your game version";
-
-        // Lime
-        compatibility_color = IM_COL32(0, 255, 0, 255);
-    }
-    else if (GameVerIsCompatibleWithLE(game_tu)) {
-        game_tu_desc = "Your game version is compatible with the Live Editor";
-
-        // Lime
-        compatibility_color = IM_COL32(0, 255, 0, 255);
-    }
-    else {
-        game_tu_desc = "Your game version isn't compatible with the Live Editor";
-
-        // Red
-        compatibility_color = IM_COL32(255, 0, 0, 255);
-    }
-
-    return game_tu;
 }
 
 void GUI::ChangeModsRootDialog() {
