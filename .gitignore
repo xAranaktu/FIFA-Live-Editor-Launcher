@@ -7,3 +7,7 @@ Launcher/external/lib/Release/zlib.lib
 Launcher/external/lib/Release/cpr.lib
 
 Launcher/external/lib/Release/libcurl.lib
+
+Launcher/external/lib/Release/libcrypto.lib
+
+Launcher/external/lib/Release/libssl.lib

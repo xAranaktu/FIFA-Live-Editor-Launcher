@@ -3,6 +3,8 @@
 #include <string>
 #include <map>
 #include <vector>
+#include <filesystem>
+#include <openssl/md5.h>
 
 #include <files_manager/files_manager.h>
 
@@ -70,12 +72,12 @@ namespace LE {
             { "1.0.115.53355",      { "v25.1.0", "v25.1.2" }}
         };
 
-
         std::string GetLocalGameVersion();
         void UpdateIsUsingLatestVersion();
         void UpdateCompatibility(std::string first_compatible, std::string last_compatible);
 
         int GetVersionAsInt(std::string version);
+        void ValidateDLL();
 
     protected:
         VersionManager();
