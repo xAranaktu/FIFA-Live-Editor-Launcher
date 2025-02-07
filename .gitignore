@@ -2,3 +2,8 @@
 .idea/
 out/
 build64/
+Launcher/external/lib/Release/zlib.lib
+
+Launcher/external/lib/Release/cpr.lib
+
+Launcher/external/lib/Release/libcurl.lib
