@@ -18,24 +18,34 @@ namespace LE {
 
     void VersionManager::CheckUpdates() {
         LOG_FUNC_START();
-        std::string base_url = "https://raw.githubusercontent.com/xAranaktu/FC-25-Live-Editor";
-        std::string game_ver_json = std::format("{}/refs/heads/main/GAME_VER.json", base_url);
-        std::string le_compatibility_json = std::format("{}/refs/heads/main/LE_COMPATIBILITY.json", base_url);
-        std::string le_ver_json = std::format("{}/refs/heads/main/LE_VER.json", base_url);
+        std::string version_url = "https://raw.githubusercontent.com/xAranaktu/FC-25-Live-Editor/refs/heads/main/version.json";
+        std::string compatible_range_low;
+        std::string compatible_range_high;
 
         cpr::Session session;
         session.SetHeader(cpr::Header{ { "User-Agent", std::format("FC Live Editor {}", tool_version) } });
+        session.SetUrl(cpr::Url{ version_url });
 
-        // Check game version
-        session.SetUrl(cpr::Url{ game_ver_json });
         cpr::Response r = session.Get();
-
         if (r.status_code == 200) {
-            LOG_INFO(std::format("[{}] Got response from: {} in {}", __FUNCTION__, r.url.c_str(), r.elapsed));
+            LOG_INFO(std::format("[{}] Got response from: {} in {:.2f}s", __FUNCTION__, r.url.c_str(), r.elapsed));
             json j = json::parse(r.text);
 
-            for (auto& [key, value] : j.items()) {
+            for (auto& [key, value] : j["game_ver"].items()) {
+                // LOG_INFO(std::format("[{}] Game Version: {} Title Update: {}", __FUNCTION__, key.c_str(), value.get<std::string>().c_str()));
                 game_version_map[key] = value.get<std::string>();
+            }
+
+            latest_tool_version = j["le_ver"]["silver"]["ver"].get<std::string>();
+            latest_version_url = j["le_ver"]["silver"]["link"].get<std::string>();
+
+            // LOG_INFO(std::format("Latest LE Ver: {} ({})", latest_tool_version.c_str(), latest_version_url.c_str()));
+
+            if (j["compatibility"].contains(game_version) && j["compatibility"].at(game_version).is_array()) {
+                compatible_range_low = j["compatibility"].at(game_version).at(0).get<std::string>();
+                compatible_range_high = j["compatibility"].at(game_version).at(1).get<std::string>();
+
+                // LOG_INFO(std::format("[{}] Game Version: {} Compatibility Range: {} - {}", __FUNCTION__, game_version.c_str(), compatible_range_low.c_str(), compatible_range_high.c_str()));
             }
         }
         else {
@@ -43,37 +53,7 @@ namespace LE {
                 "[{}] Can't get response from: {}. status code: {}. Error: {}",
                 __FUNCTION__, r.url.c_str(), r.status_code, r.error.message.c_str()
             ));
-        }
 
-        // Check LE Version
-        session.SetUrl(cpr::Url{ le_ver_json });
-        r = session.Get();
-        if (r.status_code == 200) {
-            LOG_INFO(std::format("[{}] Got response from: {} in {}", __FUNCTION__, r.url.c_str(), r.elapsed));
-            json j = json::parse(r.text);
-
-            latest_tool_version = j["silver"]["ver"].get<std::string>();
-            latest_version_url = j["silver"]["link"].get<std::string>();
-        }
-
-        // Check LE Compatibility
-        std::string compatible_range_low;
-        std::string compatible_range_high;
-        session.SetUrl(cpr::Url{ le_compatibility_json });
-        r = session.Get();
-
-        if (r.status_code == 200) {
-            LOG_INFO(std::format("[{}] Got response from: {} in {}", __FUNCTION__, r.url.c_str(), r.elapsed));
-            json j = json::parse(r.text);
-
-            if (j.contains(game_version) && j.at(game_version).is_array()) {
-                compatible_range_low = j.at(game_version).at(0).get<std::string>();
-                compatible_range_high = j.at(game_version).at(1).get<std::string>();
-
-                LOG_INFO(std::format("[{}] Game Version: {} Compatibility Range: {} - {}", __FUNCTION__, game_version.c_str(), compatible_range_low.c_str(), compatible_range_high.c_str()));
-            }
-        }
-        else {
             if (game_version_compatibility.contains(game_version)) {
                 // Use if offline
                 compatible_range_low = game_version_compatibility[game_version][0];
