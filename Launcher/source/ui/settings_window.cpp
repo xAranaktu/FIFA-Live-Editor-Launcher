@@ -73,6 +73,11 @@ namespace UIWindows {
             save_required |= ImGui::Checkbox(localize.Translate("log_load_legacy_file").c_str(), &logger_values->log_load_legacy_file);
         }
 
+        if (ImGuiLoc::CollapsingHeader("debug")) {
+            LE::DEBUGValues* debug_values = le_config->GetDEBUGValues();
+            save_required |= ImGuiLoc::Checkbox("enable_crash_dump_gen", &debug_values->enable_crash_dump_gen);
+        }
+
         if (ImGuiLoc::CollapsingHeader("directories")) {
             ImGui::Text("Game Location:     ");
             ImGui::SameLine();

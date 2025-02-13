@@ -123,7 +123,7 @@ namespace LE {
 
     class DEBUGValues {
     public:
-        bool enable_crash_dump_gen = false;
+        bool enable_crash_dump_gen = true;
 
         void to_json(json& j);
         void from_json(const json& j);
