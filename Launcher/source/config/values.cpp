@@ -142,6 +142,7 @@ namespace LE {
             {"log_try_find_legacy_file",     log_try_find_legacy_file},
             {"log_load_legacy_file",         log_load_legacy_file},
             {"log_career_mode_fcei",         log_career_mode_fcei},
+            {"log_localize",                log_localize},
             {"log_events",         log_events},
         };
     }
@@ -165,6 +166,10 @@ namespace LE {
 
         if (j.contains("log_events")) {
             j.at("log_events").get_to(log_events);
+        }
+
+        if (j.contains("log_localize")) {
+            j.at("log_localize").get_to(log_localize);
         }
     }
 

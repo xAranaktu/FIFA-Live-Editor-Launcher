@@ -95,6 +95,7 @@ namespace LE {
         bool log_try_find_legacy_file = false;
         bool log_load_legacy_file = false;
         bool log_career_mode_fcei = false;
+        bool log_localize = false;
         bool log_events = false;
 
         void to_json(json& j);
