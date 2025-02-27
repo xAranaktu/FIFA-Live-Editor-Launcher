@@ -43,6 +43,7 @@ namespace LE {
         fs::path GetConfigPath();
         fs::path GetLocaleKeyPath();
         fs::path GetGameProcessFullPath();
+        fs::path GetVersionJsonPath();
         const char* GetImGuiIni();
 
         // Detect 3rd Party Mods

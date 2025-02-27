@@ -316,6 +316,10 @@ namespace LE {
         return GetGameDirectory() / proc_name;
     }
 
+    fs::path FilesManager::GetVersionJsonPath() {
+        return GetLEDataDirectory() / "version_info.json";
+    }
+
     const char* FilesManager::GetImGuiIni() {
         return ToUTF8String(GetLEDataDirectory() / "le_launcher_imgui.ini").c_str();
     }

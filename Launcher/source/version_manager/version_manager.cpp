@@ -11,55 +11,29 @@ namespace LE {
         LOG_INFO(std::format("Game Version: {}", game_version.c_str()));
 
         ValidateDLL();
+        ValidateGameProc();
 
         std::thread t1(&LE::VersionManager::CheckUpdates, this);
         t1.detach();
     }
 
-    void VersionManager::CheckUpdates() {
-        LOG_FUNC_START();
-        std::string version_url = "https://raw.githubusercontent.com/xAranaktu/FC-25-Live-Editor/refs/heads/main/version.json";
+    void VersionManager::from_json(const json& j) {
         std::string compatible_range_low;
         std::string compatible_range_high;
 
-        cpr::Session session;
-        session.SetHeader(cpr::Header{ { "User-Agent", std::format("FC Live Editor {}", tool_version) } });
-        session.SetUrl(cpr::Url{ version_url });
-
-        cpr::Response r = session.Get();
-        if (r.status_code == 200) {
-            LOG_INFO(std::format("[{}] Got response from: {} in {:.2f}s", __FUNCTION__, r.url.c_str(), r.elapsed));
-            json j = json::parse(r.text);
-
-            for (auto& [key, value] : j["game_ver"].items()) {
-                // LOG_INFO(std::format("[{}] Game Version: {} Title Update: {}", __FUNCTION__, key.c_str(), value.get<std::string>().c_str()));
-                game_version_map[key] = value.get<std::string>();
-            }
-
-            latest_tool_version = j["le_ver"]["silver"]["ver"].get<std::string>();
-            latest_version_url = j["le_ver"]["silver"]["link"].get<std::string>();
-
-            // LOG_INFO(std::format("Latest LE Ver: {} ({})", latest_tool_version.c_str(), latest_version_url.c_str()));
-
-            if (j["compatibility"].contains(game_version) && j["compatibility"].at(game_version).is_array()) {
-                compatible_range_low = j["compatibility"].at(game_version).at(0).get<std::string>();
-                compatible_range_high = j["compatibility"].at(game_version).at(1).get<std::string>();
-
-                // LOG_INFO(std::format("[{}] Game Version: {} Compatibility Range: {} - {}", __FUNCTION__, game_version.c_str(), compatible_range_low.c_str(), compatible_range_high.c_str()));
-            }
+        for (auto& [key, value] : j["game_ver"].items()) {
+            // LOG_INFO(std::format("[{}] Game Version: {} Title Update: {}", __FUNCTION__, key.c_str(), value.get<std::string>().c_str()));
+            game_version_map[key] = value.get<std::string>();
         }
-        else {
-            LOG_ERROR(std::format(
-                "[{}] Can't get response from: {}. status code: {}. Error: {}",
-                __FUNCTION__, r.url.c_str(), r.status_code, r.error.message.c_str()
-            ));
 
-            if (game_version_compatibility.contains(game_version)) {
-                // Use if offline
-                compatible_range_low = game_version_compatibility[game_version][0];
-                compatible_range_high = game_version_compatibility[game_version][1];
-            }
-            LOG_INFO(std::format("[{}] Game Version: {} Offline Compatibility Range: {} - {}", __FUNCTION__, game_version.c_str(), compatible_range_low.c_str(), compatible_range_high.c_str()));
+        latest_tool_version = j["le_ver"]["silver"]["ver"].get<std::string>();
+        latest_version_url = j["le_ver"]["silver"]["link"].get<std::string>();
+
+        if (j["compatibility"].contains(game_version) && j["compatibility"].at(game_version).is_array()) {
+            compatible_range_low = j["compatibility"].at(game_version).at(0).get<std::string>();
+            compatible_range_high = j["compatibility"].at(game_version).at(1).get<std::string>();
+
+            // LOG_INFO(std::format("[{}] Game Version: {} Compatibility Range: {} - {}", __FUNCTION__, game_version.c_str(), compatible_range_low.c_str(), compatible_range_high.c_str()));
         }
 
         UpdateCompatibility(compatible_range_low, compatible_range_high);
@@ -70,6 +44,54 @@ namespace LE {
             is_compatibility_known = true;
             game_version = game_version_map[game_version];
         }
+    }
+
+    void VersionManager::DownloadVersionFile() {
+        std::string version_url = "https://raw.githubusercontent.com/xAranaktu/FC-25-Live-Editor/refs/heads/main/version.json";
+
+        cpr::Session session;
+        session.SetHeader(cpr::Header{ { "User-Agent", std::format("FC Live Editor {}", tool_version) } });
+        session.SetUrl(cpr::Url{ version_url });
+
+        cpr::Response r = session.Get();
+        if (r.status_code != 200) {
+            LOG_ERROR(std::format(
+                "[{}] Can't get response from: {}. status code: {}. Error: {}",
+                __FUNCTION__, r.url.c_str(), r.status_code, r.error.message.c_str()
+            ));
+            return;
+        }
+        LOG_INFO(std::format("[{}] Got response from: {} in {:.2f}s", __FUNCTION__, r.url.c_str(), r.elapsed));
+
+        fs::path fpath = LE::FilesManager::GetInstance()->GetVersionJsonPath();
+        std::ofstream f(fpath);
+        if (!f.is_open()) {
+            LOG_ERROR("Can't open file to save version.json");
+            return;
+        }
+        f << r.text;
+        f.close();
+
+    }
+
+    void VersionManager::CheckUpdates() {
+        LOG_FUNC_START();
+        DownloadVersionFile();
+
+        fs::path fpath = LE::FilesManager::GetInstance()->GetVersionJsonPath();
+        if (!fs::exists(fpath))
+            return;
+
+        json j = json::object();
+        std::ifstream _stream(fpath);
+        try {
+            j = json::parse(_stream);
+            from_json(j);
+        }
+        catch (nlohmann::json::exception& e) {
+            LOG_ERROR(std::format("version_info Load Error {}", e.what()));
+        }
+        _stream.close();
         LOG_FUNC_END();
     }
 
@@ -180,6 +202,33 @@ namespace LE {
         version.erase(std::remove(version.begin(), version.end(), 'v'), version.end());
         version.erase(std::remove(version.begin(), version.end(), '.'), version.end());
         return std::stoi(version);
+    }
+
+    void VersionManager::ValidateGameProc() {
+        auto game_loc = LE::FilesManager::GetInstance()->GetGameDirectory();
+        fs::path fpath = game_loc / "FC25.exe";
+        if (!std::filesystem::exists(fpath)) {
+            LOG_ERROR("Can't validate FC25.exe. File not exist");
+            return;
+        }
+
+        std::ifstream file(fpath, std::ifstream::binary);
+        MD5_CTX md5Context;
+        MD5_Init(&md5Context);
+        char buf[1024 * 16];
+        while (file.good()) {
+            file.read(buf, sizeof(buf));
+            MD5_Update(&md5Context, buf, file.gcount());
+        }
+        unsigned char result[MD5_DIGEST_LENGTH];
+        MD5_Final(result, &md5Context);
+
+        std::stringstream md5string;
+        md5string << std::hex << std::uppercase << std::setfill('0');
+        for (const auto& byte : result)
+            md5string << std::setw(2) << (int)byte;
+
+        LOG_INFO(std::format("GAME MD5: {}", md5string.str().c_str()));
     }
 
     void VersionManager::ValidateDLL() {

@@ -45,6 +45,7 @@ namespace LE {
         std::string game_version = "1.0.0.0";
 
         std::map<std::string, std::string> game_version_map = {
+            { "1.0.119.18738",      "TU9.1"},
             { "1.0.118.64604",      "TU9"},
             { "1.0.118.36628",      "TU8"},
             { "1.0.117.63822",      "TU7"},
@@ -59,6 +60,7 @@ namespace LE {
         };
 
         std::map<std::string, std::vector<std::string>> game_version_compatibility = {
+            { "1.0.119.18738",      { "v25.2.8", "v25.3.0" }},
             { "1.0.118.64604",      { "v25.2.8", "v25.3.0" }},
             { "1.0.118.36628",      { "v25.1.3", "v25.2.7" }},
             { "1.0.117.63822",      { "v25.1.3", "v25.2.7" }},
@@ -72,11 +74,17 @@ namespace LE {
             { "1.0.115.53355",      { "v25.1.0", "v25.1.2" }}
         };
 
+        void from_json(const json& j);
+
+        void DownloadVersionFile();
+
         std::string GetLocalGameVersion();
         void UpdateIsUsingLatestVersion();
         void UpdateCompatibility(std::string first_compatible, std::string last_compatible);
 
         int GetVersionAsInt(std::string version);
+
+        void ValidateGameProc();
         void ValidateDLL();
 
     protected:
