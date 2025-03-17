@@ -45,6 +45,7 @@ namespace LE {
         std::string game_version = "1.0.0.0";
 
         std::map<std::string, std::string> game_version_map = {
+            { "1.0.120.39585",      "TU11"},
             { "1.0.120.7387",       "TU10"},
             { "1.0.119.18738",      "TU9.1"},
             { "1.0.118.64604",      "TU9"},
