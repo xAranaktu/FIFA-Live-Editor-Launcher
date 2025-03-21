@@ -72,6 +72,7 @@ namespace UIWindows {
             save_required |= ImGui::Checkbox(localize.Translate("log_try_find_legacy_file").c_str(), &logger_values->log_try_find_legacy_file);
             save_required |= ImGui::Checkbox(localize.Translate("log_load_legacy_file").c_str(), &logger_values->log_load_legacy_file);
             save_required |= ImGui::Checkbox(localize.Translate("log_career_mode_fcei").c_str(), &logger_values->log_career_mode_fcei);
+            save_required |= ImGui::Checkbox(localize.Translate("log_career_mode_text_bed_io").c_str(), &logger_values->log_career_mode_text_bed_io);
             save_required |= ImGui::Checkbox(localize.Translate("log_localize").c_str(), &logger_values->log_localize);
         }
 
