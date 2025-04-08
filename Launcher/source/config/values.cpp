@@ -215,6 +215,10 @@ namespace LE {
 
         if (j.contains("show_del_row_warning")) {
             j.at("show_del_row_warning").get_to(show_del_row_warning);
+        }        
+        
+        if (j.contains("show_del_player_warning")) {
+            j.at("show_del_player_warning").get_to(show_del_player_warning);
         }
 
         if (j.contains("auto_reload_images")) {

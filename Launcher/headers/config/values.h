@@ -117,6 +117,7 @@ namespace LE {
         bool first_run = true;
         bool show_player_potential = true;
         bool show_del_row_warning = true;
+        bool show_del_player_warning = true;
         bool auto_reload_images = true;
 
         void to_json(json& j);

@@ -184,6 +184,9 @@ namespace UIWindows {
             save_required |= ImGuiLoc::Checkbox("auto_reload_images", &other_values->auto_reload_images);
             ImGui::BasicTooltip("auto_reload_images_tooltip");
 
+            save_required |= ImGuiLoc::Checkbox("show_del_player_warning", &other_values->show_del_player_warning);
+            ImGui::BasicTooltip("show_del_player_warning_tooltip");            
+            
             save_required |= ImGuiLoc::Checkbox("show_del_row_warning", &other_values->show_del_row_warning);
             ImGui::BasicTooltip("show_del_row_warning_tooltip");
         }
