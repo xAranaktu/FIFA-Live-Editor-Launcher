@@ -228,13 +228,13 @@ namespace LE {
 
     void DEBUGValues::to_json(json& j) {
         j = json{
-            {"enable_crash_dump_gen",               enable_crash_dump_gen}
+            {"crash_dump_gen",               crash_dump_gen}
         };
     }
 
     void DEBUGValues::from_json(const json& j) {
-        if (j.contains("enable_crash_dump_gen")) {
-            j.at("enable_crash_dump_gen").get_to(enable_crash_dump_gen);
+        if (j.contains("crash_dump_gen")) {
+            j.at("crash_dump_gen").get_to(crash_dump_gen);
         }
     }
 }

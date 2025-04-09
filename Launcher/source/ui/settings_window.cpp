@@ -78,7 +78,7 @@ namespace UIWindows {
 
         if (ImGuiLoc::CollapsingHeader("debug")) {
             LE::DEBUGValues* debug_values = le_config->GetDEBUGValues();
-            save_required |= ImGuiLoc::Checkbox("enable_crash_dump_gen", &debug_values->enable_crash_dump_gen);
+            save_required |= ImGuiLoc::Checkbox("crash_dump_gen", &debug_values->crash_dump_gen);
         }
 
         if (ImGuiLoc::CollapsingHeader("directories")) {
