@@ -172,17 +172,23 @@ bool Injector::DoInjectDLL(int pid) {
             CloseHandle(process);
             return false;
         }
-        if (!WriteProcessMemory(process, alloc, dll_module.data(), len, 0)) {
-            sprintf_s(buf_err, sizeof(buf_err), "[%s] WriteProcessMemory Failed", __FUNCTION__);
-            m_game_ids_errors[pid] = std::string(buf_err);
+        if (WriteProcessMemory(process, alloc, dll_module.data(), len, 0) == 0) {
+            DWORD err = GetLastError();
+            m_game_ids_errors[pid] = std::format(
+                "[{}] WriteProcessMemory Failed Error: {} ({})", __FUNCTION__,
+                std::system_category().message(err).c_str(), err
+            );
 
             CloseHandle(process);
             return false;
         }
         auto thread = CreateRemoteThread(process, 0, 0, reinterpret_cast<LPTHREAD_START_ROUTINE>(LoadLibraryW), alloc, 0, 0);
-        if (!thread) {
-            sprintf_s(buf_err, sizeof(buf_err), "[%s] CreateRemoteThread Failed", __FUNCTION__);
-            m_game_ids_errors[pid] = std::string(buf_err);
+        if (thread == NULL) {
+            DWORD err = GetLastError();
+            m_game_ids_errors[pid] = std::format(
+                "[{}] CreateRemoteThread Failed Error: {} ({})", __FUNCTION__,
+                std::system_category().message(err).c_str(), err
+            );
 
             CloseHandle(process);
             return false;
