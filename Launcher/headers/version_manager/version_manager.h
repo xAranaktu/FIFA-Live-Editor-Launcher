@@ -40,11 +40,12 @@ namespace LE {
         bool is_using_latest_le = true;
 
         std::string latest_version_url = "";
-        std::string latest_tool_version = "v25.3.6";
-        std::string tool_version = "v25.3.6";
+        std::string latest_tool_version = "v25.3.7";
+        std::string tool_version = "v25.3.7";
         std::string game_version = "1.0.0.0";
 
         std::map<std::string, std::string> game_version_map = {
+            { "1.0.122.42314",      "TU14.1"},
             { "1.0.122.27667",      "TU14"},
             { "1.0.121.45135",      "TU13"},
             { "1.0.120.62184",      "TU12"},
@@ -65,6 +66,7 @@ namespace LE {
         };
 
         std::map<std::string, std::vector<std::string>> game_version_compatibility = {
+            { "1.0.122.42314",      { "v25.3.5", "v25.3.7" }},
             { "1.0.122.27667",      { "v25.3.5", "v25.3.6" }},
             { "1.0.121.45135",      { "v25.3.2", "v25.3.4" }},
             { "1.0.120.62184",      { "v25.3.2", "v25.3.4" }},
