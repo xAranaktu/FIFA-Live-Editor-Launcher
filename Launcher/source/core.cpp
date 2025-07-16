@@ -76,10 +76,6 @@ void Core::RunGame() {
     std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
     std::wstring params = converter.from_bytes(le_config->GetLauncherValues()->params);
 
-    if (le_config->GetLauncherValues()->is_trial) {
-        params += L" -trial";
-    }
-
     if (!params.empty()) {
         LOG_INFO(std::format("Launch Options: {}", ToUTF8String(params).c_str()));
     }

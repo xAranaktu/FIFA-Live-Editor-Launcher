@@ -57,12 +57,10 @@ namespace LE {
         bool show_disclaimer_msg = true;
         bool close_after_injection = true;
         bool auto_inject = true;
-        bool is_trial = false;
         int injection_delay = 100;
 
         // Default values in Config::Init
         std::string game_proc_name;
-        std::string game_proc_name_trial;
         std::string params;
 
         std::vector<std::string> dlls = {

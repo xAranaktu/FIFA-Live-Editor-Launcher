@@ -62,10 +62,8 @@ namespace LE {
             {"show_disclaimer_msg",     show_disclaimer_msg},
             {"close_after_injection",   close_after_injection},
             {"auto_inject",             auto_inject},
-            {"is_trial",                is_trial},
             {"injection_delay",         injection_delay},
             {"game_proc_name",          game_proc_name},
-            {"game_proc_name_trial",    game_proc_name_trial},
             {"params",                  params},
             {"dlls",                    dlls}
         };
@@ -84,20 +82,12 @@ namespace LE {
             j.at("auto_inject").get_to(auto_inject);
         }
 
-        if (j.contains("is_trial")) {
-            j.at("is_trial").get_to(is_trial);
-        }
-
         if (j.contains("injection_delay")) {
             j.at("injection_delay").get_to(injection_delay);
         }
 
         if (j.contains("game_proc_name")) {
             j.at("game_proc_name").get_to(game_proc_name);
-        }
-
-        if (j.contains("game_proc_name_trial")) {
-            j.at("game_proc_name_trial").get_to(game_proc_name_trial);
         }
 
         if (j.contains("params")) {

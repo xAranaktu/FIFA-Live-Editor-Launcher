@@ -6,7 +6,6 @@ namespace LE {
 
     void Config::Init(fs::path path) {
         launch_values.game_proc_name = std::format("FC{}.exe", EAFC_EDITION);
-        launch_values.game_proc_name_trial = std::format("FC{}_Trial.exe", EAFC_EDITION);
         launch_values.params.clear();   // No params by default
 
         cfg_path = path;

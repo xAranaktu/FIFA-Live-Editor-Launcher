@@ -310,11 +310,7 @@ namespace LE {
     }
 
     fs::path FilesManager::GetGameProcessFullPath() {
-        LE::Config* le_config = LE::Config::GetInstance();
-        LE::LauncherValues* launcher_values = le_config->GetLauncherValues();
-        std::string proc_name = launcher_values->is_trial ? launcher_values->game_proc_name_trial : launcher_values->game_proc_name;
-
-        return GetGameDirectory() / proc_name;
+        return GetGameDirectory() / LE::Config::GetInstance()->GetLauncherValues()->game_proc_name;
     }
 
     fs::path FilesManager::GetVersionJsonPath() {

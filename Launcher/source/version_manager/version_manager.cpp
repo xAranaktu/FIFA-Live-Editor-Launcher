@@ -208,7 +208,6 @@ namespace LE {
         auto game_loc = LE::FilesManager::GetInstance()->GetGameDirectory();
         fs::path fpath = game_loc / "FC25.exe";
         if (!std::filesystem::exists(fpath)) {
-            LOG_ERROR("Can't validate FC25.exe. File not exist");
             return;
         }
 
@@ -235,7 +234,6 @@ namespace LE {
         std::string fpath = "FCLiveEditor.DLL";
 
         if (!std::filesystem::exists(fpath)) {
-            LOG_ERROR("Can't validate DLL. File not exist");
             return;
         }
 

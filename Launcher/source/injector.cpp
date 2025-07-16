@@ -220,7 +220,7 @@ void Injector::Inject() {
         fulldll_dirs.push_back(fulldll_dir);
     }
 
-    std::string proc_name = launcher_values->is_trial ? launcher_values->game_proc_name_trial : launcher_values->game_proc_name;
+    std::string proc_name = launcher_values->game_proc_name;
     LOG_INFO(std::format("[{}] Trying to inject into {}",  __FUNCTION__, proc_name.c_str()));
 
     SetStatus(STATUS_WAITING_FOR_GAME);

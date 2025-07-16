@@ -49,16 +49,6 @@ namespace UIWindows {
             if (ImGui::IsItemHovered()) {
                 ImGui::SetTooltip("Live Editor will shutdown itself after successfull DLL injection. (recommended)");
             }
-
-            if (ImGuiLoc::Checkbox("is_trial", &launch_values->is_trial)) {
-                save_required |= true;
-            }
-
-            ImGui::SameLine();
-            ImGui::TextDisabled("(?)");
-            if (ImGui::IsItemHovered()) {
-                ImGui::SetTooltip("Trial game is the game version available for 10h (with EA Play, but not EA Play Pro). Tick this checkbox if you are using Auto Run Game and you have trial game version");
-            }
         }
 
         if (ImGuiLoc::CollapsingHeader("logger")) {
