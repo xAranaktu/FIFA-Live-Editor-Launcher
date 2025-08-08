@@ -249,7 +249,7 @@ namespace LE {
         fs::path result;
 
         HKEY hKey;
-        std::string key = std::format("SOFTWARE\\EA Sports\\EA SPORTS FC {}",EAFC_EDITION);
+        std::string key = std::format("SOFTWARE\\EA Sports\\EA SPORTS FC {} BETA",EAFC_EDITION);
         LSTATUS open_status = RegOpenKey(HKEY_LOCAL_MACHINE, key.c_str(), &hKey);
         if (open_status != ERROR_SUCCESS) {
             LOG_ERROR(std::format("[{}] RegOpenKey failed. Status: {}", __FUNCTION__, open_status));
