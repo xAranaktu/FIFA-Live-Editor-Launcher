@@ -45,11 +45,13 @@ namespace LE {
         std::string game_version = "1.0.0.0";
 
         std::map<std::string, std::string> game_version_map = {
+            { "1.0.127.17866",      "CB TU3"},
             { "1.0.126.61236",      "CB TU1"},
             { "1.0.126.39636",      "CB Vanilla"}
         };
 
         std::map<std::string, std::vector<std::string>> game_version_compatibility = {
+            { "1.0.127.17866",      { "v26.1.0", "v26.1.0" }},
             { "1.0.126.61236",      { "v26.1.0", "v26.1.0" }},
             { "1.0.126.39636",      { "v26.1.0", "v26.1.0" }}
         };
