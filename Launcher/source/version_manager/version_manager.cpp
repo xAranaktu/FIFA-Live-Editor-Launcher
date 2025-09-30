@@ -47,7 +47,7 @@ namespace LE {
     }
 
     void VersionManager::DownloadVersionFile() {
-        std::string version_url = "https://raw.githubusercontent.com/xAranaktu/FC-25-Live-Editor/refs/heads/main/version.json";
+        std::string version_url = "https://raw.githubusercontent.com/xAranaktu/FC-26-Live-Editor/refs/heads/main/version.json";
 
         cpr::Session session;
         session.SetHeader(cpr::Header{ { "User-Agent", std::format("FC Live Editor {}", tool_version) } });
