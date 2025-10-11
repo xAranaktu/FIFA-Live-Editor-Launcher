@@ -66,11 +66,6 @@ namespace UIWindows {
             save_required |= ImGui::Checkbox(localize.Translate("log_localize").c_str(), &logger_values->log_localize);
         }
 
-        if (ImGuiLoc::CollapsingHeader("debug")) {
-            LE::DEBUGValues* debug_values = le_config->GetDEBUGValues();
-            save_required |= ImGuiLoc::Checkbox("crash_dump_gen", &debug_values->crash_dump_gen);
-        }
-
         if (ImGuiLoc::CollapsingHeader("directories")) {
             ImGui::Text("Game Location:     ");
             ImGui::SameLine();

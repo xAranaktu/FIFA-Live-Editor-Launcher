@@ -215,16 +215,4 @@ namespace LE {
             j.at("auto_reload_images").get_to(auto_reload_images);
         }
     }
-
-    void DEBUGValues::to_json(json& j) {
-        j = json{
-            {"crash_dump_gen",               crash_dump_gen}
-        };
-    }
-
-    void DEBUGValues::from_json(const json& j) {
-        if (j.contains("crash_dump_gen")) {
-            j.at("crash_dump_gen").get_to(crash_dump_gen);
-        }
-    }
 }

@@ -37,7 +37,6 @@ namespace LE {
         MessageBoxesValues* GetMessageBoxesValues() { return &messageboxes_values; }
         TransfersValues* GetTransfersValues() { return &transfers_values; }
         OtherValues* GetOtherValues() { return &other_values; }
-        DEBUGValues* GetDEBUGValues() { return &debug_values; }
         DirectoriesValues* GetDirectoriesValues() { return &directories_values; }
         UIStyle* GetUIStyle() { return &ui_style; }
 
@@ -53,7 +52,6 @@ namespace LE {
         MessageBoxesValues messageboxes_values;
         TransfersValues transfers_values;
         OtherValues other_values;
-        DEBUGValues debug_values;
         DirectoriesValues directories_values;
         UIStyle ui_style;
 

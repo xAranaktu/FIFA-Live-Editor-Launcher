@@ -96,10 +96,6 @@ namespace LE {
         j["other"] = tmp;
         tmp.clear();
 
-        debug_values.to_json(tmp);
-        j["DEBUG"] = tmp;
-        tmp.clear();
-
         directories_values.to_json(tmp);
         j["directories"] = tmp;
         tmp.clear();
@@ -136,10 +132,6 @@ namespace LE {
 
         if (j.contains("other")) {
             other_values.from_json(j.at("other"));
-        }
-
-        if (j.contains("DEBUG")) {
-            debug_values.from_json(j.at("DEBUG"));
         }
 
         if (j.contains("directories")) {
