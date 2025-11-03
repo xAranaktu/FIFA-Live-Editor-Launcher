@@ -230,7 +230,7 @@ void GUI::DrawInfoWindow(bool* p_open) {
         game_tu_desc = "Game just got updated. Live Editor may be not compatible with it.\nCheck Discord for more information";
     }
 
-    ImGui::Text("Game TU                %s", version_manager->GetGameVersion());
+    ImGui::Text("Game Version           %s", version_manager->GetGameVersion());
     ImGui::PopStyleColor();
 
     ImGui::SameLine();
