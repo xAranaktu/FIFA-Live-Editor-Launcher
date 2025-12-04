@@ -40,8 +40,8 @@ namespace LE {
         bool is_using_latest_le = true;
 
         std::string latest_version_url = "";
-        std::string latest_tool_version = "v26.2.2";
-        std::string tool_version = "v26.2.2";
+        std::string latest_tool_version = "v26.2.3";
+        std::string tool_version = "v26.2.3";
         std::string game_version = "1.0.0.0";
 
         std::map<std::string, std::string> game_version_map = {
