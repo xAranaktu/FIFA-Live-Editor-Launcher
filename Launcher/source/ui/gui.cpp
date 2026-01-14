@@ -191,7 +191,7 @@ void GUI::DrawInfoWindow(bool* p_open) {
 
         // Grey
         ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(128, 128, 128, 255));
-        ImGui::Text("LE Version             %s", version_manager->GetToolVersion());
+        ImGui::Text("Your LE Version        %s", version_manager->GetToolVersion());
         ImGui::PopStyleColor();
 
         // Lime
