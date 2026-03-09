@@ -145,6 +145,9 @@ namespace LE {
             }
             LOG_INFO("Creating legacy directories Done");
         }
+
+        // Career Mode Manager Miniface Directory
+        SafeCreateDirectories(legacy_root / "data" / "ui" / "imgAssets" / "heads_staff");
     }
 
     fs::path FilesManager::GetRoot() {

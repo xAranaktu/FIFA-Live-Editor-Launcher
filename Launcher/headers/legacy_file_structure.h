@@ -847,6 +847,7 @@ static const char* LEGACY_DIRECTORIES[] = {
     "data\\ui\\imgAssets\\heads",
     "data\\ui\\imgAssets\\heads_patch",
     "data\\ui\\imgAssets\\heads_ssf",
+    "data\\ui\\imgAssets\\heads_staff",
     "data\\ui\\imgAssets\\hospitalityVproBadge",
     "data\\ui\\imgAssets\\idplayground",
     "data\\ui\\imgAssets\\idplayground\\01",
