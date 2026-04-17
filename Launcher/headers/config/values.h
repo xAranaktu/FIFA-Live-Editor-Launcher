@@ -57,6 +57,7 @@ namespace LE {
         bool show_disclaimer_msg = true;
         bool close_after_injection = true;
         bool auto_inject = true;
+        bool no_mods = false;
         int injection_delay = 100;
 
         // Default values in Config::Init

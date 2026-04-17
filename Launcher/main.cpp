@@ -64,17 +64,6 @@ int WinMain(
         }
     }
 
-    // if (g_Injector.GetGamePIDs().size() > 0) {
-    //     MessageBox(NULL, "Game is Open\nRun the Live Editor before the game.", "Game is Open", MB_ICONERROR);
-    // 
-    //     // Early exit
-    //     LOG_INFO("Game is Open Early Exit");
-    // 
-    //     return 1;
-    // }
-
-    // g_Core.DetectFIFAModManager();
-
     // Init GUI
     g_GUI.Init();
 
@@ -179,10 +168,7 @@ int WinMain(
         }
 
         g_pSwapChain->Present(1, 0); // Present with vsync
-        // g_pSwapChain->Present(0, 0); // Present without vsync
     }
-
-    
 
     // Cleanup
     ImGui_ImplDX11_Shutdown();

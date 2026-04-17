@@ -48,7 +48,7 @@ namespace LE {
 
         // Detect 3rd Party Mods
         void DetectFIFAModManager();
-        void DetectAnadius();
+        bool DetectCracked();
 
         // Logger
         void SetupLogger();

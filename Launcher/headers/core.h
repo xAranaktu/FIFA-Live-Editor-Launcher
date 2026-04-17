@@ -36,7 +36,7 @@ public:
     bool Init();
     void onExit();
 
-    void RunGame();
+    void RunGame(bool no_mods);
 
 private:
 

@@ -12,6 +12,14 @@
 #include <cpr/cpr.h>
 
 namespace LE {
+    enum CompatibilityStatus {
+        UNKNOWN = 0,
+        COMPATIBLE,
+        NOT_COMPATIBLE,
+        CRACKED,
+        NO_INTERNET
+    };
+
     class VersionManager {
     public:
         VersionManager(VersionManager& other) = delete;
@@ -23,9 +31,11 @@ namespace LE {
         void CheckUpdates();
 
         bool IsUsingLatestVersion();
-        bool IsCompatibilityKnown();
-        bool IsCompatible();
+        bool HasInternetConnection();
+        void SetIsUsingCrackedGame(bool is_cracked);
 
+        void SetCompatibilityStatus(CompatibilityStatus status);
+        CompatibilityStatus GetCompatibilityStatus();
         const char* GetLatestVersion();
         const char* GetLatestVersionURL();
         const char* GetToolVersion();
@@ -35,13 +45,15 @@ namespace LE {
         static VersionManager* pinstance_;
         static std::mutex mutex_;
 
-        bool is_compatibility_known = false;
-        bool is_compatible = true;
+        CompatibilityStatus compatibility_status = CompatibilityStatus::UNKNOWN;
+
         bool is_using_latest_le = true;
+        bool no_internet = false;
+        bool is_cracked_game = false;
 
         std::string latest_version_url = "";
-        std::string latest_tool_version = "v26.3.1";
-        std::string tool_version = "v26.3.1";
+        std::string latest_tool_version = "v26.3.2";
+        std::string tool_version = "v26.3.2";
         std::string game_version = "1.0.0.0";
 
         std::map<std::string, std::string> game_version_map = {
@@ -67,7 +79,7 @@ namespace LE {
         };
 
         std::map<std::string, std::vector<std::string>> game_version_compatibility = {
-            { "1.0.134.1759",       { "v26.3.0", "v26.3.0" }},
+            { "1.0.134.1759",       { "v26.3.0", "v26.3.1" }},
             { "1.0.133.58379",      { "v26.2.7", "v26.2.9" }},
             { "1.0.133.14157",      { "v26.2.7", "v26.2.9" }},
             { "1.0.132.29676",      { "v26.2.7", "v26.2.9" }},

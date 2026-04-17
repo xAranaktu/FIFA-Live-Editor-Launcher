@@ -12,9 +12,6 @@ namespace LE {
 
         ValidateDLL();
         ValidateGameProc();
-
-        std::thread t1(&LE::VersionManager::CheckUpdates, this);
-        t1.detach();
     }
 
     void VersionManager::from_json(const json& j) {
@@ -41,8 +38,10 @@ namespace LE {
 
         // Convert Game Version Number To Title Update Number
         if (game_version_map.contains(game_version)) {
-            is_compatibility_known = true;
             game_version = game_version_map[game_version];
+        }
+        else {
+            compatibility_status = CompatibilityStatus::UNKNOWN;
         }
     }
 
@@ -59,6 +58,7 @@ namespace LE {
                 "[{}] Can't get response from: {}. status code: {}. Error: {}",
                 __FUNCTION__, r.url.c_str(), r.status_code, r.error.message.c_str()
             ));
+            no_internet = true;
             return;
         }
         LOG_INFO(std::format("[{}] Got response from: {} in {:.2f}s", __FUNCTION__, r.url.c_str(), r.elapsed));
@@ -71,7 +71,6 @@ namespace LE {
         }
         f << r.text;
         f.close();
-
     }
 
     void VersionManager::CheckUpdates() {
@@ -79,19 +78,33 @@ namespace LE {
         DownloadVersionFile();
 
         fs::path fpath = LE::FilesManager::GetInstance()->GetVersionJsonPath();
-        if (!fs::exists(fpath))
-            return;
+        if (fs::exists(fpath)) {
+            json j = json::object();
+            std::ifstream _stream(fpath);
+            try {
+                j = json::parse(_stream);
+                from_json(j);
+            }
+            catch (nlohmann::json::exception& e) {
+                LOG_ERROR(std::format("version_info Load Error {}", e.what()));
+            }
+            _stream.close();
+        }
 
-        json j = json::object();
-        std::ifstream _stream(fpath);
-        try {
-            j = json::parse(_stream);
-            from_json(j);
+        // Resolve Status
+        if (is_cracked_game) {
+            compatibility_status = CompatibilityStatus::CRACKED;
         }
-        catch (nlohmann::json::exception& e) {
-            LOG_ERROR(std::format("version_info Load Error {}", e.what()));
+        else if (no_internet) {
+            std::string game_tu = GetLocalGameVersion();
+            if (game_version_compatibility.contains(game_tu)) {
+                UpdateCompatibility(game_version_compatibility[game_tu][0], game_version_compatibility[game_tu][1]);
+            }
+            else {
+                compatibility_status = CompatibilityStatus::NO_INTERNET;
+            }
         }
-        _stream.close();
+
         LOG_FUNC_END();
     }
 
@@ -99,12 +112,20 @@ namespace LE {
         return is_using_latest_le;
     }
 
-    bool VersionManager::IsCompatibilityKnown() {
-        return is_compatibility_known;
+    bool VersionManager::HasInternetConnection() {
+        return !no_internet;
     }
 
-    bool VersionManager::IsCompatible() {
-        return is_compatible;
+    void VersionManager::SetIsUsingCrackedGame(bool is_cracked) {
+        is_cracked_game = is_cracked;
+    }
+
+    void VersionManager::SetCompatibilityStatus(CompatibilityStatus status) {
+        compatibility_status = status;
+    }
+
+    CompatibilityStatus VersionManager::GetCompatibilityStatus() {
+        return compatibility_status;
     }
 
     const char* VersionManager::GetLatestVersion() {
@@ -120,6 +141,7 @@ namespace LE {
     }
 
     const char* VersionManager::GetGameVersion() {
+        if (compatibility_status == CompatibilityStatus::CRACKED) return "Cracked";
         return game_version.c_str();
     }
 
@@ -185,7 +207,7 @@ namespace LE {
 
     void VersionManager::UpdateCompatibility(std::string first_compatible, std::string last_compatible) {
         if (first_compatible.empty() || last_compatible.empty()) {
-            is_compatible = false;
+            compatibility_status = CompatibilityStatus::NOT_COMPATIBLE;
             return;
         }
 
@@ -194,7 +216,10 @@ namespace LE {
         int int_last_compatible = GetVersionAsInt(last_compatible);
 
         if (int_toolver < int_first_compatible || int_toolver > int_last_compatible) {
-            is_compatible = false;
+            compatibility_status = CompatibilityStatus::NOT_COMPATIBLE;
+        }
+        else {
+            compatibility_status = CompatibilityStatus::COMPATIBLE;
         }
     }
 
@@ -206,7 +231,7 @@ namespace LE {
 
     void VersionManager::ValidateGameProc() {
         auto game_loc = LE::FilesManager::GetInstance()->GetGameDirectory();
-        fs::path fpath = game_loc / "FC25.exe";
+        fs::path fpath = game_loc / "FC26.exe";
         if (!std::filesystem::exists(fpath)) {
             return;
         }

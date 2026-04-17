@@ -52,11 +52,15 @@ bool Core::Init()
 
     files_manager->InstallFakeAnticheat();
     files_manager->DetectFIFAModManager();
-    files_manager->DetectAnadius();
+    version_manager->SetIsUsingCrackedGame(files_manager->DetectCracked());
+
     files_manager->SetInstallDir(le_dir);
 
     localize.Load();
     // g_options_ids.LoadJson();
+
+    std::thread t1(&LE::VersionManager::CheckUpdates, version_manager);
+    t1.detach();
 
     LOG_INFO(std::format("[{}] Done", __FUNCTION__));
 
@@ -68,13 +72,17 @@ void Core::onExit() {
     ReleaseMutex(hMutex);
 }
 
-void Core::RunGame() {
+void Core::RunGame(bool no_mods) {
     LOG_INFO(std::format("[{}]", __FUNCTION__));
 
     LE::Config* le_config = LE::Config::GetInstance();
 
     std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
     std::wstring params = converter.from_bytes(le_config->GetLauncherValues()->params);
+
+    if (no_mods) {
+        params = L" -no_mods";
+    }
 
     if (!params.empty()) {
         LOG_INFO(std::format("Launch Options: {}", ToUTF8String(params).c_str()));

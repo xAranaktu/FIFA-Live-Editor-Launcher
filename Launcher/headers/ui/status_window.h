@@ -9,6 +9,7 @@
 #include "imgui_internal.h"
 #include "imgui_stdlib.h"
 
+#include <config/config.h>
 #include "injector.h"
 
 namespace UIWindows {

@@ -355,14 +355,31 @@ namespace LE {
         LE::Config::GetInstance()->Init(GetConfigPath());
     }
 
-    void FilesManager::DetectAnadius() {
+    bool FilesManager::DetectCracked() {
         fs::path game_loc = GetGameDirectory();
-        if (game_loc.empty() || !fs::exists(game_loc)) return;
+        if (game_loc.empty() || !fs::exists(game_loc)) return false;
+
+        bool detected = false;
 
         std::filesystem::path Anadiuscfg = game_loc / "anadius.cfg";
         if (std::filesystem::exists(Anadiuscfg)) {
             LOG_INFO("anadius.cfg");
+            detected = true;
         }
+
+        std::filesystem::path fitgirl_ini = game_loc / "FitGirl-Launcher.ini";
+        if (std::filesystem::exists(fitgirl_ini)) {
+            LOG_INFO("FitGirl-Launcher.ini");
+            detected = true;
+        }
+
+        std::filesystem::path denuvowo_ini = game_loc / "DenuvOwo.ini";
+        if (std::filesystem::exists(denuvowo_ini)) {
+            LOG_INFO("DenuvOwo.ini");
+            detected = true;
+        }
+
+        return detected;
     }
 
     std::string FilesManager::ToUTF8String(const std::filesystem::path& value) {

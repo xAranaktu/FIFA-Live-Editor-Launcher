@@ -213,7 +213,11 @@ void Injector::Inject() {
         fs::path fulldll_dir = g_Core.ctx.GetFolder() / dll;
         LOG_INFO(std::format("[{}] DLL dir: {}", __FUNCTION__, ToUTF8String(fulldll_dir).c_str()));
         if (!fs::exists(fulldll_dir)) {
-            LOG_ERROR(std::format("[{}] Can't find DLL at {}", __FUNCTION__, ToUTF8String(fulldll_dir).c_str()));
+            std::string dll_error = std::format("Can't find DLL at {}", ToUTF8String(fulldll_dir).c_str());
+            LOG_ERROR(dll_error.c_str());
+
+            dll_error = std::format("{}\n\nDLL must be in the same directory where LE Launcher is.\n\nIf your antivirus is blocking it, please add an exception and redownload LE", dll_error.c_str());
+            MessageBox(NULL, dll_error.c_str(), "Failed", MB_ICONERROR);
             SetStatus(STATUS_ERROR);
             return;
         }

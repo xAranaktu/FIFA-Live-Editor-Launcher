@@ -62,6 +62,7 @@ namespace LE {
             {"show_disclaimer_msg",     show_disclaimer_msg},
             {"close_after_injection",   close_after_injection},
             {"auto_inject",             auto_inject},
+            {"no_mods",                 no_mods},
             {"injection_delay",         injection_delay},
             {"game_proc_name",          game_proc_name},
             {"params",                  params},
@@ -80,6 +81,10 @@ namespace LE {
 
         if (j.contains("auto_inject")) {
             j.at("auto_inject").get_to(auto_inject);
+        }
+
+        if (j.contains("no_mods")) {
+            j.at("no_mods").get_to(no_mods);
         }
 
         if (j.contains("injection_delay")) {

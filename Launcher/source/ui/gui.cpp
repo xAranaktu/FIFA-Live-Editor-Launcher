@@ -69,7 +69,7 @@ void GUI::MainDockspace() {
             // out_id_at_dir is the id of the node in the direction we specified earlier,
             // out_id_at_opposite_dir is in the opposite direction
             auto dock_id_left = ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Left, 0.20f, nullptr, &dockspace_id);
-            auto dock_id_right = ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Right, 0.30f, nullptr, &dockspace_id);
+            auto dock_id_right = ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Right, 0.35f, nullptr, &dockspace_id);
 
             // we now dock our windows into the docking node we made above
             ImGui::DockBuilderDockWindow("Restart Required", dockspace_id);
@@ -180,56 +180,53 @@ void GUI::DrawInfoWindow(bool* p_open) {
     LE::VersionManager* version_manager = LE::VersionManager::GetInstance();
 
     bool is_latest = version_manager->IsUsingLatestVersion();
+    bool is_cracked = false;
+    bool is_compatible = true;
+    ImU32 game_version_color = IM_COL32(255, 255, 255, 255);
 
     ImGui::Begin("Info", p_open);
 
-    if (is_latest) {
-        ImGui::Text("LE Version             %s", version_manager->GetToolVersion());
-    }
-    else {
-        const char* latest_ver_url = version_manager->GetLatestVersionURL();
+    ImGui::Text("LE Version             %s", version_manager->GetToolVersion());
 
-        // Grey
-        ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(128, 128, 128, 255));
-        ImGui::Text("Your LE Version        %s", version_manager->GetToolVersion());
-        ImGui::PopStyleColor();
-
-        // Lime
-        ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0, 255, 0, 255));
-        ImGui::Text("Latest LE Version      %s", version_manager->GetLatestVersion());
-        bool is_latest_hovered = ImGui::IsItemHovered();
-        bool is_clicked = ImGui::IsItemClicked();
-        ImGui::PopStyleColor();
-
-        if (is_clicked)
-        {
-            ShellExecute(NULL, "open", latest_ver_url, NULL, NULL, SW_SHOWNORMAL);
-        }
-        if (is_latest_hovered)
-        {
-            ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
-            ImGui::SetTooltip("Click to open in browser\n%s", latest_ver_url);
-        }
-    }
-
-    if (version_manager->IsCompatibilityKnown()) {
-        if (version_manager->IsCompatible()) {
-            // Lime
-            ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0, 255, 0, 255));
-            game_tu_desc = "Game Title Update is compatible with the Live Editor";
-        }
-        else {
-            // Red
-            ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255, 0, 0, 255));
-            game_tu_desc = "Your game version is not compatible with the Live Editor your are using";
-        }
-    }
-    else {
-        // Orange
-        ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255, 165, 0, 255));
+    switch (version_manager->GetCompatibilityStatus())
+    {
+    case LE::CompatibilityStatus::UNKNOWN:
+    {
+        game_version_color = IM_COL32(255, 165, 0, 255);
         game_tu_desc = "Game just got updated. Live Editor may be not compatible with it.\nCheck Discord for more information";
+        break;
+    }
+    case LE::CompatibilityStatus::COMPATIBLE:
+    {
+        game_version_color = IM_COL32(0, 255, 0, 255);
+        game_tu_desc = "Game Title Update is compatible with the Live Editor";
+        break;
+    }
+    case LE::CompatibilityStatus::NOT_COMPATIBLE:
+    {
+        game_version_color = IM_COL32(255, 0, 0, 255);
+        game_tu_desc = "Your game version is not compatible with the Live Editor your are using";
+        is_compatible = false;
+        break;
+    }
+    case LE::CompatibilityStatus::CRACKED:
+    {
+        game_version_color = IM_COL32(255, 0, 0, 255);
+        is_cracked = true;
+        break;
+    }
+    case LE::CompatibilityStatus::NO_INTERNET:
+    {
+        game_version_color = IM_COL32(255, 165, 0, 255);
+        game_tu_desc = "Live Editor can't establish connection to the server to check compatibility status.\nCheck your internet connection and try again";
+        break;
+    }
+        break;
+    default:
+        break;
     }
 
+    ImGui::PushStyleColor(ImGuiCol_Text, game_version_color);
     ImGui::Text("Game Version           %s", version_manager->GetGameVersion());
     ImGui::PopStyleColor();
 
@@ -237,6 +234,29 @@ void GUI::DrawInfoWindow(bool* p_open) {
     ImGui::TextDisabled("(?)");
     if (ImGui::IsItemHovered()) {
         ImGui::SetTooltip(game_tu_desc.c_str());
+    }
+
+    if (is_cracked) {
+        ImGui::NewLine();
+        ImGui::Separator();
+        ImGui::Text("Seems like you are using cracked game");
+        ImGui::Text("It's not supported by the Live Editor");
+        ImGui::Text("We won't provide support for issues related to it");
+        ImGui::Text("Please consider buying the game");
+    }
+
+    if (!is_compatible) {
+        ImGui::NewLine();
+        ImGui::Separator();
+        ImGui::Text("Your game version is not compatible\nwith the Live Editor");
+        ImGui::Text("Please update your Live Editor\nto the latest version");
+    }
+
+    if (!is_latest && version_manager->HasInternetConnection()) {
+        ImGui::NewLine();
+        ImGui::Separator();
+        ImGui::Text("There is a newer version of the Live Editor");
+        ImGui::TextURL("Get it here", version_manager->GetLatestVersionURL(), 0, 0);
     }
 
     ImGui::End();

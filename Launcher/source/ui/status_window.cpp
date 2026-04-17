@@ -16,6 +16,9 @@ namespace UIWindows {
         ImGui::Text("STATUS: %s", GetInjectionStatus().c_str());
 
         if (g_Injector.GetStatus() == Injector::STATUS::STATUS_WAITING_FOR_GAME) {
+            LE::Config* le_config = LE::Config::GetInstance();
+            LE::LauncherValues* launch_values = le_config->GetLauncherValues();
+
             ImGui::Separator();
 
             ImGui::PushStyleVar(ImGuiStyleVar_ButtonTextAlign, ImVec2(0.5f, 0.5f));
@@ -27,7 +30,18 @@ namespace UIWindows {
                 !run_game_pressed
             ) {
                 run_game_pressed = true;
-                g_Core.RunGame();
+                g_Core.RunGame(launch_values->no_mods);
+            }
+
+            ImGui::TextDisabled("(?)");
+            if (ImGui::IsItemHovered())
+            {
+                ImGui::SetTooltip("Enable to see if your game run without mods");
+            }
+            ImGui::SameLine();
+
+            if (ImGui::Checkbox("No Mods", &launch_values->no_mods)) {
+                le_config->Save();
             }
 
             if (run_game_disabled) {
@@ -41,6 +55,7 @@ namespace UIWindows {
 
                 ImGui::SameLine();
                 ImGui::Text("Can't find game exe");
+                ImGui::Text("Set Valid Game Location in Settings");
             }
 
             ImGui::PopStyleVar();
