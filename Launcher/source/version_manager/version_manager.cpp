@@ -281,6 +281,32 @@ namespace LE {
         LOG_INFO(std::format("DLL MD5: {}", md5string.str().c_str()));
     }
 
+    void VersionManager::ValidatePreloaderDLL() {
+        std::string fpath = "preloader_l.dll";
+
+        if (!std::filesystem::exists(fpath)) {
+            return;
+        }
+
+        std::ifstream file(fpath, std::ifstream::binary);
+        MD5_CTX md5Context;
+        MD5_Init(&md5Context);
+        char buf[1024 * 16];
+        while (file.good()) {
+            file.read(buf, sizeof(buf));
+            MD5_Update(&md5Context, buf, file.gcount());
+        }
+        unsigned char result[MD5_DIGEST_LENGTH];
+        MD5_Final(result, &md5Context);
+
+        std::stringstream md5string;
+        md5string << std::hex << std::uppercase << std::setfill('0');
+        for (const auto& byte : result)
+            md5string << std::setw(2) << (int)byte;
+
+        LOG_INFO(std::format("PRELOADER DLL MD5: {}", md5string.str().c_str()));
+    }
+
     VersionManager* VersionManager::GetInstance()
     {
         std::lock_guard<std::mutex> lock(mutex_);

@@ -57,6 +57,7 @@ namespace LE {
         std::string game_version = "1.0.0.0";
 
         std::map<std::string, std::string> game_version_map = {
+            { "1.0.134.63314",      "v1.5.4"},
             { "1.0.134.1759",       "v1.5.3"},
             { "1.0.133.58379",      "v1.5.2"},
             { "1.0.133.14157",      "v1.5.1"},
@@ -79,6 +80,7 @@ namespace LE {
         };
 
         std::map<std::string, std::vector<std::string>> game_version_compatibility = {
+            { "1.0.134.63314",      { "v26.3.0", "v26.3.1" }},
             { "1.0.134.1759",       { "v26.3.0", "v26.3.1" }},
             { "1.0.133.58379",      { "v26.2.7", "v26.2.9" }},
             { "1.0.133.14157",      { "v26.2.7", "v26.2.9" }},
@@ -111,6 +113,7 @@ namespace LE {
 
         void ValidateGameProc();
         void ValidateDLL();
+        void ValidatePreloaderDLL();
 
     protected:
         VersionManager();
