@@ -41,6 +41,7 @@ namespace LE {
         fs::path GetFakeAnticheatLauncherPath();
         fs::path GetLangPath();
         fs::path GetConfigPath();
+        fs::path GetAuthPath();
         fs::path GetLocaleKeyPath();
         fs::path GetGameProcessFullPath();
         fs::path GetVersionJsonPath();

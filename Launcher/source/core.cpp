@@ -59,6 +59,8 @@ bool Core::Init()
     localize.Load();
     // g_options_ids.LoadJson();
 
+    LE::AuthManager::GetInstance()->Load();
+
     std::thread t1(&LE::VersionManager::CheckUpdates, version_manager);
     t1.detach();
 

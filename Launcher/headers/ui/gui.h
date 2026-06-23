@@ -14,6 +14,7 @@
 #include "status_window.h"
 #include "settings_window.h"
 #include "locale_window.h"
+#include "auth_window.h"
 #include "edit_hotkey_window.h"
 
 #include <version_manager/version_manager.h>

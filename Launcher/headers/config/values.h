@@ -102,15 +102,6 @@ namespace LE {
         void from_json(const json& j);
     };
 
-    class TransfersValues {
-    public:
-        bool auto_delete_presigned_contracts = false;
-        bool auto_terminate_loans = false;
-
-        void to_json(json& j);
-        void from_json(const json& j);
-    };
-
     class OtherValues {
     public:
         bool first_run = true;

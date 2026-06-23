@@ -10,6 +10,7 @@
 #include <iostream>
 #include <aclapi.h>
 #include <sddl.h>
+#include <auth_manager/auth_manager.h>
 
 #include <logger/logger.h>
 #include <core.h>
@@ -27,6 +28,7 @@ public:
         STATUS_WAITING_FOR_WINDOW,
         STATUS_INJECTING,
         STATUS_DONE,
+        STATUS_NO_ACCESS,
         STATUS_ERROR
     };
 
@@ -36,6 +38,7 @@ public:
         "Waiting for Window",
         "Injecting",
         "Done",
+        "No Access",
         "Error"
     };
 
@@ -45,6 +48,7 @@ public:
         "STATUS WAITING\nWaiting for the game window.",
         "STATUS INJECTING\nInjecting",
         "STATUS DONE\nDone",
+        "STATUS NO ACCESS\nNo Access",
         "STATUS ERROR\nInjection failed for some reasons. You should be able to find more details in the log file"
     };
 

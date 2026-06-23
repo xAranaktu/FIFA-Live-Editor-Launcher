@@ -23,6 +23,9 @@ void GUI::Init() {
 
     settings_window.Init();
     locale_window.Init();
+
+    UIWindows::UIAuthPopup::GetInstance()->Init();
+
     initialized = true;
 }
 
@@ -178,6 +181,7 @@ void GUI::DrawMainMenuBar() {
 
 void GUI::DrawInfoWindow(bool* p_open) {
     LE::VersionManager* version_manager = LE::VersionManager::GetInstance();
+    LE::AuthManager* auth_manager = LE::AuthManager::GetInstance();
 
     bool is_latest = version_manager->IsUsingLatestVersion();
     bool is_cracked = false;
@@ -185,7 +189,6 @@ void GUI::DrawInfoWindow(bool* p_open) {
     ImU32 game_version_color = IM_COL32(255, 255, 255, 255);
 
     ImGui::Begin("Info", p_open);
-
     ImGui::Text("LE Version             %s", version_manager->GetToolVersion());
 
     switch (version_manager->GetCompatibilityStatus())
@@ -249,7 +252,6 @@ void GUI::DrawInfoWindow(bool* p_open) {
         ImGui::NewLine();
         ImGui::Separator();
         ImGui::Text("Your game version is not compatible\nwith the Live Editor");
-        ImGui::Text("Please update your Live Editor\nto the latest version");
     }
 
     if (!is_latest && version_manager->HasInternetConnection()) {
@@ -315,6 +317,7 @@ void GUI::Draw() {
 
     FileDialogs();
     LE::EditHotkeyWindow::GetInstance()->Draw();
+    UIWindows::UIAuthPopup::GetInstance()->Draw();
 }
 
 void GUI::ChangeModsRootDialog() {

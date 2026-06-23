@@ -187,6 +187,11 @@ namespace LE {
             size_t count{ 0 };
             _dupenv_s(&system_drive, &count, "SystemDrive");
 
+            if (system_drive == nullptr || count == 0) {
+                LOG_FATAL("Can't get SystemDrive environment variable");
+                return result;
+            }
+
             std::string sys_drive_letter = std::string(system_drive) + "\\";
 
             result = sys_drive_letter;
@@ -241,6 +246,10 @@ namespace LE {
 
     fs::path FilesManager::GetConfigPath() {
         return GetLEDataDirectory() / "le_config.json";
+    }
+
+    fs::path FilesManager::GetAuthPath() {
+        return GetLEDataDirectory() / "auth.json";
     }
 
     fs::path FilesManager::GetLocaleKeyPath() {
@@ -364,6 +373,12 @@ namespace LE {
         std::filesystem::path Anadiuscfg = game_loc / "anadius.cfg";
         if (std::filesystem::exists(Anadiuscfg)) {
             LOG_INFO("anadius.cfg");
+            detected = true;
+        }
+
+        std::filesystem::path Drodocfg = game_loc / "drodo64.cfg";
+        if (std::filesystem::exists(Drodocfg)) {
+            LOG_INFO("drodo64.cfg");
             detected = true;
         }
 

@@ -20,6 +20,7 @@
 
 #include <files_manager/files_manager.h>
 #include <version_manager/version_manager.h>
+#include <auth_manager/auth_manager.h>
 
 namespace fs = std::filesystem;
 

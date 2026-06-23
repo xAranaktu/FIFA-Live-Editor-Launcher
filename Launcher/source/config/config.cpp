@@ -88,10 +88,6 @@ namespace LE {
         j["message_boxes"] = tmp;
         tmp.clear();
 
-        transfers_values.to_json(tmp);
-        j["transfers_values"] = tmp;
-        tmp.clear();
-
         other_values.to_json(tmp);
         j["other"] = tmp;
         tmp.clear();
@@ -124,10 +120,6 @@ namespace LE {
 
         if (j.contains("message_boxes")) {
             messageboxes_values.from_json(j.at("message_boxes"));
-        }
-
-        if (j.contains("transfers_values")) {
-            transfers_values.from_json(j.at("transfers_values"));
         }
 
         if (j.contains("other")) {

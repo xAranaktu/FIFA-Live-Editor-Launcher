@@ -6,10 +6,12 @@
 #include <thread>
 #include <string>
 #include "imgui.h"
+#include "imgui_helper.h"
 #include "imgui_internal.h"
 #include "imgui_stdlib.h"
 
 #include <config/config.h>
+#include "ui/auth_window.h"
 #include "injector.h"
 
 namespace UIWindows {
@@ -37,5 +39,8 @@ namespace UIWindows {
 
         bool run_game_disabled = true;
         std::string run_game_disabled_reason;
+
+        void DrawNoAccess();
+        void DrawAccess();
     };
 }

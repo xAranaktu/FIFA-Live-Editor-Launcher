@@ -264,6 +264,7 @@ SET(ALL_HEADERS
     "headers/config/ui_styles.h"
 
     "headers/version_manager/version_manager.h"
+    "headers/auth_manager/auth_manager.h"
     "headers/files_manager/files_manager.h"
 
     "headers/fonts.h"
@@ -271,6 +272,7 @@ SET(ALL_HEADERS
     "headers/localize.h"
     "headers/consts.h"
     "headers/options_id.h"
+    "headers/server.h"
 
     "headers/context.h"
     "headers/hotkey_manager.h"
@@ -283,6 +285,7 @@ SET(ALL_HEADERS
     "headers/ui/settings_window.h"
     "headers/ui/locale_window.h"
     "headers/ui/status_window.h"
+    "headers/ui/auth_window.h"
     "headers/ui/imgui_helper.h"
     
     ${EXTERNAL_H}
@@ -300,11 +303,13 @@ SET(ALL_CPP
     "source/config/values.cpp"
 
     "source/version_manager/version_manager.cpp"
+    "source/auth_manager/auth_manager.cpp"
     "source/files_manager/files_manager.cpp"
 
     "source/core.cpp"
     "source/localize.cpp"
     "source/options_id.cpp"
+    "source/server.cpp"
     "source/hotkey_manager.cpp"
     "source/injector.cpp"
     "source/misc.cpp"
@@ -314,6 +319,7 @@ SET(ALL_CPP
     "source/ui/settings_window.cpp"
     "source/ui/locale_window.cpp"
     "source/ui/status_window.cpp"
+    "source/ui/auth_window.cpp"
 
     "main.cpp"
 

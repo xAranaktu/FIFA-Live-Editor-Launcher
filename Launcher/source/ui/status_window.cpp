@@ -5,7 +5,33 @@ namespace UIWindows {
     UIStatus::~UIStatus() {}
 
     void UIStatus::Draw(bool* p_open) {
-        ImGui::Begin(GetWindowName(), p_open);
+        if (ImGui::Begin(GetWindowName(), p_open)) {
+            LE::AuthManager* auth_manager = LE::AuthManager::GetInstance();
+            if (auth_manager->GetLoginStatus() == LE::LOGIN_STATUS::NO_ACCESS) {
+                DrawNoAccess();
+            }
+            else {
+                DrawAccess();
+            }
+
+        }
+
+        ImGui::End();
+
+        FirstDraw();
+    }
+
+
+    void UIStatus::DrawNoAccess() {
+        ImGui::Text("You don't have access");
+        ImGui::TextCenter("Support this project on ", "Patreon", "https://www.patreon.com/checkout/xAranaktu?rid=4008263");
+        if (ImGui::Button("Login", ImVec2(-FLT_MIN, 0.0f))) {
+            UIWindows::UIAuthPopup::GetInstance()->Open();
+        }
+    }
+    
+    void UIStatus::DrawAccess() {
+        LE::AuthManager* auth_manager = LE::AuthManager::GetInstance();
 
         ImGui::TextDisabled("(?)");
         if (ImGui::IsItemHovered())
@@ -23,47 +49,51 @@ namespace UIWindows {
 
             ImGui::PushStyleVar(ImGuiStyleVar_ButtonTextAlign, ImVec2(0.5f, 0.5f));
 
-            if (run_game_disabled) ImGui::BeginDisabled();
+            LE::LOGIN_STATUS auth_status = auth_manager->GetLoginStatus();
+            if (auth_status == LE::LOGIN_STATUS::HAS_ACCESS) {
+                if (run_game_disabled) ImGui::BeginDisabled();
 
-            if (
-                ImGui::Button("Run Game", ImVec2(-FLT_MIN, 0.0f)) &&
-                !run_game_pressed
-            ) {
-                run_game_pressed = true;
-                g_Core.RunGame(launch_values->no_mods);
-            }
-
-            ImGui::TextDisabled("(?)");
-            if (ImGui::IsItemHovered())
-            {
-                ImGui::SetTooltip("Enable to see if your game run without mods");
-            }
-            ImGui::SameLine();
-
-            if (ImGui::Checkbox("No Mods", &launch_values->no_mods)) {
-                le_config->Save();
-            }
-
-            if (run_game_disabled) {
-                ImGui::EndDisabled();
+                if (
+                    ImGui::Button("Run Game", ImVec2(-FLT_MIN, 0.0f)) &&
+                    !run_game_pressed
+                    ) {
+                    run_game_pressed = true;
+                    g_Core.RunGame(launch_values->no_mods);
+                }
 
                 ImGui::TextDisabled("(?)");
                 if (ImGui::IsItemHovered())
                 {
-                    ImGui::SetTooltip(run_game_disabled_reason.c_str());
+                    ImGui::SetTooltip("Enable to see if your game run without mods");
+                }
+                ImGui::SameLine();
+
+                if (ImGui::Checkbox("No Mods", &launch_values->no_mods)) {
+                    le_config->Save();
                 }
 
-                ImGui::SameLine();
-                ImGui::Text("Can't find game exe");
-                ImGui::Text("Set Valid Game Location in Settings");
+                if (run_game_disabled) {
+                    ImGui::EndDisabled();
+
+                    ImGui::TextDisabled("(?)");
+                    if (ImGui::IsItemHovered())
+                    {
+                        ImGui::SetTooltip(run_game_disabled_reason.c_str());
+                    }
+
+                    ImGui::SameLine();
+                    ImGui::Text("Can't find game exe");
+                    ImGui::Text("Set Valid Game Location in Settings");
+                }
+            }
+            else {
+                if (ImGui::Button("Login", ImVec2(-FLT_MIN, 0.0f))) {
+                    UIWindows::UIAuthPopup::GetInstance()->Open();
+                }
             }
 
             ImGui::PopStyleVar();
         }
-
-        ImGui::End();
-
-        FirstDraw();
     }
 
     void UIStatus::Dock(ImGuiID dock_id) {

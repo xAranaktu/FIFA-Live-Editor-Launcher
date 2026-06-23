@@ -203,6 +203,11 @@ bool Injector::DoInjectDLL(int pid) {
 void Injector::Inject() {
     LOG_INFO(std::format("[{}]", __FUNCTION__));
 
+    if (LE::AuthManager::GetInstance()->GetLoginStatus() == LE::LOGIN_STATUS::NO_ACCESS) {
+        LOG_ERROR("NO ACCESS");
+        return;
+    }
+
     LE::Config* le_config = LE::Config::GetInstance();
     LE::LauncherValues* launcher_values = le_config->GetLauncherValues();
 

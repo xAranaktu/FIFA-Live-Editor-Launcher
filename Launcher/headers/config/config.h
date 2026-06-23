@@ -35,7 +35,6 @@ namespace LE {
         HotkeysValues* GetHotkeyValues() { return &hotkeys_values; }
         LoggerValues* GetLoggerValues() { return &logger_values; }
         MessageBoxesValues* GetMessageBoxesValues() { return &messageboxes_values; }
-        TransfersValues* GetTransfersValues() { return &transfers_values; }
         OtherValues* GetOtherValues() { return &other_values; }
         DirectoriesValues* GetDirectoriesValues() { return &directories_values; }
         UIStyle* GetUIStyle() { return &ui_style; }
@@ -50,7 +49,6 @@ namespace LE {
         HotkeysValues hotkeys_values;
         LoggerValues logger_values;
         MessageBoxesValues messageboxes_values;
-        TransfersValues transfers_values;
         OtherValues other_values;
         DirectoriesValues directories_values;
         UIStyle ui_style;
