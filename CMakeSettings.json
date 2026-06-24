@@ -26,11 +26,6 @@
                     "type": "BOOL"
                 },
                 {
-                    "name": "PATREON_AUTH",
-                    "value": "True",
-                    "type": "BOOL"
-                },
-                {
                     "name": "GEN_PDB",
                     "value": "True",
                     "type": "BOOL"
