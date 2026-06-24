@@ -34,7 +34,7 @@ namespace LE {
     bool AuthManager::IsFree() {
         time_t now;
         time(&now);
-        // Bronze Tier Got Access
+
         // Free Tier Got Access
         if (now >= UNLOCK_FREE) return true;
 
