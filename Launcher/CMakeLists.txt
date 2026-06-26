@@ -238,6 +238,7 @@ SET (CURL_H
 SET(EXTERNAL_H
     "external/IconsFontAwesome6.h"
     "external/tinyxml2.h"
+    "external/TextEditor.h"
     "external/AES/AES.h"
     "external/ImGuiFileDialog/ImGuiFileDialog.h"
 )
@@ -247,6 +248,7 @@ SET(EXTERNAL_SRC
     "external/nlohmann/json_fwd.hpp"
     "external/nlohmann/fifo_map.hpp"
     "external/tinyxml2.cpp"
+    "external/TextEditor.cpp"
     "external/AES/AES.cpp"
     "external/ImGuiFileDialog/ImGuiFileDialog.cpp"
 )

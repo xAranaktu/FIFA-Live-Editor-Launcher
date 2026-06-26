@@ -1,13 +1,16 @@
 #include "locale_window.h"
 
 namespace UIWindows {
-    UILocaleIni::UILocaleIni() {}
+    UILocaleIni::UILocaleIni() {
+        text_editor.SetImGuiChildIgnored(true);
+        text_editor.SetColorizerEnable(true);
+    }
     UILocaleIni::~UILocaleIni() {}
 
     void UILocaleIni::Init() {
         if (initialized)    return;
 
-        file_content = "Key file not found. Run the game at least once to extract the key from game.";
+        text_editor.SetText("locale.ini is encrypted. Live Editor will decrypt it once you successfuly run the game with this tool\nTHIS IS NOT A BUG");
 
         LoadKey();
 
@@ -74,11 +77,8 @@ namespace UIWindows {
     }
 
     void UILocaleIni::Content() {
-        if (ImGui::InputTextMultiline("##FileContent", &file_content, ImVec2(-FLT_MIN, -FLT_MIN))) {
-            has_unsaved_changes = true;
-        }
+        text_editor.Render("Locale Editor", ImVec2(0, 0));
     }
-
 
     void UILocaleIni::WriteEncryptedFileContent(std::filesystem::path f, std::vector<uint8_t> data) {
         LOG_INFO(std::format("[{}] {}", __FUNCTION__, ToUTF8String(f)));
@@ -100,38 +100,9 @@ namespace UIWindows {
 
         LOG_INFO(std::format("[{}]", __FUNCTION__));
 
-        std::vector<uint8_t> buf;
+        std::string file_content = text_editor.GetText();
+        std::vector<uint8_t> buf(file_content.begin(), file_content.end());
 
-        bool insert_newline = false;
-        int c = 0;
-        for (int i = 0; i < file_content.size(); i++)
-        {
-            uint8_t chr = static_cast<uint8_t>(file_content[i]);
-
-            // Keep empty lines
-            if (c > 3) {
-                buf.push_back(0xD);
-                buf.push_back(0xA);
-                c = 0;
-            }
-
-            // \r\n
-            // Required becase \r or \n May get lost when editing the text input... :(
-            if (chr == 0xD || chr == 0xA) {
-                insert_newline = true;
-                c++;
-                continue;
-            }
-
-            if (insert_newline) {
-                c = 0;
-                buf.push_back(0xD);
-                buf.push_back(0xA);
-                insert_newline = false;
-            }
-            buf.push_back(chr);
-
-        }
         auto encrypted = EncryptLocaleFile(&buf);
 
         WriteEncryptedFileContent(locale_file, encrypted);
@@ -158,8 +129,7 @@ namespace UIWindows {
     }
 
     void UILocaleIni::LoadFileContent(std::vector<unsigned char> data) {
-        file_content.clear();
-        file_content = std::string(data.begin(), data.end());
+        text_editor.SetText(std::string(data.begin(), data.end()));
     }
 
     std::vector<unsigned char> UILocaleIni::DecryptLocaleFile(std::vector<uint8_t>* buff) {

@@ -7,6 +7,7 @@
 #include "imgui_internal.h"
 #include "imgui_stdlib.h"
 #include "AES.h"
+#include <TextEditor.h>
 
 #include <files_manager/files_manager.h>
 #include "core.h"
@@ -33,7 +34,8 @@ namespace UIWindows {
         std::filesystem::path org_locale_path;
         std::filesystem::path locale_file;
         std::filesystem::path locale_backup;
-        std::string file_content;
+
+        TextEditor text_editor;
 
         // 0x20
         std::vector<unsigned char> key;
