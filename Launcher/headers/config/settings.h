@@ -7,6 +7,11 @@
 #include <../external/nlohmann/json.hpp>
 using json = nlohmann::json;
 namespace LESetting {
+    enum class HotkeyValueType {
+        HOTKEY_NO_VALUE = 0,
+        HOTKEY_FLOAT
+    };
+
     class Color3 {
     public:
         float x, y, z;
@@ -40,12 +45,21 @@ namespace LESetting {
 
     class Hotkey {
     public:
-        bool enabled = true;
+        unsigned long uid;    // DJB2hash
         std::vector<int> keys_combination;
+        std::string name;
+        std::string description;
+        HotkeyValueType val_type = HotkeyValueType::HOTKEY_NO_VALUE;
+        float fv;
 
-        Hotkey(std::vector<int> combination_arr);
+        Hotkey();
+        Hotkey(unsigned long _uid, std::vector<int> combination_arr);
         void SetCombination(std::vector<int> combination_arr);
         void SetCombination(std::vector<uint8_t> combination_arr);
+        void SetName(std::string _name);
+        void SetDescription(std::string _description);
+        void SetFloatValue(float _fv);
+        void SetValueType(HotkeyValueType _val_type);
 
         void to_json(json& j);
         void from_json(const json& j);

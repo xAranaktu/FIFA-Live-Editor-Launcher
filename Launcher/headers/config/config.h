@@ -30,28 +30,24 @@ namespace LE {
         void Save();
 
         UIValues* GetUIValues() { return &ui_values; }
-        OverlayValues* GetOverlayValues() { return &overlay_values; }
         LauncherValues* GetLauncherValues() { return &launch_values; }
         HotkeysValues* GetHotkeyValues() { return &hotkeys_values; }
         LoggerValues* GetLoggerValues() { return &logger_values; }
         MessageBoxesValues* GetMessageBoxesValues() { return &messageboxes_values; }
         OtherValues* GetOtherValues() { return &other_values; }
         DirectoriesValues* GetDirectoriesValues() { return &directories_values; }
-        UIStyle* GetUIStyle() { return &ui_style; }
 
     private:
         static Config* pinstance_;
         static std::mutex mutex_;
 
         UIValues ui_values;
-        OverlayValues overlay_values;
         LauncherValues launch_values;
         HotkeysValues hotkeys_values;
         LoggerValues logger_values;
         MessageBoxesValues messageboxes_values;
         OtherValues other_values;
         DirectoriesValues directories_values;
-        UIStyle ui_style;
 
         fs::path cfg_path;
 

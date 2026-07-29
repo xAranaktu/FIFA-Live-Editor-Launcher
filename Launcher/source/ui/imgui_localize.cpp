@@ -25,6 +25,11 @@ namespace ImGuiLoc {
         return ImGui::InputInt(localize.Translate(key).c_str(), v, step, step_fast, flags);
     }
 
+    bool InputFloat(const char* key, float* v, float step, float step_fast, const char* format, ImGuiInputTextFlags flags)
+    {
+        return ImGui::InputFloat(localize.Translate(key).c_str(), v, step, step_fast, format, flags);
+    }
+
     bool Combo(const char* key, int* currIndex, std::vector<std::string>& values) {
         return ImGui::Combo(localize.Translate(key).c_str(), currIndex, values);
     }

@@ -99,6 +99,11 @@ namespace LE {
         keys.clear();
         current_action = action;
         new_combination = action->GetCombination();
+
+        if (new_combination.empty()) {
+            new_combination = "<NO KEY ASSIGNED>";
+        }
+
         for (int vk_keycode : *current_action->GetKeys()) {
             if (avail_key_names.count(vk_keycode) == 1) {
                 std::string key_name = avail_key_names[vk_keycode];
@@ -147,12 +152,23 @@ namespace LE {
                 ImGui::Text("Key %d: ", i+1);
                 ImGui::SameLine();
 
-                ImGui::PushItemWidth(100.0f);
+                ImGui::PushItemWidth(200.0f);
                 if (ImGui::Combo(std::format("##key{}", i).c_str(), (int*)&keys[i], avail_keys)) {
                     UpdateCombination();
                 }
                 ImGui::PopItemWidth();
             }
+
+            switch (current_action->GetValueType())
+            {
+            case LESetting::HotkeyValueType::HOTKEY_FLOAT:
+                FloatInput();
+                break;
+            default:
+                break;
+            }
+            
+
             if (ImGui::Button("Add key")) {
                 keys.push_back(0);
             }
@@ -210,22 +226,29 @@ namespace LE {
 
         LE::Config* config = LE::Config::GetInstance();
         LE::HotkeysValues* hotkey_values = config->GetHotkeyValues();
+        auto current_hotkey = hotkey_values->GetHotkey(current_action->GetID());
+        if (current_hotkey) {
+            current_hotkey->SetCombination(new_keys);
 
-        switch (current_action->GetID())
-        {
-        case LE::HotkeyActionID::ACTION_SHOW_UI:
-        {
-            hotkey_values->show_ui_keys.SetCombination(new_keys);
-            break;
-        }
-        default:
-            break;
-        
+            if (current_action->GetValueType() == LESetting::HotkeyValueType::HOTKEY_FLOAT) {
+                current_hotkey->SetFloatValue(*current_action->GetFloatValuePtr());
+            }
+
         }
 
         config->Save();
 
         show = false;
+    }
+
+    void EditHotkeyWindow::FloatInput() {
+        ImGui::Text("Value: ");
+        ImGui::SameLine();
+        ImGui::PushItemWidth(200.0f);
+        ImGui::PushID(current_action->GetID());
+        ImGui::InputFloat("", current_action->GetFloatValuePtr());
+        ImGui::PopID();
+        ImGui::PopItemWidth();
     }
 
     EditHotkeyWindow* EditHotkeyWindow::GetInstance()

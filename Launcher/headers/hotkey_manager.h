@@ -9,18 +9,21 @@
 #include <config/config.h>
 
 namespace LE {
-    enum class HotkeyActionID {
-        ACTION_SHOW_UI = 0
-    };
-
     class HotkeyAction {
     public:
-        HotkeyAction(HotkeyActionID _id, std::string _name, std::vector<unsigned char> _keys);
+        HotkeyAction(std::string _id, std::string _name, std::vector<unsigned char> _keys);
+        HotkeyAction(unsigned long _uid, std::string _name, std::vector<unsigned char> _keys);
 
         void SetKeys(std::vector<unsigned char> _keys);
         std::vector<unsigned char>* GetKeys();
 
-        HotkeyActionID GetID();
+        void SetValueType(LESetting::HotkeyValueType _val_type);
+        LESetting::HotkeyValueType GetValueType();
+
+        void SetFloat(float _fv);
+        float* GetFloatValuePtr();
+
+        unsigned long GetID();
         std::string GetName();
         std::string GetCombination();
 
@@ -28,11 +31,13 @@ namespace LE {
         std::string GetDescription();
 
     private:
-        HotkeyActionID id;
+        unsigned long uid; // DJB2
         std::string name;
         std::string description;
         std::string combination;
         std::vector<unsigned char> keys;
+        LESetting::HotkeyValueType value_type;
+        float fv;
     };
 
     class HotkeyManager {
@@ -41,13 +46,14 @@ namespace LE {
         void operator=(const HotkeyManager&) = delete;
         static HotkeyManager* GetInstance();
 
-        HotkeyAction* GetHotkeyAction(HotkeyActionID id);
+        HotkeyAction* GetHotkeyAction(unsigned long id);
+        std::vector<HotkeyAction*>* GetHotkeyActions();
 
     private:
         static HotkeyManager* pinstance_;
         static std::mutex mutex_;
 
-        std::map<HotkeyActionID, HotkeyAction*> hotkey_actions;
+        std::vector<HotkeyAction*> hotkey_actions;
 
     protected:
         HotkeyManager();

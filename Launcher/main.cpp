@@ -121,6 +121,7 @@ int WinMain(
     const float clear_color_with_alpha[4] = { clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w };
 
 
+    LE::AuthManager::GetInstance()->Init();
     LE::AuthManager::GetInstance()->SilentLogin();
 
     // Main Window loop
@@ -254,26 +255,6 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 // Generally you may always pass all inputs to dear imgui, and hide them from your application based on those two flags.
 LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-    if (msg == WM_COPYDATA) {
-        const ULONG_PTR PATREON_CODE_ID = 1001;
-        const ULONG_PTR LOG_ID = 1002;
-
-        // Cast the LPARAM to a COPYDATASTRUCT pointer
-        COPYDATASTRUCT* pcds = (COPYDATASTRUCT*)lParam;
-        // Verify this is the message type we expect
-        if (pcds->dwData == PATREON_CODE_ID) {
-            // Extract the string
-            std::string authCode = (LPCSTR)pcds->lpData;
-
-            LE::AuthManager::GetInstance()->DoAuth(authCode);
-        }
-        else if (pcds->dwData == LOG_ID)
-        {
-            std::string logMessage = (LPCSTR)pcds->lpData;
-            LOG_INFO(std::format("[SERVER LOG] {}", logMessage.c_str()).c_str());
-        }
-    }
-
     if (ImGui_ImplWin32_WndProcHandler(hWnd, msg, wParam, lParam))
         return true;
 

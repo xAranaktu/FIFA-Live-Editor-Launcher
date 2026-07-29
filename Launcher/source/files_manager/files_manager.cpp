@@ -382,6 +382,12 @@ namespace LE {
             detected = true;
         }
 
+        std::filesystem::path Drodocfg2 = game_loc / "drodo64.ini";
+        if (std::filesystem::exists(Drodocfg2)) {
+            LOG_INFO("drodo64.ini");
+            detected = true;
+        }
+
         std::filesystem::path fitgirl_ini = game_loc / "FitGirl-Launcher.ini";
         if (std::filesystem::exists(fitgirl_ini)) {
             LOG_INFO("FitGirl-Launcher.ini");

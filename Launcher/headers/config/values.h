@@ -30,7 +30,7 @@ namespace LE {
     class UIValues {
     public:
         // Default Values
-        int scale = 0;
+        float font_size = 15.0f;
 
         LESetting::Attribute attr_elite = LESetting::Attribute(90, LESetting::Color3(COLRGB(0), COLRGB(60), COLRGB(0)), LESetting::Color3(COLRGB(255), COLRGB(255), COLRGB(255)));
         LESetting::Attribute attr_excellent = LESetting::Attribute(80, LESetting::Color3(COLRGB(0), COLRGB(94), COLRGB(0)), LESetting::Color3(COLRGB(255), COLRGB(255), COLRGB(255)));
@@ -43,14 +43,6 @@ namespace LE {
         void from_json(const json& j);
     };
 
-    class OverlayValues {
-    public:
-        bool show_overlay_at_startup = true;
-
-        void to_json(json& j);
-        void from_json(const json& j);
-    };
-
     class LauncherValues {
     public:
         // Default Values
@@ -58,7 +50,7 @@ namespace LE {
         bool close_after_injection = true;
         bool auto_inject = true;
         bool no_mods = false;
-        int injection_delay = 100;
+        int dll_inject_delay = 100;
 
         // Default values in Config::Init
         std::string game_proc_name;
@@ -74,7 +66,11 @@ namespace LE {
 
     class HotkeysValues {
     public:
-        LESetting::Hotkey show_ui_keys = LESetting::Hotkey({ 120 });    // F9
+        std::vector<LESetting::Hotkey> hotkeys;
+
+        void AddHotkey(LESetting::Hotkey hk);
+        bool HotkeyExist(unsigned long uid);
+        LESetting::Hotkey* GetHotkey(unsigned long uid);
 
         void to_json(json& j);
         void from_json(const json& j);

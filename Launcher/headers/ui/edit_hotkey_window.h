@@ -36,6 +36,8 @@ namespace LE {
         std::string GetKeyName(unsigned char code);
         void UpdateCombination();
 
+        void FloatInput();
+
         void SaveHotkey();
 
     protected:

@@ -1,11 +1,22 @@
 #include <hotkey_manager.h>
 
 namespace LE {
-    HotkeyAction::HotkeyAction(HotkeyActionID _id, std::string _name, std::vector<unsigned char> _keys) {
-        id = _id;
+    HotkeyAction::HotkeyAction(std::string _id, std::string _name, std::vector<unsigned char> _keys) {
+        uid = DJB2hash(_id);
         name = _name;
         keys = _keys;
         combination.clear();
+        value_type = LESetting::HotkeyValueType::HOTKEY_NO_VALUE;
+        fv = 0.0f;
+    }
+
+    HotkeyAction::HotkeyAction(unsigned long _uid, std::string _name, std::vector<unsigned char> _keys) {
+        uid = _uid;
+        name = _name;
+        keys = _keys;
+        combination.clear();
+        value_type = LESetting::HotkeyValueType::HOTKEY_NO_VALUE;
+        fv = 0.0f;
     }
 
     void HotkeyAction::SetKeys(std::vector<unsigned char> _keys) {
@@ -17,8 +28,25 @@ namespace LE {
         return &keys; 
     }
 
-    HotkeyActionID HotkeyAction::GetID() {
-        return id;
+    void HotkeyAction::SetValueType(LESetting::HotkeyValueType _val_type) {
+        value_type = _val_type;
+    }
+
+    LESetting::HotkeyValueType HotkeyAction::GetValueType() {
+        return value_type;
+    }
+
+    void HotkeyAction::SetFloat(float _fv) {
+        SetValueType(LESetting::HotkeyValueType::HOTKEY_FLOAT);
+        fv = _fv;
+    }
+
+    float* HotkeyAction::GetFloatValuePtr() {
+        return &fv;
+    }
+
+    unsigned long HotkeyAction::GetID() {
+        return uid;
     }
 
     std::string HotkeyAction::GetName() {
@@ -51,22 +79,131 @@ namespace LE {
 
     HotkeyManager::HotkeyManager() {
         LE::HotkeysValues* hotkey_values = LE::Config::GetInstance()->GetHotkeyValues();
-        
-        // Show UI
+
+        // Gameplay Speed
+        for (size_t i = 0; i < 3; i++)
         {
+            auto _hash = DJB2hash(std::format("GAMEPLAY_SPEED##{}", i));
+            if (hotkey_values->HotkeyExist(_hash)) continue;
+
+            std::vector<int> _keys;
+            LESetting::Hotkey _hotkey = LESetting::Hotkey(_hash, _keys);
+            _hotkey.SetName(std::format("Gameplay Speed {}", i+1));
+            _hotkey.SetDescription("Set Speedhack Gameplay Speed");
+            _hotkey.SetFloatValue(1.0f);
+            
+            hotkey_values->AddHotkey(_hotkey);
+        }
+
+        {
+            auto _hash = DJB2hash("GAMEPLAY_INC_SPEED##0");
+            if (!hotkey_values->HotkeyExist(_hash)) {
+                std::vector<int> _keys;
+                LESetting::Hotkey _hotkey = LESetting::Hotkey(_hash, _keys);
+                _hotkey.SetName("Gameplay Speed +");
+                _hotkey.SetDescription("Increase Speedhack Speed During Gameplay");
+                _hotkey.SetFloatValue(1.0f);
+                hotkey_values->AddHotkey(_hotkey);
+            }
+        }
+
+        {
+            auto _hash = DJB2hash("GAMEPLAY_DEC_SPEED##0");
+            if (!hotkey_values->HotkeyExist(_hash)) {
+                std::vector<int> _keys;
+                LESetting::Hotkey _hotkey = LESetting::Hotkey(_hash, _keys);
+                _hotkey.SetName("Gameplay Speed -");
+                _hotkey.SetDescription("Decrease Speedhack Speed During Gameplay");
+                _hotkey.SetFloatValue(1.0f);
+                hotkey_values->AddHotkey(_hotkey);
+            }
+        }
+
+        // Menu Speed
+        for (size_t i = 0; i < 3; i++)
+        {
+            auto _hash = DJB2hash(std::format("MENU_SPEED##{}", i));
+            if (hotkey_values->HotkeyExist(_hash)) continue;
+
+            std::vector<int> _keys;
+            LESetting::Hotkey _hotkey = LESetting::Hotkey(_hash, _keys);
+            _hotkey.SetName(std::format("Menu Speed {}", i+1));
+            _hotkey.SetDescription("Set Speedhack Menu Speed");
+            _hotkey.SetFloatValue(1.0f);
+            hotkey_values->AddHotkey(_hotkey);
+        }
+
+        {
+            auto _hash = DJB2hash("MENU_INC_SPEED##0");
+            if (!hotkey_values->HotkeyExist(_hash)) {
+                std::vector<int> _keys;
+                LESetting::Hotkey _hotkey = LESetting::Hotkey(_hash, _keys);
+                _hotkey.SetName("Menu Speed +");
+                _hotkey.SetDescription("Increase Speedhack Speed In Menu");
+                _hotkey.SetFloatValue(1.0f);
+
+                hotkey_values->AddHotkey(_hotkey);
+            }
+        }
+
+        {
+            auto _hash = DJB2hash("MENU_DEC_SPEED##0");
+            if (!hotkey_values->HotkeyExist(_hash)) {
+                std::vector<int> _keys;
+                LESetting::Hotkey _hotkey = LESetting::Hotkey(_hash, _keys);
+                _hotkey.SetName("Menu Speed -");
+                _hotkey.SetDescription("Decrease Speedhack Speed In Menu");
+                _hotkey.SetFloatValue(1.0f);
+
+                hotkey_values->AddHotkey(_hotkey);
+            }
+        }
+
+        // Toggle UI
+
+        auto toggle_ui_hash = DJB2hash("TOGGLE_UI##0");
+        if (!hotkey_values->HotkeyExist(toggle_ui_hash)) {
+            LOG_INFO("Create Hotkey: Toggle UI - [F9]");
+            std::vector<int> show_ui_keys;
+            show_ui_keys.push_back(0x78); // F9
+
+            LESetting::Hotkey show_ui_hotkey = LESetting::Hotkey(
+                toggle_ui_hash, show_ui_keys
+            );
+            show_ui_hotkey.SetName("Toggle UI");
+            show_ui_hotkey.SetDescription("Show/hide live editor user interface in-game");
+            hotkey_values->AddHotkey(show_ui_hotkey);
+
+            LE::Config::GetInstance()->Save();
+        }
+
+        for (auto hotkey : hotkey_values->hotkeys) {
             std::vector<unsigned char> tmpkeys;
-            for (auto key : hotkey_values->show_ui_keys.keys_combination) {
+            for (auto key : hotkey.keys_combination) {
                 tmpkeys.push_back(key);
             }
-            HotkeyAction* show_ui = new HotkeyAction(HotkeyActionID::ACTION_SHOW_UI, "Show UI", tmpkeys);
-            show_ui->SetDescription("Show/hide live editor user interface in-game");
-            hotkey_actions[HotkeyActionID::ACTION_SHOW_UI] = show_ui;
+            HotkeyAction* action = new HotkeyAction(hotkey.uid, hotkey.name, tmpkeys);
+            action->SetDescription(hotkey.description);
+
+            if (hotkey.val_type == LESetting::HotkeyValueType::HOTKEY_FLOAT) {
+                action->SetFloat(hotkey.fv);
+            }
+
+            hotkey_actions.push_back(action);
         }
     }
     HotkeyManager::~HotkeyManager() {}
 
-    HotkeyAction* HotkeyManager::GetHotkeyAction(HotkeyActionID id) {
-        return hotkey_actions[id];
+    HotkeyAction* HotkeyManager::GetHotkeyAction(unsigned long id) {
+        for (auto& hotkey : hotkey_actions) {
+            if (hotkey->GetID() == id)  return hotkey;
+        }
+
+        return nullptr;
+    }
+
+    std::vector<HotkeyAction*>* HotkeyManager::GetHotkeyActions() {
+        return &hotkey_actions;
     }
 
     HotkeyManager* HotkeyManager::GetInstance()

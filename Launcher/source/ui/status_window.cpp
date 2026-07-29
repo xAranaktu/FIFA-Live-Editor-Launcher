@@ -25,9 +25,12 @@ namespace UIWindows {
     void UIStatus::DrawNoAccess() {
         ImGui::Text("You don't have access");
         ImGui::TextCenter("Support this project on ", "Patreon", "https://www.patreon.com/checkout/xAranaktu?rid=4008263");
-        if (ImGui::Button("Login", ImVec2(-FLT_MIN, 0.0f))) {
-            UIWindows::UIAuthPopup::GetInstance()->Open();
+        ImGui::PushStyleColor(ImGuiCol_Button, IM_COL32(255, 51, 51, 255));
+        ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(192, 246, 241, 255));
+        if (ImGui::Button("Logout", ImVec2(-FLT_MIN, 0.0f))) {
+            LE::AuthManager::GetInstance()->DoLogout();
         }
+        ImGui::PopStyleColor(2);
     }
     
     void UIStatus::DrawAccess() {
@@ -61,6 +64,13 @@ namespace UIWindows {
                     g_Core.RunGame(launch_values->no_mods);
                 }
 
+                ImGui::PushStyleColor(ImGuiCol_Button, IM_COL32(255, 51, 51, 255));
+                ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(192, 246, 241, 255));
+                if (ImGui::Button("Logout", ImVec2(-FLT_MIN, 0.0f))) {
+                    auth_manager->DoLogout();
+                }
+                ImGui::PopStyleColor(2);
+
                 ImGui::TextDisabled("(?)");
                 if (ImGui::IsItemHovered())
                 {
@@ -87,9 +97,12 @@ namespace UIWindows {
                 }
             }
             else {
+                ImGui::PushStyleColor(ImGuiCol_Button, IM_COL32(138, 119, 23, 255));
+                ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(192, 246, 241, 255));
                 if (ImGui::Button("Login", ImVec2(-FLT_MIN, 0.0f))) {
                     UIWindows::UIAuthPopup::GetInstance()->Open();
                 }
+                ImGui::PopStyleColor(2);
             }
 
             ImGui::PopStyleVar();

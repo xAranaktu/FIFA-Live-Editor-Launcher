@@ -242,7 +242,7 @@ void Injector::Inject() {
     }
 
     SetStatus(STATUS_INJECTING);
-    int delay = le_config->GetLauncherValues()->injection_delay;
+    int delay = le_config->GetLauncherValues()->dll_inject_delay;
     LOG_INFO(std::format("STATUS_INJECTING, delay {} ms", delay));
     Sleep(delay);
 

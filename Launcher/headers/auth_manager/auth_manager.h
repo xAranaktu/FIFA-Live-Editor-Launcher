@@ -9,6 +9,9 @@
 
 using json = nlohmann::json;
 
+inline const __int64 UNLOCK_FREE = 1982814891;
+inline const __int64 UNLOCK_BRONZE = 1982814891;
+
 namespace LE {
     enum class LOGIN_STATUS {
         NO_STATUS,
@@ -26,15 +29,18 @@ namespace LE {
         void operator=(const AuthManager&) = delete;
         static AuthManager* GetInstance();
 
+        void Init();
         void SilentLogin();
         void SetStatus(LOGIN_STATUS status) { login_status = status; }
         LOGIN_STATUS GetLoginStatus() const { return login_status; }
         bool IsFree();
         void DoLogin();
+        void DoLogout();
         void GetDetails();
         bool VerifyAccess(const json& data);
-        bool TierGotAccess(std::string tier);
-        void DoAuth(std::string code);
+        bool TierGotAccess(int tierid = 0);
+
+        void PollForToken();
 
         int GetUserID() const { return patreon_userid; }
 
@@ -45,8 +51,10 @@ namespace LE {
         static AuthManager* pinstance_;
         static std::mutex mutex_;
 
+        std::string server_url = "https://fcle-auth.vercel.app";
+        std::string user_agent = "";
+        std::string session_id;
         std::string access_token;
-        int expires_in = 0;
         int patreon_userid = 0;
         
         LOGIN_STATUS login_status = LOGIN_STATUS::NOT_LOGGED_IN;

@@ -52,11 +52,12 @@ namespace LE {
         bool is_cracked_game = false;
 
         std::string latest_version_url = "";
-        std::string latest_tool_version = "v26.3.5";
-        std::string tool_version = "v26.3.5";
+        std::string latest_tool_version = "v26.3.6";
+        std::string tool_version = "v26.3.6";
         std::string game_version = "1.0.0.0";
 
         std::map<std::string, std::string> game_version_map = {
+            { "1.0.137.49763",      "v1.6.3"},
             { "1.0.136.57334",      "v1.6.2"},
             { "1.0.136.44486",      "v1.6.1"},
             { "1.0.136.4893",       "v1.6.0"},
@@ -85,6 +86,7 @@ namespace LE {
         };
 
         std::map<std::string, std::vector<std::string>> game_version_compatibility = {
+            { "1.0.137.49763",      { "v26.3.5", "v26.3.5" }},
             { "1.0.136.57334",      { "v26.3.4", "v26.3.4" }},
             { "1.0.136.44486",      { "v26.3.3", "v26.3.3" }},
             { "1.0.136.4893",       { "v26.3.3", "v26.3.3" }},

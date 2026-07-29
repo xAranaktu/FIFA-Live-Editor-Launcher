@@ -1,5 +1,17 @@
 #include "misc.h"
 
+unsigned long DJB2hash(std::string str) {
+    unsigned long hash = 5381;
+    unsigned int size = static_cast<unsigned int>(str.length());
+    unsigned int i = 0;
+    for (i = 0; i < size; i++) {
+
+        hash = ((hash << 5) + hash) + (str[i]); /* hash * 33 + c */
+    }
+
+    return hash;
+}
+
 std::string ToUTF8String(const std::filesystem::path& value) {
     auto result = value.u8string();
 

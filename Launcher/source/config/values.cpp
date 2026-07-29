@@ -35,25 +35,13 @@ namespace LE {
 
     void UIValues::to_json(json& j) {
         j = json{
-            {"scale",     scale},
+            {"font_size",   font_size},
         };
     }
 
     void UIValues::from_json(const json& j) {
-        if (j.contains("scale")) {
-            j.at("scale").get_to(scale);
-        }
-    }
-
-    void OverlayValues::to_json(json& j) {
-        j = json{
-            {"show_overlay_at_startup",     show_overlay_at_startup},
-        };
-    }
-
-    void OverlayValues::from_json(const json& j) {
-        if (j.contains("show_overlay_at_startup")) {
-            j.at("show_overlay_at_startup").get_to(show_overlay_at_startup);
+        if (j.contains("font_size")) {
+            j.at("font_size").get_to(font_size);
         }
     }
 
@@ -63,7 +51,7 @@ namespace LE {
             {"close_after_injection",   close_after_injection},
             {"auto_inject",             auto_inject},
             {"no_mods",                 no_mods},
-            {"injection_delay",         injection_delay},
+            {"dll_inject_delay",        dll_inject_delay},
             {"game_proc_name",          game_proc_name},
             {"params",                  params},
             {"dlls",                    dlls}
@@ -87,8 +75,8 @@ namespace LE {
             j.at("no_mods").get_to(no_mods);
         }
 
-        if (j.contains("injection_delay")) {
-            j.at("injection_delay").get_to(injection_delay);
+        if (j.contains("dll_inject_delay")) {
+            j.at("dll_inject_delay").get_to(dll_inject_delay);
         }
 
         if (j.contains("game_proc_name")) {
@@ -104,19 +92,48 @@ namespace LE {
         }
     }
 
+    void HotkeysValues::AddHotkey(LESetting::Hotkey hk) {
+        hotkeys.push_back(hk);
+    }
+
+    bool HotkeysValues::HotkeyExist(unsigned long uid) {
+        for (auto& hotkey : hotkeys) {
+            if (hotkey.uid == uid)  return true;
+        }
+
+        return false;
+    }
+
+    LESetting::Hotkey* HotkeysValues::GetHotkey(unsigned long uid) {
+        for (auto& hotkey : hotkeys) {
+            if (hotkey.uid == uid)  return &hotkey;
+        }
+
+        return nullptr;
+    }
+
     void HotkeysValues::to_json(json& j) {
-        json obj_show_ui_keys = json::object();
+        json tmp_array = json::array();
+        for (auto& hotkey : hotkeys) {
+            json tmp = json::object();
+            hotkey.to_json(tmp);
+            tmp_array.push_back(tmp);
+        }
 
-        show_ui_keys.to_json(obj_show_ui_keys);
-
-        j = json{
-            {"show_ui_keys",    obj_show_ui_keys}
-        };
+        j["hotkeys"] = tmp_array;
+        tmp_array.clear();
     }
 
     void HotkeysValues::from_json(const json& j) {
-        if (j.contains("show_ui_keys")) {
-            show_ui_keys.from_json(j.at("show_ui_keys"));
+        if (j.contains("hotkeys")) {
+            json tmp = j.at("hotkeys");
+            if (tmp.is_array()) {
+                for (auto& item : tmp) {
+                    LESetting::Hotkey hotkey;
+                    hotkey.from_json(item);
+                    hotkeys.push_back(hotkey);
+                }
+            }
         }
     }
 

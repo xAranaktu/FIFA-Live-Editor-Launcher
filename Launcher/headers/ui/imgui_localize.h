@@ -13,6 +13,7 @@ namespace ImGuiLoc {
     bool Button(const char* key, const ImVec2& size = ImVec2(0, 0));
     bool Checkbox(const char* key, bool* v);
     bool InputInt(const char* key, int* v, int step = 1, int step_fast = 100, ImGuiInputTextFlags flags = 0);
+    bool InputFloat(const char* key, float* v, float step = 0.0f, float step_fast = 0.0f, const char* format = "%.3f", ImGuiInputTextFlags flags = 0);
     bool Combo(const char* key, int* currIndex, std::vector<std::string>& values);
     bool CollapsingHeader(const char* key, ImGuiTreeNodeFlags flags = 0);
     bool ColorEdit3(const char* key, float col[3], ImGuiColorEditFlags flags = 0);

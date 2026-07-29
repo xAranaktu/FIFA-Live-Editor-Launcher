@@ -57,7 +57,15 @@ namespace LESetting {
         }
     }
 
-    Hotkey::Hotkey(std::vector<int> combination_arr) {
+    Hotkey::Hotkey() {
+        uid = -1;
+        keys_combination.clear();
+        name.clear();
+        description.clear();
+    }
+
+    Hotkey::Hotkey(unsigned long _uid, std::vector<int> combination_arr) {
+        uid = _uid;
         SetCombination(combination_arr);
     }
 
@@ -72,15 +80,53 @@ namespace LESetting {
         }
     }
 
+    void Hotkey::SetName(std::string _name) {
+        name = _name;
+    }
+    
+    void Hotkey::SetDescription(std::string _description) {
+        description = _description;
+    }
+
+    void Hotkey::SetFloatValue(float _fv) {
+        fv = _fv;
+        SetValueType(HotkeyValueType::HOTKEY_FLOAT);
+    }
+    
+    void Hotkey::SetValueType(HotkeyValueType _val_type) {
+        val_type = _val_type;
+    }
+
     void Hotkey::to_json(json& j) {
         j = json{
-            {"enabled",     enabled},
-            {"keys_combination",   keys_combination}
+            {"uid",                 uid},
+            {"val_type",            val_type},
+            {"name",                name},
+            {"description",         description},
+            {"fv",                  fv},
+            {"keys_combination",    keys_combination}
         };
     }
+
     void Hotkey::from_json(const json& j) {
-        if (j.contains("enabled")) {
-            j.at("enabled").get_to(enabled);
+        if (j.contains("uid")) {
+            j.at("uid").get_to(uid);
+        }
+
+        if (j.contains("val_type")) {
+            j.at("val_type").get_to(val_type);
+        }
+
+        if (j.contains("name")) {
+            j.at("name").get_to(name);
+        }
+
+        if (j.contains("description")) {
+            j.at("description").get_to(description);
+        }
+
+        if (j.contains("fv")) {
+            j.at("fv").get_to(fv);
         }
 
         if (j.contains("keys_combination")) {

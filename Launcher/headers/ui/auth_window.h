@@ -25,6 +25,8 @@ namespace UIWindows {
 
     protected:
         bool show = false;
+        bool auth_started = false;
+
         std::string window_name = "Authentication Required";
 
         UIAuthPopup();

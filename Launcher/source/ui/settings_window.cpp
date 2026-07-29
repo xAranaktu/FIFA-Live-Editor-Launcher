@@ -118,8 +118,6 @@ namespace UIWindows {
             LE::UIValues* ui_values = le_config->GetUIValues();
 
             if (ImGuiLoc::CollapsingHeader("attr_colors")) {
-                LE::UIValues* ui_values = le_config->GetUIValues();
-
                 save_required |= AttrColor("elite", &ui_values->attr_elite);
                 save_required |= AttrColor("excellent", &ui_values->attr_excellent);
                 save_required |= AttrColor("good", &ui_values->attr_good);
@@ -127,23 +125,18 @@ namespace UIWindows {
                 save_required |= AttrColor("poor", &ui_values->attr_poor);
             }
 
-            if (ImGuiLoc::Combo("scale", &ui_values->scale, avail_scale_factors)) {
-                g_GUI.scale_changed = true;
+            if (ImGuiLoc::InputFloat("font_size", &ui_values->font_size, 1.0f, 1.0f, "%.1f")) {
+                ui_values->font_size = std::clamp(ui_values->font_size, 12.0f, 64.0f);
                 save_required |= true;
             }
-        }
-
-        if (ImGuiLoc::CollapsingHeader("overlay")) {
-            LE::OverlayValues* overlay_values = le_config->GetOverlayValues();
-
-            save_required |= ImGuiLoc::Checkbox("show_overlay_at_startup", &overlay_values->show_overlay_at_startup);
-            ImGui::BasicTooltip("show_overlay_at_startup_tooltip");
         }
 
         ImGui::PushID("hotkeys_collapsing");
         if (ImGuiLoc::CollapsingHeader("hotkeys")) {
             LE::HotkeyManager* hotkey_manager = LE::HotkeyManager::GetInstance();
-            HotkeyEntry(hotkey_manager->GetHotkeyAction(LE::HotkeyActionID::ACTION_SHOW_UI));
+            for (auto hotkey : *hotkey_manager->GetHotkeyActions()) {
+                HotkeyEntry(hotkey);
+            }
         }
         ImGui::PopID();
 
@@ -198,7 +191,10 @@ namespace UIWindows {
 
         ImGui::SameLine();
 
-        ImGui::Text(std::format("{} [{}]", hotkey_name.c_str(), action->GetCombination().c_str()).c_str());
+        std::string display_value = action->GetCombination();
+        if (display_value.empty()) display_value = "NONE";
+
+        ImGui::Text(std::format("{} [{}]", hotkey_name.c_str(), display_value.c_str()).c_str());
         if (ImGui::IsItemHovered()) {
             ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(8.0f, 8.0f));
             ImGui::SetTooltip(action->GetDescription().c_str());

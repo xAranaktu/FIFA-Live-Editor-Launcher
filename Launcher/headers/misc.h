@@ -8,6 +8,7 @@
 
 namespace fs = std::filesystem;
 
+unsigned long DJB2hash(std::string str);
 std::string ToUTF8String(const std::filesystem::path& value);
 std::filesystem::path FromUTF8String(const std::string& value);
 std::vector<std::string> splitStr(std::string str, std::string delim);
