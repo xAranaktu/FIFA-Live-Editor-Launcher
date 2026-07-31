@@ -55,6 +55,8 @@ namespace LE {
 
         std::vector<HotkeyAction*> hotkey_actions;
 
+        void CreateDefaultHotkeys();
+
     protected:
         HotkeyManager();
         ~HotkeyManager();

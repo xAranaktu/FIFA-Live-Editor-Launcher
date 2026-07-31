@@ -59,6 +59,7 @@ namespace LESetting {
 
     Hotkey::Hotkey() {
         uid = -1;
+        fv = 0.0f;
         keys_combination.clear();
         name.clear();
         description.clear();
