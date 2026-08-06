@@ -16,6 +16,7 @@
 #include "locale_window.h"
 #include "auth_window.h"
 #include "edit_hotkey_window.h"
+#include "create_hotkey_window.h"
 
 #include <version_manager/version_manager.h>
 
@@ -35,7 +36,8 @@ public:
         FILE_DIALOG_EXPORT_LEGACY_FILE,
         FILE_DIALOG_EXPORT_LEGACY_TO_FOLDER,
         FILE_DIALOG_IMPORT_FILTER_LIST,
-        FILE_DIALOG_EXPORT_FILTER_LIST
+        FILE_DIALOG_EXPORT_FILTER_LIST,
+        FILE_DIALOG_LUA_HOTKEY_SCRIPT
     };
     ImVec2 fd_min = ImVec2(640.0f, 360.0f);
 
@@ -113,7 +115,8 @@ private:
         { "ExportLegacyFile",       GUI::FILE_DIALOGS::FILE_DIALOG_EXPORT_LEGACY_FILE },
         { "ExportLegacyToFolder",   GUI::FILE_DIALOGS::FILE_DIALOG_EXPORT_LEGACY_TO_FOLDER },
         { "ExportFilterList",       GUI::FILE_DIALOGS::FILE_DIALOG_EXPORT_FILTER_LIST },
-        { "ImportFilterList",       GUI::FILE_DIALOGS::FILE_DIALOG_IMPORT_FILTER_LIST }
+        { "ImportFilterList",       GUI::FILE_DIALOGS::FILE_DIALOG_IMPORT_FILTER_LIST },
+        { "LUAFD",                  GUI::FILE_DIALOGS::FILE_DIALOG_LUA_HOTKEY_SCRIPT }
     };
 
     std::string game_tu_desc = "";
@@ -121,6 +124,7 @@ private:
     void ChangeModsRootDialog();
     void ChangeLEDataRootDialog();
     void ChangeGameLoc();
+    void LUAHotkeyScriptLoc();
     ImGuiID GetMainDockspaceID() { return ImGui::GetID("LauncherMainDockSpace"); };
 };
 

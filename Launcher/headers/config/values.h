@@ -71,6 +71,7 @@ namespace LE {
         void AddHotkey(LESetting::Hotkey hk);
         bool HotkeyExist(unsigned long uid);
         LESetting::Hotkey* GetHotkey(unsigned long uid);
+        void DeleteHotkey(unsigned long uid);
 
         void to_json(json& j);
         void from_json(const json& j);

@@ -137,6 +137,17 @@ namespace UIWindows {
             for (auto hotkey : *hotkey_manager->GetHotkeyActions()) {
                 HotkeyEntry(hotkey);
             }
+
+            if (ImGui::Button("Create New Hotkey")) {
+                LE::CreateHotkeyWindow::GetInstance()->Open();
+            }
+            if (ImGui::IsItemHovered())
+            {
+                ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(8.0f, 8.0f));
+                ImGui::SetTooltip("Click to create new hotkey");
+                ImGui::PopStyleVar();
+            }
+
         }
         ImGui::PopID();
 
@@ -188,7 +199,6 @@ namespace UIWindows {
             ImGui::SetTooltip("Click to edit hotkey");
             ImGui::PopStyleVar();
         }
-
         ImGui::SameLine();
 
         std::string display_value = action->GetCombination();

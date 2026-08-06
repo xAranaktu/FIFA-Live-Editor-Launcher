@@ -11,6 +11,7 @@
 namespace LE {
     class HotkeyAction {
     public:
+        HotkeyAction();
         HotkeyAction(std::string _id, std::string _name, std::vector<unsigned char> _keys);
         HotkeyAction(unsigned long _uid, std::string _name, std::vector<unsigned char> _keys);
 
@@ -23,7 +24,12 @@ namespace LE {
         void SetFloat(float _fv);
         float* GetFloatValuePtr();
 
+        void SetLUAValue(std::string _sv);
+
+        void SetID(unsigned long _id);
         unsigned long GetID();
+
+        void SetName(std::string _name);
         std::string GetName();
         std::string GetCombination();
 
@@ -38,6 +44,7 @@ namespace LE {
         std::vector<unsigned char> keys;
         LESetting::HotkeyValueType value_type;
         float fv;
+        std::string sv;
     };
 
     class HotkeyManager {
@@ -48,6 +55,8 @@ namespace LE {
 
         HotkeyAction* GetHotkeyAction(unsigned long id);
         std::vector<HotkeyAction*>* GetHotkeyActions();
+        void AddHotkeyToActions(LESetting::Hotkey* hotkey);
+        void DeleteHotkey(unsigned long id);
 
     private:
         static HotkeyManager* pinstance_;

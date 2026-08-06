@@ -1,6 +1,15 @@
 #include <hotkey_manager.h>
 
 namespace LE {
+    HotkeyAction::HotkeyAction() {
+        uid = 0;
+        name.clear();
+        keys.clear();
+        combination.clear();
+        value_type = LESetting::HotkeyValueType::HOTKEY_NO_VALUE;
+        fv = 0.0f;
+    }
+
     HotkeyAction::HotkeyAction(std::string _id, std::string _name, std::vector<unsigned char> _keys) {
         uid = DJB2hash(_id);
         name = _name;
@@ -41,12 +50,25 @@ namespace LE {
         fv = _fv;
     }
 
+    void HotkeyAction::SetLUAValue(std::string _sv) {
+        SetValueType(LESetting::HotkeyValueType::HOTKEY_LUA_SCRIPT);
+        sv = _sv;
+    }   
+
     float* HotkeyAction::GetFloatValuePtr() {
         return &fv;
     }
 
+    void HotkeyAction::SetID(unsigned long _id) {
+        uid = _id;
+    }
+
     unsigned long HotkeyAction::GetID() {
         return uid;
+    }
+
+    void HotkeyAction::SetName(std::string _name) {
+        name = _name;
     }
 
     std::string HotkeyAction::GetName() {
@@ -91,6 +113,9 @@ namespace LE {
             if (hotkey.val_type == LESetting::HotkeyValueType::HOTKEY_FLOAT) {
                 action->SetFloat(hotkey.fv);
             }
+            else if (hotkey.val_type == LESetting::HotkeyValueType::HOTKEY_LUA_SCRIPT) {
+                action->SetLUAValue(hotkey.sv);
+            }
 
             hotkey_actions.push_back(action);
         }
@@ -107,6 +132,39 @@ namespace LE {
 
     std::vector<HotkeyAction*>* HotkeyManager::GetHotkeyActions() {
         return &hotkey_actions;
+    }
+
+    void HotkeyManager::AddHotkeyToActions(LESetting::Hotkey* hotkey) {
+        std::vector<unsigned char> tmpkeys;
+        for (auto key : hotkey->keys_combination) {
+            tmpkeys.push_back(key);
+        }
+        HotkeyAction* action = new HotkeyAction(hotkey->uid, hotkey->name, tmpkeys);
+        action->SetDescription(hotkey->description);
+        if (hotkey->val_type == LESetting::HotkeyValueType::HOTKEY_FLOAT) {
+            action->SetFloat(hotkey->fv);
+        }
+        else if (hotkey->val_type == LESetting::HotkeyValueType::HOTKEY_LUA_SCRIPT) {
+            action->SetLUAValue(hotkey->sv);
+        }
+        hotkey_actions.push_back(action);
+
+        LE::Config* config = LE::Config::GetInstance();
+        config->GetHotkeyValues()->AddHotkey(*hotkey);
+        config->Save();
+    }
+
+    void HotkeyManager::DeleteHotkey(unsigned long id) {
+        for (auto it = hotkey_actions.begin(); it != hotkey_actions.end(); ++it) {
+            if ((*it)->GetID() == id) {
+                delete* it;
+                hotkey_actions.erase(it);
+                break;
+            }
+        }
+        LE::Config* config = LE::Config::GetInstance();
+        config->GetHotkeyValues()->DeleteHotkey(id);
+        config->Save();
     }
 
     void HotkeyManager::CreateDefaultHotkeys() {

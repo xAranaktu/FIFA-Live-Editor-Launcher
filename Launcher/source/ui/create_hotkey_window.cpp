@@ -1,7 +1,15 @@
-#include <ui/edit_hotkey_window.h>
+#include <ui/create_hotkey_window.h>
 
 namespace LE {
-    EditHotkeyWindow::EditHotkeyWindow() {
+    CreateHotkeyWindow::CreateHotkeyWindow() {
+        default_path = ".";
+        input_last_change = std::chrono::system_clock::now();
+        error.clear();
+
+        avail_action_types = {
+            "Execute LUA"
+        };
+
         avail_key_names = {
             { VK_LSHIFT, "LEFT SHIFT" },
             { VK_RSHIFT, "RIGHT SHIFT" },
@@ -93,44 +101,20 @@ namespace LE {
             "F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9", "F10", "F11", "F12"
         };
     }
-    EditHotkeyWindow::~EditHotkeyWindow() {}
+    CreateHotkeyWindow::~CreateHotkeyWindow() {}
 
-    void EditHotkeyWindow::Open(LE::HotkeyAction* action) {
+    void CreateHotkeyWindow::Open() {
         keys.clear();
-        current_action = action;
-
-        LOG_INFO(std::format("Opening EditHotkeyWindow for action: {} {}", 
-            current_action->GetName(),
-            static_cast<int>(current_action->GetValueType())
-        ));
-
-        new_combination = action->GetCombination();
-
-        if (new_combination.empty()) {
-            new_combination = "<NO KEY ASSIGNED>";
-        }
-
-        for (int vk_keycode : *current_action->GetKeys()) {
-            if (avail_key_names.count(vk_keycode) == 1) {
-                std::string key_name = avail_key_names[vk_keycode];
-
-                for (int i = 0; i < avail_keys.size(); i++) {
-                    if (avail_keys[i] == key_name) {
-                        keys.push_back(i);
-                        break;
-                    }
-                }
-            }
-            else {
-                keys.push_back(0);
-            }
-        }
+        name.clear();
+        description.clear();
+        error.clear();
+        lua_script.clear();
         show = true;
     }
 
-    void EditHotkeyWindow::Draw() {
+    void CreateHotkeyWindow::Draw() {
         if (!show)  return;
-        
+
         auto viewport = ImGui::GetMainViewport();
         ImVec2 center = viewport->GetCenter();
         ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
@@ -140,22 +124,67 @@ namespace LE {
         sz.y *= 0.5f;
         ImGui::SetNextWindowSize(sz, ImGuiCond_FirstUseEver);
 
-        if (ImGui::Begin("Edit Hotkey", &show)) {
+        if (ImGui::Begin("Create Hotkey", &show)) {
             auto avail = ImGui::GetContentRegionAvail();
 
-            ImGui::Text("Hotkey: %s", current_action->GetName().c_str());
+            ImGui::Text("Hotkey: %s", current_action.GetName().c_str());
             if (ImGui::IsItemHovered()) {
                 ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(8.0f, 8.0f));
-                ImGui::SetTooltip(current_action->GetDescription().c_str());
+                ImGui::SetTooltip(current_action.GetDescription().c_str());
                 ImGui::PopStyleVar();
             }
 
             ImGui::Text("Current Combination: %s", new_combination.c_str());
             ImGui::Separator();
 
+            ImGui::Text("Action Type:   ");
+            ImGui::SameLine();
+
+            ImGui::PushItemWidth(200.0f);
+            if (ImGui::Combo("##hotkey_action_type", &current_hotkey_action_type, avail_action_types)) {
+
+            }
+            ImGui::PopItemWidth();
+
+            ImGui::Text("Script:        ");
+            ImGui::SameLine();
+            ImGui::PushID("##LUASCRIPTFDBTN");
+            if (ImGui::Button("...")) {
+                CloseCurrentFileDialog();
+
+                IGFD::FileDialogConfig cfg;
+                cfg.path = default_path;
+                ImGuiFileDialog::Instance()->OpenDialog("LUAFD", "Choose a LUA File", "Text files (*.txt *.lua){.txt,.lua}", cfg);
+            }
+            ImGui::PopID();
+            ImGui::SameLine();
+
+            ImGui::Text(lua_script.c_str());
+
+            ImGui::Text("Name:          "); ImGui::SameLine();
+            if (ImGui::InputText("##hotkey_name", &name)) {
+                text_input_changed = true;
+                input_last_change = std::chrono::system_clock::now();
+            }
+            if (ImGui::IsItemHovered()) {
+                ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(8.0f, 8.0f));
+                ImGui::SetTooltip("Hotkey Unique Name");
+                ImGui::PopStyleVar();
+            }
+
+            ImGui::Text("Description:   "); ImGui::SameLine();
+            if (ImGui::InputText("##hotkey_description", &description)) {
+
+            }
+            if (ImGui::IsItemHovered()) {
+                ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(8.0f, 8.0f));
+                ImGui::SetTooltip("Hotkey Description");
+                ImGui::PopStyleVar();
+            }
+
             for (size_t i = 0; i < keys.size(); i++)
             {
-                ImGui::Text("Key %d: ", i+1);
+                ImGui::Text("Key %d: ", i + 1);
                 ImGui::SameLine();
 
                 ImGui::PushItemWidth(200.0f);
@@ -164,16 +193,6 @@ namespace LE {
                 }
                 ImGui::PopItemWidth();
             }
-
-            switch (current_action->GetValueType())
-            {
-            case LESetting::HotkeyValueType::HOTKEY_FLOAT:
-                FloatInput();
-                break;
-            default:
-                break;
-            }
-            
 
             if (ImGui::Button("Add key")) {
                 keys.push_back(0);
@@ -184,31 +203,53 @@ namespace LE {
                 new_combination = "No key";
             }
 
-            switch (current_action->GetValueType())
-            {
-            case LESetting::HotkeyValueType::HOTKEY_LUA_SCRIPT:
-            {
-                if (ImGui::Button("DELETE")) {
-                    DeleteHotkey();
-                }
-                break;
-            }
-            default:
-                break;
+            auto cps = ImGui::GetCursorPos();
+            ImGui::SetCursorPos(ImVec2(cps.x, avail.y - 16));
+            ImGui::Separator();
+
+            if (!error.empty()) {
+                ImGui::Text(error.c_str());
+                ImGui::BeginDisabled();
             }
 
-            auto cps = ImGui::GetCursorPos();
-            ImGui::SetCursorPos(ImVec2(cps.x, avail.y));
-            ImGui::Separator();
             if (ImGui::Button("Save", ImVec2(-FLT_MIN, 0.0f))) {
                 SaveHotkey();
             }
+
+            if (!error.empty()) {
+                ImGui::EndDisabled();
+            }
         }
         ImGui::End();
+
+        if (
+            text_input_changed &&
+            std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - input_last_change).count() > 500
+        ) {
+            auto uid = DJB2hash(name);
+            bool is_unique = true;
+
+            LE::HotkeyManager* hotkey_manager = LE::HotkeyManager::GetInstance();
+            for (auto hotkey : *hotkey_manager->GetHotkeyActions()) {
+                if (hotkey->GetID() == uid) {
+                    is_unique = false;
+                    break;
+                }
+            }
+
+            if (is_unique) {
+                current_action.SetID(uid);
+                current_action.SetName(name);
+                error.clear();
+            }
+            else {
+                error = "Hotkey name must be unique";
+            }
+        }
     }
 
 
-    std::string EditHotkeyWindow::GetKeyName(unsigned char code) {
+    std::string CreateHotkeyWindow::GetKeyName(unsigned char code) {
         std::string result = std::format("KEY_{}", code);
         if (code <= 0 || code >= 256)  return result;
 
@@ -218,7 +259,7 @@ namespace LE {
         return result;
     }
 
-    void EditHotkeyWindow::UpdateCombination() {
+    void CreateHotkeyWindow::UpdateCombination() {
         new_combination.clear();
         for (int key : keys) {
             if (key == 0)  continue;
@@ -227,8 +268,17 @@ namespace LE {
         new_combination = new_combination.substr(0, new_combination.size() - 3);
     }
 
-    void EditHotkeyWindow::SaveHotkey() {
-        std::vector<unsigned char> new_keys;
+    void CreateHotkeyWindow::SetLUAScriptPath(std::filesystem::path fpath) {
+        lua_script = ToUTF8String(fpath);
+    }
+
+    void CreateHotkeyWindow::SaveHotkey() {
+        if (name.empty()) {
+            error = "Hotkey name can't be empty";
+            return;
+        }
+
+        std::vector<int> new_keys;
         for (int key : keys) {
             if (key == 0)  continue;
 
@@ -241,50 +291,40 @@ namespace LE {
                 }
             }
         }
-        current_action->SetKeys(new_keys);
 
         LE::Config* config = LE::Config::GetInstance();
-        LE::HotkeysValues* hotkey_values = config->GetHotkeyValues();
-        auto current_hotkey = hotkey_values->GetHotkey(current_action->GetID());
-        if (current_hotkey) {
-            current_hotkey->SetCombination(new_keys);
 
-            if (current_action->GetValueType() == LESetting::HotkeyValueType::HOTKEY_FLOAT) {
-                current_hotkey->SetFloatValue(*current_action->GetFloatValuePtr());
-            }
+        if (description.empty())  description = "No Description";
 
-        }
+        LESetting::Hotkey _hotkey = LESetting::Hotkey(DJB2hash(name), new_keys);
+        _hotkey.SetName(name);
+        _hotkey.SetDescription(description);
+        _hotkey.SetLUAValue(lua_script);
 
-        config->Save();
+        LE::HotkeyManager::GetInstance()->AddHotkeyToActions(&_hotkey);
 
         show = false;
     }
 
-    void EditHotkeyWindow::DeleteHotkey() {
-        LE::HotkeyManager::GetInstance()->DeleteHotkey(current_action->GetID());
+    void CreateHotkeyWindow::CloseCurrentFileDialog() {
+        std::string opened_key = ImGuiFileDialog::Instance()->GetOpenedKey();
 
-        show = false;
+        if (opened_key.empty()) return;
+        if (!ImGuiFileDialog::Instance()->IsOpened())   return;
+
+        // close
+        ImGuiFileDialog::Instance()->Close();
     }
 
-    void EditHotkeyWindow::FloatInput() {
-        ImGui::Text("Value: ");
-        ImGui::SameLine();
-        ImGui::PushItemWidth(200.0f);
-        ImGui::PushID(current_action->GetID());
-        ImGui::InputFloat("", current_action->GetFloatValuePtr());
-        ImGui::PopID();
-        ImGui::PopItemWidth();
-    }
-
-    EditHotkeyWindow* EditHotkeyWindow::GetInstance()
+    CreateHotkeyWindow* CreateHotkeyWindow::GetInstance()
     {
         std::lock_guard<std::mutex> lock(mutex_);
         if (pinstance_ == nullptr)
-            pinstance_ = new EditHotkeyWindow();
+            pinstance_ = new CreateHotkeyWindow();
 
         return pinstance_;
     }
 }
 
-LE::EditHotkeyWindow* LE::EditHotkeyWindow::pinstance_{ nullptr };
-std::mutex LE::EditHotkeyWindow::mutex_;
+LE::CreateHotkeyWindow* LE::CreateHotkeyWindow::pinstance_{ nullptr };
+std::mutex LE::CreateHotkeyWindow::mutex_;

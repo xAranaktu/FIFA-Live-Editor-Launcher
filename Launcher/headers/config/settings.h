@@ -9,7 +9,10 @@ using json = nlohmann::json;
 namespace LESetting {
     enum class HotkeyValueType {
         HOTKEY_NO_VALUE = 0,
-        HOTKEY_FLOAT
+        HOTKEY_LUA_SCRIPT,
+        HOTKEY_FLOAT,
+        HOTKEY_INT,
+        HOTKEY_STR
     };
 
     class Color3 {
@@ -49,8 +52,9 @@ namespace LESetting {
         std::vector<int> keys_combination;
         std::string name;
         std::string description;
-        HotkeyValueType val_type = HotkeyValueType::HOTKEY_NO_VALUE;
+        HotkeyValueType val_type;
         float fv;
+        std::string sv;
 
         Hotkey();
         Hotkey(unsigned long _uid, std::vector<int> combination_arr);
@@ -59,6 +63,8 @@ namespace LESetting {
         void SetName(std::string _name);
         void SetDescription(std::string _description);
         void SetFloatValue(float _fv);
+        void SetStringValue(std::string _sv);
+        void SetLUAValue(std::string _sv);
         void SetValueType(HotkeyValueType _val_type);
 
         void to_json(json& j);

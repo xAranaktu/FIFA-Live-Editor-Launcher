@@ -39,6 +39,7 @@ namespace LE {
         void FloatInput();
 
         void SaveHotkey();
+        void DeleteHotkey();
 
     protected:
         EditHotkeyWindow();

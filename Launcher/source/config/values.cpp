@@ -112,6 +112,15 @@ namespace LE {
         return nullptr;
     }
 
+    void HotkeysValues::DeleteHotkey(unsigned long uid) {
+        for (auto it = hotkeys.begin(); it != hotkeys.end(); ++it) {
+            if (it->uid == uid) {
+                hotkeys.erase(it);
+                break;
+            }
+        }
+    }
+
     void HotkeysValues::to_json(json& j) {
         json tmp_array = json::array();
         for (auto& hotkey : hotkeys) {

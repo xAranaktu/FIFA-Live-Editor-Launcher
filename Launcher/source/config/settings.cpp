@@ -58,14 +58,23 @@ namespace LESetting {
     }
 
     Hotkey::Hotkey() {
+        val_type = HotkeyValueType::HOTKEY_NO_VALUE;
         uid = -1;
-        fv = 0.0f;
+        fv = 1.0f;
+        sv = "";
         keys_combination.clear();
         name.clear();
         description.clear();
     }
 
     Hotkey::Hotkey(unsigned long _uid, std::vector<int> combination_arr) {
+        val_type = HotkeyValueType::HOTKEY_NO_VALUE;
+        fv = 1.0f;
+        sv = "";
+        keys_combination.clear();
+        name.clear();
+        description.clear();
+
         uid = _uid;
         SetCombination(combination_arr);
     }
@@ -93,6 +102,16 @@ namespace LESetting {
         fv = _fv;
         SetValueType(HotkeyValueType::HOTKEY_FLOAT);
     }
+
+    void Hotkey::SetLUAValue(std::string _sv) {
+        sv = _sv;
+        SetValueType(HotkeyValueType::HOTKEY_LUA_SCRIPT);
+    }
+
+    void Hotkey::SetStringValue(std::string _sv) {
+        sv = _sv;
+        SetValueType(HotkeyValueType::HOTKEY_STR);
+    }
     
     void Hotkey::SetValueType(HotkeyValueType _val_type) {
         val_type = _val_type;
@@ -105,6 +124,7 @@ namespace LESetting {
             {"name",                name},
             {"description",         description},
             {"fv",                  fv},
+            {"sv",                  sv},
             {"keys_combination",    keys_combination}
         };
     }
@@ -128,6 +148,10 @@ namespace LESetting {
 
         if (j.contains("fv")) {
             j.at("fv").get_to(fv);
+        }
+
+        if (j.contains("sv")) {
+            j.at("sv").get_to(sv);
         }
 
         if (j.contains("keys_combination")) {

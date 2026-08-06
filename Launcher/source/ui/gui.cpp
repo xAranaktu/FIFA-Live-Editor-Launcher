@@ -317,6 +317,7 @@ void GUI::Draw() {
 
     FileDialogs();
     LE::EditHotkeyWindow::GetInstance()->Draw();
+    LE::CreateHotkeyWindow::GetInstance()->Draw();
     UIWindows::UIAuthPopup::GetInstance()->Draw();
 }
 
@@ -379,6 +380,24 @@ void GUI::ChangeLEDataRootDialog() {
     }
 }
 
+void GUI::LUAHotkeyScriptLoc() {
+    // display
+    if (ImGuiFileDialog::Instance()->Display("LUAFD", ImGuiWindowFlags_NoCollapse, fd_min))
+    {
+        // action if OK
+        if (ImGuiFileDialog::Instance()->IsOk()) {
+            std::filesystem::path fpath(ImGuiFileDialog::Instance()->GetFilePathName());
+
+            if (fs::exists(fpath)) {
+                LE::CreateHotkeyWindow::GetInstance()->SetLUAScriptPath(fpath);
+            }
+        }
+
+        // close
+        ImGuiFileDialog::Instance()->Close();
+    }
+}
+
 void GUI::FileDialogs() {
     std::string key = ImGuiFileDialog::Instance()->GetOpenedKey();
     if (key.empty()) return;
@@ -395,6 +414,9 @@ void GUI::FileDialogs() {
         break;
     case GUI::FILE_DIALOGS::FILE_DIALOG_MODS_ROOT:
         ChangeModsRootDialog();
+        break;
+    case GUI::FILE_DIALOGS::FILE_DIALOG_LUA_HOTKEY_SCRIPT:
+        LUAHotkeyScriptLoc();
         break;
     default:
         break;
