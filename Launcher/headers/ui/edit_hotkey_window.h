@@ -6,6 +6,8 @@
 #include "imgui_stdlib.h"
 #include <format>
 
+#include "../external/ImGuiFileDialog/ImGuiFileDialog.h"
+
 #include <config/config.h>
 #include "hotkey_manager.h"
 
@@ -17,6 +19,7 @@ namespace LE {
         static EditHotkeyWindow* GetInstance();
 
         void Open(LE::HotkeyAction* action);
+        void SetLUAScriptPath(std::filesystem::path fpath);
 
         void Draw();
 
@@ -27,6 +30,7 @@ namespace LE {
         bool show = false;
         LE::HotkeyAction* current_action = nullptr;
 
+        std::string default_path;
         std::string new_combination;
 
         std::vector<int> keys;
@@ -37,9 +41,11 @@ namespace LE {
         void UpdateCombination();
 
         void FloatInput();
+        void ScriptInput();
 
         void SaveHotkey();
         void DeleteHotkey();
+        void CloseCurrentFileDialog();
 
     protected:
         EditHotkeyWindow();

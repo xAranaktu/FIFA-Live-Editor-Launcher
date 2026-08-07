@@ -109,6 +109,8 @@ namespace LE {
         description.clear();
         error.clear();
         lua_script.clear();
+        keys.clear();
+        new_combination.clear();
         show = true;
     }
 
@@ -300,6 +302,8 @@ namespace LE {
         _hotkey.SetName(name);
         _hotkey.SetDescription(description);
         _hotkey.SetLUAValue(lua_script);
+
+        default_path = std::filesystem::path(lua_script).parent_path().string();
 
         LE::HotkeyManager::GetInstance()->AddHotkeyToActions(&_hotkey);
 

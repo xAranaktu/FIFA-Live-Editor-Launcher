@@ -390,6 +390,7 @@ void GUI::LUAHotkeyScriptLoc() {
 
             if (fs::exists(fpath)) {
                 LE::CreateHotkeyWindow::GetInstance()->SetLUAScriptPath(fpath);
+                LE::EditHotkeyWindow::GetInstance()->SetLUAScriptPath(fpath);
             }
         }
 

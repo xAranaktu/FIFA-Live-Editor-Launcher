@@ -92,6 +92,8 @@ namespace LE {
             "NUMPAD0", "NUMPAD1", "NUMPAD2", "NUMPAD3", "NUMPAD4", "NUMPAD5", "NUMPAD6", "NUMPAD7", "NUMPAD8", "NUMPAD9",
             "F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9", "F10", "F11", "F12"
         };
+
+        default_path = ".";
     }
     EditHotkeyWindow::~EditHotkeyWindow() {}
 
@@ -125,7 +127,15 @@ namespace LE {
                 keys.push_back(0);
             }
         }
+
+        default_path = fs::path(action->GetStringValue()).parent_path().string();
         show = true;
+    }
+
+    void EditHotkeyWindow::SetLUAScriptPath(std::filesystem::path fpath) {
+        default_path = fpath.parent_path().string();
+        if (!current_action) return;
+        current_action->SetLUAValue(ToUTF8String(fpath));
     }
 
     void EditHotkeyWindow::Draw() {
@@ -169,6 +179,9 @@ namespace LE {
             {
             case LESetting::HotkeyValueType::HOTKEY_FLOAT:
                 FloatInput();
+                break;
+            case LESetting::HotkeyValueType::HOTKEY_LUA_SCRIPT:
+                ScriptInput();
                 break;
             default:
                 break;
@@ -249,10 +262,17 @@ namespace LE {
         if (current_hotkey) {
             current_hotkey->SetCombination(new_keys);
 
-            if (current_action->GetValueType() == LESetting::HotkeyValueType::HOTKEY_FLOAT) {
+            switch (current_action->GetValueType())
+            {
+            case LESetting::HotkeyValueType::HOTKEY_FLOAT:
                 current_hotkey->SetFloatValue(*current_action->GetFloatValuePtr());
+                break;
+            case LESetting::HotkeyValueType::HOTKEY_LUA_SCRIPT:
+                current_hotkey->SetLUAValue(current_action->GetStringValue());
+                break;
+            default:
+                break;
             }
-
         }
 
         config->Save();
@@ -274,6 +294,32 @@ namespace LE {
         ImGui::InputFloat("", current_action->GetFloatValuePtr());
         ImGui::PopID();
         ImGui::PopItemWidth();
+    }
+
+    void EditHotkeyWindow::ScriptInput() {
+        ImGui::Text("Script:");
+        ImGui::SameLine();
+        ImGui::PushID("##LUASCRIPTFDBTN");
+        if (ImGui::Button("...")) {
+            CloseCurrentFileDialog();
+
+            IGFD::FileDialogConfig cfg;
+            cfg.path = default_path;
+            ImGuiFileDialog::Instance()->OpenDialog("LUAFD", "Choose a LUA File", "Text files (*.txt *.lua){.txt,.lua}", cfg);
+        }
+        ImGui::PopID();
+        ImGui::SameLine();
+        ImGui::Text(current_action->GetStringValue().c_str());
+    }
+
+    void EditHotkeyWindow::CloseCurrentFileDialog() {
+        std::string opened_key = ImGuiFileDialog::Instance()->GetOpenedKey();
+
+        if (opened_key.empty()) return;
+        if (!ImGuiFileDialog::Instance()->IsOpened())   return;
+
+        // close
+        ImGuiFileDialog::Instance()->Close();
     }
 
     EditHotkeyWindow* EditHotkeyWindow::GetInstance()

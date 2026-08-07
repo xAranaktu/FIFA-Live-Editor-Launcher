@@ -25,6 +25,7 @@ namespace LE {
         float* GetFloatValuePtr();
 
         void SetLUAValue(std::string _sv);
+        std::string GetStringValue();
 
         void SetID(unsigned long _id);
         unsigned long GetID();

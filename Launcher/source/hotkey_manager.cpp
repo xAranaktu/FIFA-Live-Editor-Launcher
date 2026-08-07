@@ -53,7 +53,11 @@ namespace LE {
     void HotkeyAction::SetLUAValue(std::string _sv) {
         SetValueType(LESetting::HotkeyValueType::HOTKEY_LUA_SCRIPT);
         sv = _sv;
-    }   
+    }
+
+    std::string HotkeyAction::GetStringValue() {
+        return sv;
+    }
 
     float* HotkeyAction::GetFloatValuePtr() {
         return &fv;
