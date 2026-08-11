@@ -9,8 +9,8 @@
 
 using json = nlohmann::json;
 
-inline const __int64 UNLOCK_FREE = 1982814891;
-inline const __int64 UNLOCK_BRONZE = 1982814891;
+inline const __int64 UNLOCK_FREE = 1786949505;
+inline const __int64 UNLOCK_BRONZE = 1786686795;
 
 namespace LE {
     enum class LOGIN_STATUS {
